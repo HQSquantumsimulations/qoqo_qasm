@@ -4,6 +4,7 @@ pytest
 networkx
 pyyaml
 sphinx >= 1.4
+nbsphinx
 pygments
 recommonmark
 sphinx_rtd_theme
