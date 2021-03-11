@@ -1,6 +1,5 @@
-qoqo>=0.2.2
+qoqo>=0.2.4
 numpy
-pytest
 networkx
 pyyaml
 sphinx >= 1.4
