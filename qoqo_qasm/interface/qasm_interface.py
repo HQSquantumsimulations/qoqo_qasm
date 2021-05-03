@@ -125,7 +125,7 @@ def qasm_call_circuit(
                     lines.append(append_operation + ';')
             else:
                 if 'RotateX' in tags or 'RotateY' in tags or 'RotateZ' in tags:
-                    if op.is_parameterized:
+                    if op.is_parametrized:
                         op2 = deepcopy(op)
                         symbolic_hash = hash(op._ordered_parameter_dict['theta'].value)
                         symbolic_hash_lib[symbolic_hash] = op._ordered_parameter_dict['theta'].value
