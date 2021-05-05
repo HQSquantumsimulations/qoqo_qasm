@@ -1,4 +1,4 @@
-qoqo>=0.2.4
+qoqo==0.2.4
 numpy
 networkx
 pyyaml
