@@ -1,3 +1,5 @@
+<img src="qoqo_Logo_vertical_color.png" alt="qoqo logo" width="300" />
+
 # qoqo-qasm interface
 
 [![Documentation Status](https://readthedocs.org/projects/qoqo_qasm/badge/?version=latest)](https://qoqo_qasm.readthedocs.io/en/latest/?badge=latest)
