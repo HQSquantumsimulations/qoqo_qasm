@@ -1,5 +1,13 @@
 Cargo.lock
 target/*
-*__pycache__*
-*.mypy_cache*
+qoqo_qasm/target/*
+roqoqo-qasm/target/*
+*__pycache__/*
+.mypy_cache*
 *.egg-info*
+*.qasm
+*.profraw
+*.DS_Store*
+coverage.lcov
+coveragehtml/*
+*.pytest_cache*

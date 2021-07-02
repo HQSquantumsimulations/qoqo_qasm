@@ -1,16 +1,4 @@
-"""QASM interface for qoqo.
-
-Translates qoqo operations and circuits to QASM operations via the interface,
-and Create a Qasm file with QasmBackend.
-
-.. autosummary::
-    :toctree: generated/
-
-    qasm_call_operation
-    qasm_call_circuit
-    QasmBackend
-
-"""
+"""qoqo_qasm version information"""
 # Copyright © 2019-2021 HQS Quantum Simulations GmbH. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -22,11 +10,4 @@ and Create a Qasm file with QasmBackend.
 # is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
-from qoqo_qasm.__version__ import __version__
-from qoqo_qasm.interface import (
-    qasm_call_operation,
-    qasm_call_circuit
-)
-from qoqo_qasm.backend import (
-    QasmBackend,
-)
+__version__ = 'v0.3.0'
