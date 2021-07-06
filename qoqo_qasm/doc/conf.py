@@ -16,9 +16,6 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
-# sys.path.insert(0, os.path.abspath('../'))
 
 # set __version__
 try:
@@ -50,10 +47,6 @@ extensions = ['sphinx.ext.autodoc',
 # automatically use sphinx-autogen
 autosummary_generate = True
 autosummary_imported_members = True
-# define qasm imports for packages that are difficult to handle / install
-alist = []
-alist.extend(['qoqo_calculator_pyo3'])
-autodoc_qasm_imports = alist
 
 # 'both': class and __init__ docstring are concatenated and inserted
 # 'class': only class docstring inserted
