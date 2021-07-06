@@ -65,6 +65,7 @@ fn run_error() {
     let backend = Backend::new(2);
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
+    let _ = backend.run_circuit(&circuit, "".to_string(), "test_simple".to_string(), false);
     let error = backend.run_circuit(&circuit, "".to_string(), "test_simple".to_string(), false);
     assert_eq!(
         error,
