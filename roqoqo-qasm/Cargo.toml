@@ -1,0 +1,26 @@
+[package]
+name = "roqoqo-qasm"
+version = "0.1.0"
+authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
+license = "Apache-2.0"
+edition = "2018"
+categories = ["science", "simulation"]
+readme = "../README.md"
+repository = "https://github.com/HQSquantumsimulations/qoqo"
+description = "QASM interface for roqoqo rust quantum computing toolkit"
+
+[lib]
+name = "roqoqo_qasm"
+path = "src/lib.rs"
+doctest = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+roqoqo = {version="0.2", features=["serialize"]}
+qoqo_calculator = {version="0.2"}
+roqoqo-test = {version="0.1"}
+test-case = "1.1.0"
+
+
+[dev.dependencies]

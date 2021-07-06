@@ -1,6 +1,15 @@
 <img src="qoqo_Logo_vertical_color.png" alt="qoqo logo" width="300" />
 
-# qoqo-qasm interface
+# qoqo-qasm
+
+Qasm interface for the qoqo/roqoqo quantum toolkit by [HQS Quantum Simulations](https://quantumsimulations.de).
+
+This repository contains two components:
+
+* The qoqo_qasm backend for the qoqo python interface to roqoqo
+* The roqoqo_qasm backend for roqoqo directly
+
+## qoqo-qasm
 
 [![Documentation Status](https://readthedocs.org/projects/qoqo_qasm/badge/?version=latest)](https://qoqo_qasm.readthedocs.io/en/latest/?badge=latest)
 [![GitHub Workflow Status](https://github.com/HQSquantumsimulations/qoqo_qasm/workflows/ci_tests/badge.svg)](https://github.com/HQSquantumsimulations/qoqo_qasm/actions)
@@ -14,4 +23,23 @@ qoqo-qasm provides the QasmBackend class that allows users translate a qoqo circ
 Not all qoqo operations have a corresponding qasm expression.  
 Circuits containing operations without a corresponding expression can not be translated.
 
+## roqoqo-qasm
+
+[![Crates.io](https://img.shields.io/crates/v/roqoqo-qasm)](https://crates.io/crates/roqoqo-qasm)
+[![GitHub Workflow Status](https://github.com/HQSquantumsimulations/qoqo_qasm/workflows/ci_tests/badge.svg)](https://github.com/HQSquantumsimulations/qoqo_qasm/actions)
+[![docs.rs](https://img.shields.io/docsrs/roqoqo-qasm)](https://docs.rs/roqoqo-qasm/)
+![Crates.io](https://img.shields.io/crates/l/roqoqo-qasm)
+
+Qasm interface for the roqoqo quantum toolkit by [HQS Quantum Simulations](https://quantumsimulations.de).
+
+roqoqo-qasm provides the QasmBackend class that allows users translate a roqoqo circuit into a qasm file.
+Not all roqoqo operations have a corresponding qasm expression.  
+Circuits containing operations without a corresponding expression can not be translated.
+
+## General Notes
+
 This software is still in the beta stage. Functions and documentation are not yet complete and breaking changes can occur.
+
+## Contributing
+
+We welcome contributions to the project. If you want to contribute code, please have a look at CONTRIBUTE.md for our code contribution guidelines.

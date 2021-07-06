@@ -13,7 +13,8 @@
 from setuptools import find_packages, setup
 import os
 path = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(path, 'README.md')) as file:
+parent = os.path.abspath(os.path.join(path, os.pardir))
+with open(os.path.join(parent, 'README.md')) as file:
     readme = file.read()
 
 License = 'Apache-2.0'
@@ -25,8 +26,8 @@ with open(os.path.join(path, 'qoqo_qasm/__version__.py')) as f:
 __version__ = lines[-1].strip().split("'")[1].strip()
 
 install_requires = [
-    'hqsbase>=0.7.0',
-    'qoqo==0.3.0',
+    'qoqo_calculator_pyo3',
+    'qoqo>=0.4.0',
     'numpy',
 ]
 
