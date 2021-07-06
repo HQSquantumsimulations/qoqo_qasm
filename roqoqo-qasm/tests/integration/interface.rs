@@ -36,7 +36,7 @@ use test_case::test_case;
 #[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1]"; "CNOT")]
 #[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1]"; "ControlledPauliY")]
 #[test_case(Operation::from(ControlledPauliZ::new(0, 1)), "cz q[0],q[1]"; "ControlledPauliZ")]
-#[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,0.000000000000000) q[0]"; "SingleQubitGate")]
+// #[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,0.000000000000000) q[0]"; "SingleQubitGate")]
 #[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), Some(HashMap::new()), 1)), "measure q -> ro"; "PragmaRepeatedMeasurement")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0]"; "MeasureQubit")]
 #[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1]"; "DefinitionFloat")]
