@@ -2,7 +2,7 @@ Cargo.lock
 target/*
 qoqo_qasm/target/*
 roqoqo-qasm/target/*
-*__pycache__/*
+*__pycache__*
 .mypy_cache*
 *.egg-info*
 *.qasm

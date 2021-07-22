@@ -52,25 +52,7 @@ impl Backend {
     }
 }
 
-/// Trait for Backends that can evaluate measurements to expectation values.
-///
-/// # Example
-/// ```
-/// use roqoqo::{Circuit, backends::EvaluatingBackend, operations::*};
-/// use roqoqo_qasm::Backend;
-/// use std::collections::HashMap;
-///
-/// let backend = Backend::new(2_usize);
-/// let mut circuit = Circuit::new();
-/// circuit += DefinitionBit::new("ro".to_string(), 2, true);
-/// circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
-/// circuit += PauliX::new(1);
-/// circuit += PragmaRepeatedMeasurement::new("ro".to_string(), None, 20);
-///
-/// let result = backend.run_circuit(&circuit, "".to_string(), "test".to_string(), true).unwrap();
-/// assert_eq!(result, ());
-/// ```
-///
+
 impl Backend {
     /// Runs a circuit with the backend.
     ///
@@ -100,7 +82,7 @@ impl Backend {
         filename: String,
         overwrite: bool,
     ) -> Result<(), RoqoqoBackendError> {
-        let mut data: String = String::from("OPENQASM 2.0\ninclude \"qelib.inc\";\n\n");
+        let mut data: String = String::from("OPENQASM 2.0\ninclude \"qelib1.inc\";\n\n");
         for op in circuit {
             if let Ok(x) = call_operation(op) {
                 data.push_str(&x);

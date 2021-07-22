@@ -31,7 +31,7 @@ fn run_simple_circuit() {
         .run_circuit(&circuit, "".to_string(), "test_simple".to_string(), true)
         .unwrap();
 
-    let lines = String::from("OPENQASM 2.0\ninclude \"qelib.inc\";\n\ncreg ro[2]\nrx(1.5707963267948966) q[0]\nx q[1]\nmeasure q -> ro\n");
+    let lines = String::from("OPENQASM 2.0\ninclude \"qelib1.inc\";\n\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
     let extracted = fs::read_to_string("test_simple.qasm");
     assert_eq!(lines, extracted.unwrap());
 }
@@ -54,7 +54,7 @@ fn run_simple_circuit_iterator() {
         )
         .unwrap();
 
-    let lines = String::from("OPENQASM 2.0\ninclude \"qelib.inc\";\n\ncreg ro[2]\nrx(1.5707963267948966) q[0]\nx q[1]\nmeasure q -> ro\n");
+    let lines = String::from("OPENQASM 2.0\ninclude \"qelib1.inc\";\n\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
     let extracted = fs::read_to_string("test_simple.qasm");
     assert_eq!(lines, extracted.unwrap());
 }

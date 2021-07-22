@@ -77,7 +77,7 @@ class QasmBackend(object):
                     filename))
         output_lines = list()
         output_lines.append('OPENQASM 2.0;\n')
-        output_lines.append('include "qelib.inc";\n\n')
+        output_lines.append('include "qelib1.inc";\n\n')
 
         qasm_qubit_names: Dict[int, str] = dict()
         for ci in range(self.number_qubits):
