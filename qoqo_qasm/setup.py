@@ -35,7 +35,7 @@ authors = 'HQS Quantum Simulations'
 
 
 setup(name='qoqo_qasm',
-      description='Quantum Computing Base Package',
+      description='qoqo quantum computing package qasm backend',
       version=__version__,
       long_description=readme,
       packages=find_packages(exclude=('docs')),
