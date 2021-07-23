@@ -11,3 +11,4 @@ roqoqo-qasm/target/*
 coverage.lcov
 coveragehtml/*
 *.pytest_cache*
+*.vscode*

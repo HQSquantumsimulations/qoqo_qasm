@@ -19,7 +19,15 @@ use roqoqo::Circuit;
 use roqoqo_qasm::{call_circuit, call_operation};
 use std::collections::HashMap;
 use std::f64::consts::PI;
+use std::usize;
 use test_case::test_case;
+
+fn tmp_create_map() -> HashMap<usize, usize> {
+    let mut hm = HashMap::new();
+    hm.insert(0, 1);
+    hm.insert(1, 0);
+    hm
+}
 
 /// Test that all operations return the correct String
 #[test_case(Operation::from(PauliX::new(0)), "x q[0];"; "PauliX")]
@@ -37,7 +45,8 @@ use test_case::test_case;
 #[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1];"; "ControlledPauliY")]
 #[test_case(Operation::from(ControlledPauliZ::new(0, 1)), "cz q[0],q[1];"; "ControlledPauliZ")]
 // #[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,0.000000000000000) q[0]"; "SingleQubitGate")]
-#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), Some(HashMap::new()), 1)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
+#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), None, 1)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
+#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), Some(tmp_create_map()), 1)), "measure q[1] -> ro[0];\nmeasure q[0] -> ro[1];\n"; "PragmaRepeatedMeasurement_Mapping")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
 #[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];"; "DefinitionFloat")]
 #[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];"; "DefinitionUsize")]
@@ -46,7 +55,10 @@ use test_case::test_case;
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), ""; "InputSymbolic")]
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
 fn test_call_operation(operation: Operation, converted: &str) {
-    assert_eq!(call_operation(&operation).unwrap(), converted.to_string())
+    assert_eq!(
+        call_operation(&operation, "q").unwrap(),
+        converted.to_string()
+    )
 }
 
 /// Test that non-included gates return an error
@@ -54,7 +66,7 @@ fn test_call_operation(operation: Operation, converted: &str) {
 fn test_call_operation_error() {
     let operation = Operation::from(VariableMSXX::new(1, 0, CalculatorFloat::from(0.0)));
     assert_eq!(
-        call_operation(&operation),
+        call_operation(&operation, "q"),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
             hqslang: "VariableMSXX"
@@ -72,8 +84,8 @@ fn test_call_circuit() {
 
     let mut qasm_circ: Vec<String> = Vec::new();
     qasm_circ.push("creg ro[1];".to_string());
-    qasm_circ.push("x q[0];".to_string());
-    qasm_circ.push("measure q[0] -> ro[0];".to_string());
+    qasm_circ.push("x qr[0];".to_string());
+    qasm_circ.push("measure qr[0] -> ro[0];".to_string());
 
-    assert_eq!(call_circuit(&circuit).unwrap(), qasm_circ);
+    assert_eq!(call_circuit(&circuit, "qr").unwrap(), qasm_circ);
 }

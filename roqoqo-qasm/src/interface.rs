@@ -28,6 +28,7 @@ const ALLOWED_OPERATIONS: &[&str; 2] = &["PragmaSetNumberOfMeasurements", "Input
 /// # Arguments
 ///
 /// * `circuit` - The qoqo Circuit that is translated.
+/// * `qubit_register_name` - Name of the quantum register used for the roqoqo address-space
 ///
 /// # Returns
 ///
@@ -44,7 +45,7 @@ const ALLOWED_OPERATIONS: &[&str; 2] = &["PragmaSetNumberOfMeasurements", "Input
 /// circuit += DefinitionBit::new("ro".to_string(), 1, true);
 /// circuit += PauliX::new(0);
 /// circuit += MeasureQubit::new(0, "ro".to_string(), 0);
-/// let circuit: Vec<String> = call_circuit(&circuit).unwrap();
+/// let circuit: Vec<String> = call_circuit(&circuit, "q").unwrap();
 ///
 /// let manual_circuit: Vec<String> = vec![
 ///     "creg ro[1];".to_string(),
@@ -55,10 +56,13 @@ const ALLOWED_OPERATIONS: &[&str; 2] = &["PragmaSetNumberOfMeasurements", "Input
 /// assert_eq!(circuit, manual_circuit);
 /// ```
 ///
-pub fn call_circuit(circuit: &Circuit) -> Result<Vec<String>, RoqoqoBackendError> {
+pub fn call_circuit(
+    circuit: &Circuit,
+    qubit_register_name: &str,
+) -> Result<Vec<String>, RoqoqoBackendError> {
     let mut str_circuit: Vec<String> = Vec::new();
     for op in circuit.iter() {
-        str_circuit.push(call_operation(op)?);
+        str_circuit.push(call_operation(op, qubit_register_name)?);
     }
     Ok(str_circuit)
 }
@@ -74,36 +78,66 @@ pub fn call_circuit(circuit: &Circuit) -> Result<Vec<String>, RoqoqoBackendError
 /// * `Ok(&str)` - Converted operation in &str form.
 /// * `Err(RoqoqoBackendError)` - Operation not supported by QASM backend.
 ///
-pub fn call_operation(operation: &Operation) -> Result<String, RoqoqoBackendError> {
+pub fn call_operation(
+    operation: &Operation,
+    qubit_register_name: &str,
+) -> Result<String, RoqoqoBackendError> {
     match operation {
         Operation::RotateZ(op) => Ok(format!(
-            "rz({}) q[{}];",
+            "rz({}) {}[{}];",
             op.theta().float().unwrap(),
+            qubit_register_name,
             op.qubit()
         )),
         Operation::RotateX(op) => Ok(format!(
-            "rx({}) q[{}];",
+            "rx({}) {}[{}];",
             op.theta().float().unwrap(),
+            qubit_register_name,
             op.qubit()
         )),
         Operation::RotateY(op) => Ok(format!(
-            "ry({}) q[{}];",
+            "ry({}) {}[{}];",
             op.theta().float().unwrap(),
+            qubit_register_name,
             op.qubit()
         )),
-        Operation::Hadamard(op) => Ok(format!("h q[{}];", op.qubit())),
-        Operation::PauliX(op) => Ok(format!("x q[{}];", op.qubit())),
-        Operation::PauliY(op) => Ok(format!("y q[{}];", op.qubit())),
-        Operation::PauliZ(op) => Ok(format!("z q[{}];", op.qubit())),
-        Operation::SGate(op) => Ok(format!("s q[{}];", op.qubit())),
-        Operation::TGate(op) => Ok(format!("t q[{}];", op.qubit())),
-        Operation::SqrtPauliX(op) => Ok(format!("rx(pi/2) q[{}];", op.qubit())),
-        Operation::CNOT(op) => Ok(format!("cx q[{}],q[{}];", op.control(), op.target())),
-        Operation::MolmerSorensenXX(op) => {
-            Ok(format!("rxx(pi/2) q[{}],q[{}];", op.control(), op.target()))
+        Operation::Hadamard(op) => Ok(format!("h {}[{}];", qubit_register_name, op.qubit())),
+        Operation::PauliX(op) => Ok(format!("x {}[{}];", qubit_register_name, op.qubit())),
+        Operation::PauliY(op) => Ok(format!("y {}[{}];", qubit_register_name, op.qubit())),
+        Operation::PauliZ(op) => Ok(format!("z {}[{}];", qubit_register_name, op.qubit())),
+        Operation::SGate(op) => Ok(format!("s {}[{}];", qubit_register_name, op.qubit())),
+        Operation::TGate(op) => Ok(format!("t {}[{}];", qubit_register_name, op.qubit())),
+        Operation::SqrtPauliX(op) => {
+            Ok(format!("rx(pi/2) {}[{}];", qubit_register_name, op.qubit()))
         }
-        Operation::ControlledPauliY(op) => Ok(format!("cy q[{}],q[{}];", op.control(), op.target())),
-        Operation::ControlledPauliZ(op) => Ok(format!("cz q[{}],q[{}];", op.control(), op.target())),
+        Operation::CNOT(op) => Ok(format!(
+            "cx {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::MolmerSorensenXX(op) => Ok(format!(
+            "rxx(pi/2) {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::ControlledPauliY(op) => Ok(format!(
+            "cy {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::ControlledPauliZ(op) => Ok(format!(
+            "cz {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
         Operation::SingleQubitGate(op) => {
             let alpha = CalculatorComplex::new(op.alpha_r(), op.alpha_i());
             let beta = CalculatorComplex::new(op.beta_r(), op.beta_i());
@@ -112,27 +146,38 @@ pub fn call_operation(operation: &Operation) -> Result<String, RoqoqoBackendErro
             let lamda: CalculatorFloat = alpha.arg() * (-1.0) - beta.arg();
 
             Ok(format!(
-                "u3({:.15},{:.15},{:.15}) q[{}]",
+                "u3({:.15},{:.15},{:.15}) {}[{}]",
                 theta.float().unwrap(),
                 phi.float().unwrap(),
                 lamda.float().unwrap(),
+                qubit_register_name,
                 op.qubit()
             ))
         }
-        Operation::PragmaRepeatedMeasurement(op) => {
-            match op.qubit_mapping(){
-                None =>             Ok(format!("measure q -> {};", op.readout())),
-                Some(qm) => {
-                    let mut output_string = "".to_string();
-                    for (key, val) in qm.iter(){
-                        output_string += format!("measure q[{}] -> {}[{}];\n", key, op.readout(),val).as_str();
-                    }
-                    Ok(output_string)
+        Operation::PragmaRepeatedMeasurement(op) => match op.qubit_mapping() {
+            None => Ok(format!(
+                "measure {} -> {};",
+                qubit_register_name,
+                op.readout()
+            )),
+            Some(qm) => {
+                let mut output_string = "".to_string();
+                for (key, val) in qm.iter() {
+                    output_string += format!(
+                        "measure {}[{}] -> {}[{}];\n",
+                        qubit_register_name,
+                        key,
+                        op.readout(),
+                        val
+                    )
+                    .as_str();
                 }
+                Ok(output_string)
             }
         },
         Operation::MeasureQubit(op) => Ok(format!(
-            "measure q[{}] -> {}[{}];",
+            "measure {}[{}] -> {}[{}];",
+            qubit_register_name,
             op.qubit(),
             op.readout(),
             op.readout_index()
