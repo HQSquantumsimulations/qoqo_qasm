@@ -96,8 +96,9 @@ def qasm_call_circuit(
                 append_operation = qasm_call_operation(op,
                                                        number_qubits,
                                                        qubit_names)
-                # Exclude final ; for PragmaRepeatedMeasurement because it can produce multi-line statement
-                if  "PragmaRepeatedMeasurement" in tags:
+                # Exclude final ; for PragmaRepeatedMeasurement
+                # because it can produce multi-line statement
+                if "PragmaRepeatedMeasurement" in tags:
                     lines.append(append_operation)
                 elif append_operation is not None:
                     lines.append(append_operation + ';')
@@ -270,7 +271,7 @@ def _execute_PragmaRepeatedMeasurement(
                                            key)
     elif qubit_names is None and mapping_dictionary is not None:
         meas = ''
-        for j in range(max(mapping_dictionary.keys())+1):
+        for j in range(max(mapping_dictionary.keys()) + 1):
             meas += 'measure' + ' q[{}]'.format(mapping_dictionary[j])
             meas += ' -> {}[{}];\n'.format(operation.readout(),
                                            j)
