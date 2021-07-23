@@ -16,8 +16,8 @@ use roqoqo::{Circuit, RoqoqoBackendError};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
+use std::path::PathBuf;
 use std::usize;
-
 /// QASM backend to qoqo
 ///
 /// This backend to roqoqo produces QASM output which can be exported.
@@ -111,7 +111,7 @@ impl Backend {
     /// # Arguments
     ///
     /// * `circuit` - The iterator over [roqoqo::Operation] items that is translated
-    /// * `folder_name` - The name of the folder that is prepended to all filenames in run function.
+    /// * `folder_name` - The name of the folder that is prepended to all filenames.
     /// * `filename` - The name of the file the QASM text is saved to.
     /// * `overwrite` - Whether to overwrite file if it already exists.
     ///
@@ -122,19 +122,19 @@ impl Backend {
     pub fn circuit_iterator_to_qasm_file<'a>(
         &self,
         circuit: impl Iterator<Item = &'a Operation>,
-        folder_name: String,
-        filename: String,
+        folder_name: &Path,
+        filename: &Path,
         overwrite: bool,
     ) -> Result<(), RoqoqoBackendError> {
         let data: String = self.circuit_iterator_to_qasm_str(circuit)?;
 
-        let mut path: String = folder_name;
-        path.push_str(&filename);
-        path.push_str(".qasm");
-        if Path::new(path.as_str()).is_file() && !overwrite {
-            return Err(RoqoqoBackendError::FileAlreadyExists { path });
+        let output_path: PathBuf = folder_name.join(filename.with_extension("qasm"));
+        if output_path.is_file() && !overwrite {
+            return Err(RoqoqoBackendError::FileAlreadyExists {
+                path: output_path.to_str().unwrap().to_string(),
+            });
         } else {
-            let f = File::create(path).expect("Unable to create file");
+            let f = File::create(output_path).expect("Unable to create file");
             let mut f = BufWriter::new(f);
             f.write_all(data.as_str().as_bytes())
                 .expect("Unable to write file")
@@ -163,7 +163,7 @@ impl Backend {
     /// # Arguments
     ///
     /// * `circuit` - The Circuit that is translated
-    /// * `folder_name` - The name of the folder that is prepended to all filenames in run function.
+    /// * `folder_name` - The name of the folder that is prepended to all filenames.
     /// * `filename` - The name of the file the QASM text is saved to.
     /// * `overwrite` - Whether to overwrite file if it already exists.
     ///
@@ -174,8 +174,8 @@ impl Backend {
     pub fn circuit_to_qasm_file(
         &self,
         circuit: &Circuit,
-        folder_name: String,
-        filename: String,
+        folder_name: &Path,
+        filename: &Path,
         overwrite: bool,
     ) -> Result<(), RoqoqoBackendError> {
         self.circuit_iterator_to_qasm_file(circuit.iter(), folder_name, filename, overwrite)

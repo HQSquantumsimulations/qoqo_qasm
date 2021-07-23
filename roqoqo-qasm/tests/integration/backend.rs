@@ -16,8 +16,9 @@ use roqoqo::prelude::*;
 use roqoqo::{operations::*, Circuit};
 use roqoqo_qasm::Backend;
 // use roqoqo_test::prepare_monte_carlo_gate_test;
+use std::env::temp_dir;
 use std::fs;
-
+use std::path::Path;
 /// Test simple circuit with a Definition, a GateOperation and a PragmaOperation
 #[test]
 fn run_simple_circuit() {
@@ -30,14 +31,16 @@ fn run_simple_circuit() {
     let _ = backend
         .circuit_to_qasm_file(
             &circuit,
-            "/tmp/".to_string(),
-            "test_simple0".to_string(),
+            temp_dir().as_path(),
+            &Path::new("test_simple0"),
             true,
         )
         .unwrap();
 
     let lines = String::from("OPENQASM 2.0\ninclude \"qelib1.inc\";\n\nqreg qr[2];\ncreg ro[2];\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
-    let extracted = fs::read_to_string("/tmp/test_simple0.qasm");
+    let read_in_path = temp_dir().join(Path::new("test_simple0.qasm"));
+    let extracted = fs::read_to_string(&read_in_path);
+    fs::remove_file(&read_in_path).unwrap();
     assert_eq!(lines, extracted.unwrap());
 }
 
@@ -53,14 +56,16 @@ fn simple_circuit_iterator_to_file() {
     let _ = backend
         .circuit_iterator_to_qasm_file(
             circuit.iter(),
-            "/tmp/".to_string(),
-            "test_simple1".to_string(),
+            temp_dir().as_path(),
+            Path::new("test_simple1"),
             true,
         )
         .unwrap();
 
     let lines = String::from("OPENQASM 2.0\ninclude \"qelib1.inc\";\n\nqreg q[2];\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
-    let extracted = fs::read_to_string("/tmp/test_simple1.qasm");
+    let read_in_path = temp_dir().join(Path::new("test_simple1.qasm"));
+    let extracted = fs::read_to_string(&read_in_path);
+    fs::remove_file(&read_in_path).unwrap();
     assert_eq!(lines, extracted.unwrap());
 }
 
@@ -72,20 +77,21 @@ fn run_error() {
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     let _ = backend.circuit_to_qasm_file(
         &circuit,
-        "/tmp/".to_string(),
-        "test_simple".to_string(),
+        temp_dir().as_path(),
+        Path::new("test_simple"),
         false,
     );
     let error = backend.circuit_to_qasm_file(
         &circuit,
-        "/tmp/".to_string(),
-        "test_simple".to_string(),
+        temp_dir().as_path(),
+        Path::new("test_simple"),
         false,
     );
+    let read_in_path = temp_dir().join(Path::new("test_simple.qasm"));
     assert_eq!(
         error,
         Err(RoqoqoBackendError::FileAlreadyExists {
-            path: "/tmp/test_simple.qasm".to_string()
+            path: read_in_path.to_str().unwrap().to_string()
         })
     );
 }
