@@ -21,6 +21,7 @@ jobs:
       run: |
         cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
         cargo publish --manifest-path=roqoqo-qasm/Cargo.toml
+
   deploy:
     runs-on: ubuntu-latest
     steps:

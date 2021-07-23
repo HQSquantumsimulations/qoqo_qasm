@@ -59,7 +59,7 @@ def qasm_call_circuit(
                 append_operation = qasm_call_operation(op,
                                                        number_qubits,
                                                        qubit_names)
-                if op.is_output():
+                if append_operation is not None:
                     lines.append(append_operation + ';')
             else:
                 if 'RotateX' in tags or 'RotateY' in tags or 'RotateZ' in tags:
@@ -90,13 +90,17 @@ def qasm_call_circuit(
                 append_operation = qasm_call_operation(op,
                                                        number_qubits,
                                                        qubit_names)
-                if op.is_output():
+                if append_operation is not None:
                     lines.append(append_operation + ';')
             else:
                 append_operation = qasm_call_operation(op,
                                                        number_qubits,
                                                        qubit_names)
-                if append_operation is not None:
+                # Exclude final ; for PragmaRepeatedMeasurement
+                # because it can produce multi-line statement
+                if "PragmaRepeatedMeasurement" in tags:
+                    lines.append(append_operation)
+                elif append_operation is not None:
                     lines.append(append_operation + ';')
 
     return lines, symbolic_hash_lib
@@ -252,14 +256,27 @@ def _execute_PragmaRepeatedMeasurement(
         operation: Any,
         qubit_names: Optional[Dict[int, str]] = None,) -> str:
     operation = cast(ops.PragmaRepeatedMeasurement, operation)
-    if qubit_names is not None:
+    mapping_dictionary = operation.qubit_mapping()
+    if qubit_names is not None and mapping_dictionary is not None:
         meas = ''
-        for key, val in qubit_names.items():
-            meas += 'measure' + ' q[{}]'.format(key)
-            meas += ' -> {}[{}]\n'.format(operation.readout(),
-                                          val)
+        for key in qubit_names.keys():
+            meas += 'measure' + ' {}'.format(qubit_names[mapping_dictionary[key]])
+            meas += ' -> {}[{}];\n'.format(operation.readout(),
+                                           key)
+    elif qubit_names is not None and mapping_dictionary is None:
+        meas = ''
+        for key in qubit_names.keys():
+            meas += 'measure' + ' {}'.format(qubit_names[key])
+            meas += ' -> {}[{}];\n'.format(operation.readout(),
+                                           key)
+    elif qubit_names is None and mapping_dictionary is not None:
+        meas = ''
+        for j in range(max(mapping_dictionary.keys()) + 1):
+            meas += 'measure' + ' q[{}]'.format(mapping_dictionary[j])
+            meas += ' -> {}[{}];\n'.format(operation.readout(),
+                                           j)
     else:
         meas = 'measure'
         meas += ' q'
-        meas += ' -> {}'.format(operation.readout())
+        meas += ' -> {};\n'.format(operation.readout())
     return meas

@@ -69,6 +69,7 @@ jobs:
       - name: Test with pytest
         run: |
           pip install pytest
+          pip install -r ./qoqo_qasm/tests/requirements.txt
           pip install -e ./qoqo_qasm/
           pytest --cov=qoqo_qasm --cov-fail-under=80
       - name: Lint with flake8
