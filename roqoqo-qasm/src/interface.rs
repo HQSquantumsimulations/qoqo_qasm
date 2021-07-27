@@ -146,7 +146,7 @@ pub fn call_operation(
             let lamda: CalculatorFloat = alpha.arg() * (-1.0) - beta.arg();
 
             Ok(format!(
-                "u3({:.15},{:.15},{:.15}) {}[{}]",
+                "u3({:.15},{:.15},{:.15}) {}[{}];",
                 theta.float().unwrap(),
                 phi.float().unwrap(),
                 lamda.float().unwrap(),

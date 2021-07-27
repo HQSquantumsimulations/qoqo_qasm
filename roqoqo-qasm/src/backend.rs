@@ -78,7 +78,7 @@ impl Backend {
         circuit: impl Iterator<Item = &'a Operation>,
     ) -> Result<String, RoqoqoBackendError> {
         let mut data: String = "".to_string();
-        let mut qasm_string = String::from("OPENQASM 2.0\ninclude \"qelib1.inc\";\n\n");
+        let mut qasm_string = String::from("OPENQASM 2.0;\ninclude \"qelib1.inc\";\n\n");
 
         let mut number_qubits_required: usize = 0;
         for op in circuit {
