@@ -27,7 +27,7 @@ fn run_simple_circuit() {
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
-    circuit += PragmaRepeatedMeasurement::new("ro".to_string(), None, 20);
+    circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
     let _ = backend
         .circuit_to_qasm_file(
             &circuit,
@@ -52,7 +52,7 @@ fn simple_circuit_iterator_to_file() {
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
-    circuit += PragmaRepeatedMeasurement::new("ro".to_string(), None, 20);
+    circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
     let _ = backend
         .circuit_iterator_to_qasm_file(
             circuit.iter(),
