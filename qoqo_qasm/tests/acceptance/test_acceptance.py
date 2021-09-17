@@ -41,7 +41,7 @@ def test_acceptance_with_qiskit():
     circuit += ops.ControlledPauliY(0, 1)
     circuit += ops.ControlledPauliZ(0, 1)
     circuit += ops.SingleQubitGate(0, 1, 0, 1, 0, 1.0)
-    circuit += ops.PragmaRepeatedMeasurement('ro', None, 1)
+    circuit += ops.PragmaRepeatedMeasurement('ro', 1, None)
     circuit += ops.MeasureQubit(0, 'ro', 0)
     circuit += ops.DefinitionFloat(name='rof', length=1, is_output=True)
     circuit += ops.DefinitionBit(name='ro', length=2, is_output=True)
@@ -53,6 +53,7 @@ def test_acceptance_with_qiskit():
     backend.run_circuit(circuit=circuit, overwrite=True)
 
     q_circuit = QuantumCircuit.from_qasm_file("default_qasm_backend_output.qasm")
+
 
 if __name__ == '__main__':
     pytest.main(sys.argv)
