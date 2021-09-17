@@ -45,7 +45,7 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1];"; "ControlledPauliY")]
 #[test_case(Operation::from(ControlledPauliZ::new(0, 1)), "cz q[0],q[1];"; "ControlledPauliZ")]
 // #[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,0.000000000000000) q[0];"; "SingleQubitGate")]
-#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), None, 1)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
+#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
 #[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];"; "DefinitionFloat")]
 #[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];"; "DefinitionUsize")]
@@ -64,8 +64,8 @@ fn test_call_operation(operation: Operation, converted: &str) {
 fn test_pragma_repeated_operation() {
     let operation = Operation::from(PragmaRepeatedMeasurement::new(
         "ro".to_string(),
-        Some(tmp_create_map()),
         1,
+        Some(tmp_create_map()),
     ));
     let qasm_string = call_operation(&operation, "q").unwrap();
     assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
