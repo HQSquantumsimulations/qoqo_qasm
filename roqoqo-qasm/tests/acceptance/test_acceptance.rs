@@ -47,7 +47,7 @@ fn test_acceptance_with_qasmbackend() {
         CalculatorFloat::from(0),
         CalculatorFloat::from(1.0),
     );
-    circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 1,None);
+    circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 1, None);
     circuit += MeasureQubit::new(0, "ro".to_string(), 0);
     circuit += DefinitionFloat::new("rof".to_string(), 1, true);
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
