@@ -18,7 +18,7 @@ doctest = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-roqoqo = {version="0.6", features=["serialize"]}
+roqoqo = {version="0.7", features=["serialize"]}
 qoqo_calculator = {version="0.3"}
 test-case = "1.1.0"
 
