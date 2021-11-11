@@ -1,6 +1,6 @@
 [package]
 name = "qoqo_qasm"
-version = "0.1.2"
+version = "0.2.1"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 edition = "2018"
 
