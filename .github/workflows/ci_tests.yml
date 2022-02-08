@@ -21,7 +21,11 @@ jobs:
         default: true
     - name: Install dependencies
       run: |
+<<<<<<< HEAD
         pip install maturin pytest numpy qoqo qiskit-terra
+=======
+        pip install maturin pytest numpy
+>>>>>>> eee0fe9... Adding pyproject
         pip install ./qoqo_qasm
     - name: test
       run: |
@@ -68,7 +72,7 @@ jobs:
           python-version: ${{ matrix.python.py }}
       - run: |
           python -m pip install numpy
-          cargo test --workspace --no-default-features
+          cargo test --workspace --no-default-features --locked
           cargo fmt --all -- --check
   
   format_check:
