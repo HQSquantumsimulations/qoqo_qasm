@@ -21,7 +21,7 @@ jobs:
         default: true
     - name: Install dependencies
       run: |
-        pip install maturin pytest numpy qoqo
+        pip install maturin pytest numpy qoqo qiskit-terra
         pip install ./qoqo_qasm
     - name: test
       run: |
