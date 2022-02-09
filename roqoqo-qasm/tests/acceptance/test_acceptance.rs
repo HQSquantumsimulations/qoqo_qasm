@@ -58,7 +58,7 @@ fn test_acceptance_with_qasmbackend() {
         .circuit_to_qasm_file(
             &circuit,
             temp_dir().as_path(),
-            &Path::new("test_simple_rust.qasm"),
+            Path::new("test_simple_rust.qasm"),
             true,
         )
         .unwrap();
