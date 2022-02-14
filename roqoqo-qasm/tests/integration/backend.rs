@@ -32,7 +32,7 @@ fn run_simple_circuit() {
         .circuit_to_qasm_file(
             &circuit,
             temp_dir().as_path(),
-            &Path::new("test_simple0"),
+            Path::new("test_simple0"),
             true,
         )
         .unwrap();

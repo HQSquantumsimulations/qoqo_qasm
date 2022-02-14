@@ -93,10 +93,11 @@ fn test_call_circuit() {
     circuit += PauliX::new(0);
     circuit += MeasureQubit::new(0, "ro".to_string(), 0);
 
-    let mut qasm_circ: Vec<String> = Vec::new();
-    qasm_circ.push("creg ro[1];".to_string());
-    qasm_circ.push("x qr[0];".to_string());
-    qasm_circ.push("measure qr[0] -> ro[0];".to_string());
+    let qasm_circ: Vec<String> = vec![
+        "creg ro[1];".to_string(),
+        "x qr[0];".to_string(),
+        "measure qr[0] -> ro[0];".to_string(),
+    ];
 
     assert_eq!(call_circuit(&circuit, "qr").unwrap(), qasm_circ);
 }
