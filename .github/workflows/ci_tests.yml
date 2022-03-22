@@ -48,7 +48,6 @@ jobs:
           { runs_on: "windows-latest", rust: "x86_64-pc-windows-msvc" },
         ]
         python: [
-            {py: '3.6', interpreter: "python3.6"},
             {py: '3.7', interpreter: "python3.7"},
             {py: '3.8', interpreter: "python3.8"},
             {py: '3.9', interpreter: "python3.9"},
@@ -89,7 +88,6 @@ jobs:
     strategy:
       matrix:
         python: [
-            {py: '3.6', interpreter: "python3.6"},
             {py: '3.7', interpreter: "python3.7"},
             {py: '3.8', interpreter: "python3.8"},
             {py: '3.9', interpreter: "python3.9"},
