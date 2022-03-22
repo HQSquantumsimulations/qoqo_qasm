@@ -1,5 +1,5 @@
-qoqo>=0.8.2
-qoqo_qasm>=0.3.1
+qoqo>=0.10
+qoqo_qasm>=0.4.2
 numpy
 sphinx >= 2.1
 nbsphinx
