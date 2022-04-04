@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v3.1.0
       with:
         python-version: 3.9
     - uses: actions-rs/toolchain@v1
@@ -62,7 +62,7 @@ jobs:
           target: ${{ matrix.combinations.rust }}
           default: true
           components: rustfmt
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3.1.0
         with:
           python-version: ${{ matrix.python.py }}
       - run: |
@@ -96,7 +96,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3.1.0
         with:
           python-version: ${{ matrix.python.py }}
       - name: Install dependencies
