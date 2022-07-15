@@ -20,4 +20,4 @@ doctest = false
 [dependencies]
 roqoqo = {version="1.0.0-alpha.2", features=["serialize"]}
 qoqo_calculator = {version="0.8"}
-test-case = "1.1.0"
+test-case = "2.1.0"
