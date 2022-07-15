@@ -4,6 +4,10 @@ This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
 ## Not released
 
+### Updated
+
+* Updated to qoqo 1.0.0-alpha.2 and qoqo_calculator 0.8.3
+
 ## 0.4.2
 
 * qoqo_qasm can now be built using a source distribution
