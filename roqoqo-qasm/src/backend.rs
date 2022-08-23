@@ -30,7 +30,7 @@ use std::usize;
 /// computing platforms.
 ///
 ///
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Backend {
     /// Name of the qubit_register assigned to the roqoqo qubits.
     ///

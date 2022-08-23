@@ -26,8 +26,8 @@ with open(os.path.join(path, 'qoqo_qasm/__version__.py')) as f:
 __version__ = lines[-1].strip().split("'")[1].strip()
 
 install_requires = [
-    'qoqo_calculator_pyo3>=0.8',
-    'qoqo>=1.0.0-a5',
+    'qoqo_calculator_pyo3>=1.0.0',
+    'qoqo>=1.0.0',
     'numpy',
 ]
 
