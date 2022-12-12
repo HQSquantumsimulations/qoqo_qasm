@@ -54,7 +54,7 @@ fn test_acceptance_with_qasmbackend() {
     circuit += DefinitionComplex::new("roc".to_string(), 1, true);
     circuit += InputSymbolic::new("other".to_string(), 0.0);
     circuit += PragmaSetNumberOfMeasurements::new(20, "ro".to_string());
-    let _ = backend
+    backend
         .circuit_to_qasm_file(
             &circuit,
             temp_dir().as_path(),
