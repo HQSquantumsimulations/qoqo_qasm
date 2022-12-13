@@ -28,7 +28,7 @@ fn run_simple_circuit() {
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
-    let _ = backend
+    backend
         .circuit_to_qasm_file(
             &circuit,
             temp_dir().as_path(),
@@ -53,7 +53,7 @@ fn simple_circuit_iterator_to_file() {
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
-    let _ = backend
+    backend
         .circuit_iterator_to_qasm_file(
             circuit.iter(),
             temp_dir().as_path(),

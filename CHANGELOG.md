@@ -4,6 +4,10 @@ This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
 ## Not released
 
+### 0.4.6
+
+* Updated to qoqo 1.1.0, qoqo_calculator_pyo3 1.1.0
+
 ### 0.4.5
 
 * Updated to qoqo 1.0.0, qoqo_calculator_pyo3 1.0.0
