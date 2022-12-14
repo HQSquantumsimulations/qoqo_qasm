@@ -59,9 +59,6 @@ impl Backend {
             },
         }
     }
-}
-
-impl Backend {
     /// Translates an iterator over operations to a valid QASM string.
     ///
     ///
