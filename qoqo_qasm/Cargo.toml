@@ -18,7 +18,16 @@ doctest = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-roqoqo-qasm = {version="0.4.6", path="../roqoqo-qasm"}
+qoqo = "1.1.0"
+roqoqo = {version="1.1.0", features=["serialize"]}
+roqoqo-qasm = { version = "0.4.6", path = "../roqoqo-qasm" }
+
+[dependencies.pyo3]
+version = "0.17"
+features = ["num-complex"]
 
 [dev-dependencies]
 test-case = "2.2"
+
+[build-dependencies]
+pyo3-build-config = "0.17"

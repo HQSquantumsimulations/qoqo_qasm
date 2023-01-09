@@ -22,3 +22,20 @@
 //! QASM interface for qoqo.
 //!
 //! Translates qoqo operations and circuits to QASM operations via the interface, and Create a Qasm file with QasmBackend.
+
+use pyo3::prelude::*;
+use pyo3::wrap_pyfunction;
+
+mod backend;
+pub use backend::*;
+
+mod interface;
+pub use interface::*;
+
+#[pymodule]
+fn qoqo_qasm(_py: Python, module: &PyModule) -> PyResult<()> {
+    module.add_class::<QasmBackendWrapper>()?;
+    module.add_function(wrap_pyfunction!(qasm_call_circuit, module)?)?;
+    module.add_function(wrap_pyfunction!(qasm_call_operation, module)?)?;
+    Ok(())
+}
