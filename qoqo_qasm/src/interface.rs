@@ -10,10 +10,10 @@
 // express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-use pyo3::{prelude::*, exceptions::PyTypeError};
-use qoqo::QoqoError;
+use pyo3::exceptions::PyValueError;
+use pyo3::{exceptions::PyTypeError, prelude::*};
+use qoqo::convert_into_circuit;
 use qoqo::operations::convert_pyany_to_operation;
-use roqoqo::Circuit;
 use roqoqo_qasm::{call_circuit, call_operation};
 
 /// Translate the qoqo circuit into QASM ouput
@@ -22,28 +22,28 @@ use roqoqo_qasm::{call_circuit, call_operation};
 /// to QASM output (strings).
 ///
 /// Args:
-///     circuit: The qoqo circuit that is translated
-///     number_qubits: The number of qubits in the circuit
-///     qubit_names: The dictionary of qubit names to translate the circuit to
-///     use_symbolic: Whether to use symbolic translation (True) or not (False)
+///     circuit (Circuit): The qoqo circuit that is translated
+///     qubit_register_name (str): The name of the quantum register
 ///
 /// Returns:
-///     Tuple[List[str], Dict[int, str]]: translated circuit
+///     List[str]: translated circuit
+///
+/// Raises:
+///     RuntimeError: Operation not in QASM backend
 #[pyfunction]
-pub fn qasm_call_circuit(circuit: Py<PyAny>) -> PyResult<String>{
-    let circuit = Python::with_gil(|py| -> Result<Circuit, QoqoError> {
-        let circ_ref = circuit.as_ref(py);
-        qoqo::convert_into_circuit(circ_ref)
+pub fn qasm_call_circuit(circuit: &PyAny, qubit_register_name: &str) -> PyResult<Vec<String>> {
+    let circuit = convert_into_circuit(circuit).map_err(|x| {
+        PyTypeError::new_err(format!("Cannot convert python object to Circuit: {:?}", x))
     })?;
-
+    call_circuit(&circuit, qubit_register_name)
+        .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {:?}", x)))
 }
 
 /// Translate a qoqo operation to QASM text
 ///
 /// Args:
 ///     operation: The qoqo operation that is translated
-///     number_qubits: The number of qubits in the circuit
-///     qubit_names: The dictionary of qubit names to translate the operation to
+///     qubit_register_name (str): The name of the quantum register
 ///
 /// Returns:
 ///     str: translated operation
@@ -51,8 +51,10 @@ pub fn qasm_call_circuit(circuit: Py<PyAny>) -> PyResult<String>{
 /// Raises:
 ///     RuntimeError: Operation not in QASM backend
 #[pyfunction]
-pub fn qasm_call_operation(operation: &PyAny) -> Result<String, RoqoqoBackendError>{
-    let operation = convert_pyany_to_operation(op).map_err(|x| {
+pub fn qasm_call_operation(operation: &PyAny, qubit_register_name: &str) -> PyResult<String> {
+    let operation = convert_pyany_to_operation(operation).map_err(|x| {
         PyTypeError::new_err(format!("Cannot convert python object to Operation {:?}", x))
     })?;
+    call_operation(&operation, qubit_register_name)
+        .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {:?}", x)))
 }

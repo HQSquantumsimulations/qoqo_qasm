@@ -34,12 +34,13 @@ impl QasmBackendWrapper {
     ///
     /// Args:
     ///     qubit_register_name (Optional[str]): The name of the qubit register.
+    ///
     /// Returns:
-    ///     self: The new QasmBackend intance.
+    ///     Self: The new QasmBackend intance.
     #[new]
     pub fn new(qubit_register_name: Option<String>) -> Self {
         Self {
-            internal: Backend::new(qubit_register_name)
+            internal: Backend::new(qubit_register_name),
         }
     }
 }
