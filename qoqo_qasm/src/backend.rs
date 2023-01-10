@@ -10,8 +10,13 @@
 // express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-use pyo3::prelude::*;
+use pyo3::{
+    exceptions::{PyTypeError, PyValueError},
+    prelude::*,
+};
+use qoqo::convert_into_circuit;
 use roqoqo_qasm::Backend;
+use std::path::Path;
 
 /// Backend to qoqo that produces QASM output which can be imported.
 ///
@@ -42,5 +47,62 @@ impl QasmBackendWrapper {
         Self {
             internal: Backend::new(qubit_register_name),
         }
+    }
+
+    /// Translates a Circuit to a valid QASM string.
+    ///
+    /// Args:
+    ///     circuit: The Circuit items that is translated
+    ///
+    /// Returns:
+    ///     str: The valid QASM string
+    ///
+    /// Raises:
+    ///     TypeError: Circuit conversion error
+    ///     ValueError: Operation not in QASM backend
+    #[pyo3(text_signature = "($self, circuit)")]
+    pub fn circuit_to_qasm_str(&self, circuit: &PyAny) -> PyResult<String> {
+        let circuit = convert_into_circuit(circuit).map_err(|x| {
+            PyTypeError::new_err(format!("Cannot convert python object to Circuit: {:?}", x))
+        })?;
+        roqoqo_qasm::Backend::circuit_to_qasm_str(&self.internal, &circuit)
+            .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {:?}", x)))
+    }
+
+    /// Translates a Circuit to a QASM file.
+    ///
+    /// Args:
+    ///     circuit: The Circuit that is translated
+    ///     folder_name: The name of the folder that is prepended to all filenames.
+    ///     filename: The name of the file the QASM text is saved to.
+    ///     overwrite: Whether to overwrite file if it already exists.
+    ///
+    /// Returns:
+    ///     Ok(()): The qasm file was correctly written
+    ///
+    /// Raises:
+    ///     TypeError: Circuit conversion error
+    ///     ValueError: Operation not in QASM backend
+    #[pyo3(text_signature = "($self, circuit, folder_name, filename, overwrite)")]
+    pub fn circuit_to_qasm_file(
+        &self,
+        circuit: &PyAny,
+        folder_name: String,
+        filename: String,
+        overwrite: bool,
+    ) -> PyResult<()> {
+        let circuit = convert_into_circuit(circuit).map_err(|x| {
+            PyTypeError::new_err(format!("Cannot convert python object to Circuit: {:?}", x))
+        })?;
+        let folder_name = Path::new(&folder_name);
+        let filename = Path::new(&filename);
+        roqoqo_qasm::Backend::circuit_to_qasm_file(
+            &self.internal,
+            &circuit,
+            folder_name,
+            filename,
+            overwrite,
+        )
+        .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {:?}", x)))
     }
 }
