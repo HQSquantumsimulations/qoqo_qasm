@@ -1,6 +1,6 @@
 [package]
 name = "qoqo_qasm"
-version = "0.4.6"
+version = "0.4.7"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 edition = "2018"
 categories = ["science", "simulation"]
@@ -14,13 +14,14 @@ include = ["src*", "build.rs", "qoqo_qasm", "LICENSE", "pyproject.toml", "README
 name = "qoqo_qasm"
 path = "src/lib.rs"
 doctest = false
+crate-type = ["cdylib", "rlib"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 qoqo = {version="1.1.0", default-features = false}
 roqoqo = {version="1.1.0", features=["serialize"]}
-roqoqo-qasm = { version = "0.4.6", path = "../roqoqo-qasm" }
+roqoqo-qasm = { version = "0.4.7", path = "../roqoqo-qasm" }
 
 [dependencies.pyo3]
 version = "0.17"

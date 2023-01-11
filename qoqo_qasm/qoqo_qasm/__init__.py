@@ -23,10 +23,11 @@ and Create a Qasm file with QasmBackend.
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
 from qoqo_qasm.__version__ import __version__
-from qoqo_qasm.interface import (
-    qasm_call_operation,
-    qasm_call_circuit
-)
-from qoqo_qasm.backend import (
-    QasmBackend,
-)
+# from qoqo_qasm.interface import (
+#     qasm_call_operation,
+#     qasm_call_circuit
+# )
+# from qoqo_qasm.backend import (
+#     QasmBackend,
+# )
+from .qoqo_qasm import *
