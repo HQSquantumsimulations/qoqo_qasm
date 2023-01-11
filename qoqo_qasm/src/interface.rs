@@ -29,6 +29,7 @@ use roqoqo_qasm::{call_circuit, call_operation};
 ///     List[str]: translated circuit
 ///
 /// Raises:
+///     TypeError: Circuit conversion error
 ///     ValueError: Operation not in QASM backend
 #[pyfunction]
 pub fn qasm_call_circuit(circuit: &PyAny, qubit_register_name: &str) -> PyResult<Vec<String>> {
@@ -49,6 +50,7 @@ pub fn qasm_call_circuit(circuit: &PyAny, qubit_register_name: &str) -> PyResult
 ///     str: translated operation
 ///
 /// Raises:
+///     TypeError: Operation conversion error
 ///     ValueError: Operation not in QASM backend
 #[pyfunction]
 pub fn qasm_call_operation(operation: &PyAny, qubit_register_name: &str) -> PyResult<String> {
