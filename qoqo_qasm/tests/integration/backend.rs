@@ -19,6 +19,8 @@ use std::env::temp_dir;
 use std::fs;
 use std::path::Path;
 
+use qoqo_calculator::CalculatorFloat;
+
 use qoqo_qasm::QasmBackendWrapper;
 
 use qoqo::operations::convert_operation_to_pyobject;
@@ -26,6 +28,8 @@ use qoqo::CircuitWrapper;
 
 use roqoqo::operations::*;
 use roqoqo::Circuit;
+
+use test_case::test_case;
 
 // helper functions
 fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrapper> {
@@ -65,9 +69,13 @@ fn run_circuit_to_str() {
         let backendpy = new_qasmbackend(py, None);
         let circuitpy = circuitpy_from_circuitru(py, circuit);
 
-        backendpy
+        let result: String = backendpy
             .call_method1("circuit_to_qasm_str", (circuitpy,))
+            .unwrap()
+            .extract()
             .unwrap();
+        let lines = String::from("OPENQASM 2.0;\ninclude \"qelib1.inc\";\n\nqreg q[2];\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
+        assert_eq!(lines, result);
     })
 }
 
@@ -100,10 +108,45 @@ fn run_circuit_to_file() {
     })
 }
 
-/// Test that backend returns error when running for a file that exists without overwrite
-#[test]
-fn run_error() {}
+#[test_case(Operation::from(ISwap::new(0, 1)))]
+#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(0.23))))]
+#[test_case(Operation::from(FSwap::new(0, 1)))]
+#[test_case(Operation::from(RotateXY::new(
+    0,
+    CalculatorFloat::from(0.23),
+    CalculatorFloat::from(0.23)
+)))]
+fn run_error(operation: Operation) {
+    let mut wrong_circuit = Circuit::new();
+    wrong_circuit += operation;
 
-/// Test Debug, Clone and PartialEq for Backend
-#[test]
-fn test_debug_clone_partialeq() {}
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        let wrongcircuitpy = circuitpy_from_circuitru(py, wrong_circuit.clone());
+
+        let backendpy = new_qasmbackend(py, None);
+        let result = backendpy.call_method1("circuit_to_qasm_str", (3,));
+        assert!(result.is_err());
+
+        let result = backendpy.call_method1("circuit_to_qasm_str", (wrongcircuitpy,));
+        assert!(result.is_err());
+
+        let backendpy = new_qasmbackend(py, None);
+        let result = backendpy.call_method1(
+            "circuit_to_qasm_file",
+            (3, temp_dir().to_str().unwrap(), "fnametest", true),
+        );
+        assert!(result.is_err());
+
+        let result = backendpy.call_method1(
+            "circuit_to_qasm_file",
+            (
+                wrongcircuitpy,
+                temp_dir().to_str().unwrap(),
+                "fnametest",
+                true,
+            ),
+        );
+        assert!(result.is_err());
+    })
+}
