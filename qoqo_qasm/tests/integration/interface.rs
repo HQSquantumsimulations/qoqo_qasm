@@ -11,3 +11,32 @@
 // limitations under the License.
 //
 //! Testing the qoqo-qasm Interface
+
+use pyo3::prelude::*;
+
+/// Test qasm_call_circuit with correct Circuit
+#[test]
+fn test_qasm_call_circuit() {
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        
+    })
+}
+
+/// Test qasm_call_operation with correct Operations
+#[test]
+fn test_qasm_call_operation() {
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        
+    })
+}
+
+/// Test qasm_call_operation and qasm_call_circuit errors
+#[test]
+fn test_qasm_call_error() {
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        
+    })
+}

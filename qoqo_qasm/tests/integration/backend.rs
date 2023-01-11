@@ -12,8 +12,12 @@
 //
 //! Testing the qoqo-qasm Backend
 
-/// Test simple circuit with a Definition, a GateOperation and a PragmaOperation
+use pyo3::exceptions::PyTypeError;
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use qoqo::QoqoBackendError;
+use qoqo::QoqoError;
+use roqoqo::RoqoqoBackendError;
 
 use std::env::temp_dir;
 use std::fs;
@@ -55,9 +59,9 @@ fn new_qasmbackend(py: Python, qubit_register_name: Option<String>) -> &PyCell<Q
         .unwrap()
 }
 
-/// Test run_circuit_to_qasm_str on a simple Circuit
+/// Test circuit_to_qasm_str on a simple Circuit
 #[test]
-fn run_circuit_to_str() {
+fn test_circuit_to_qasm_str() {
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
@@ -79,9 +83,9 @@ fn run_circuit_to_str() {
     })
 }
 
-/// Test run_circuit_to_qasm_file on a simple Circuit
+/// Test circuit_to_qasm_file on a simple Circuit
 #[test]
-fn run_circuit_to_file() {
+fn test_circuit_to_qasm_file() {
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
@@ -108,6 +112,7 @@ fn run_circuit_to_file() {
     })
 }
 
+/// Test circuit_to_qasm_str and circuit_to_qasm_file errors
 #[test_case(Operation::from(ISwap::new(0, 1)))]
 #[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(0.23))))]
 #[test_case(Operation::from(FSwap::new(0, 1)))]
@@ -116,9 +121,9 @@ fn run_circuit_to_file() {
     CalculatorFloat::from(0.23),
     CalculatorFloat::from(0.23)
 )))]
-fn run_error(operation: Operation) {
+fn test_circuit_to_qasm_error(operation: Operation) {
     let mut wrong_circuit = Circuit::new();
-    wrong_circuit += operation;
+    wrong_circuit += operation.clone();
 
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
@@ -127,9 +132,28 @@ fn run_error(operation: Operation) {
         let backendpy = new_qasmbackend(py, None);
         let result = backendpy.call_method1("circuit_to_qasm_str", (3,));
         assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            PyTypeError::new_err(format!(
+                "Cannot convert python object to Circuit: {:?}",
+                QoqoBackendError::CannotExtractObject
+            ))
+            .to_string()
+        );
 
         let result = backendpy.call_method1("circuit_to_qasm_str", (wrongcircuitpy,));
         assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            PyValueError::new_err(format!(
+                "Error during QASM translation: {:?}",
+                RoqoqoBackendError::OperationNotInBackend {
+                    backend: "QASM",
+                    hqslang: operation.hqslang(),
+                }
+            ))
+            .to_string()
+        );
 
         let backendpy = new_qasmbackend(py, None);
         let result = backendpy.call_method1(
@@ -137,6 +161,14 @@ fn run_error(operation: Operation) {
             (3, temp_dir().to_str().unwrap(), "fnametest", true),
         );
         assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            PyTypeError::new_err(format!(
+                "Cannot convert python object to Circuit: {:?}",
+                QoqoBackendError::CannotExtractObject
+            ))
+            .to_string()
+        );
 
         let result = backendpy.call_method1(
             "circuit_to_qasm_file",
@@ -147,6 +179,16 @@ fn run_error(operation: Operation) {
                 true,
             ),
         );
-        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            PyValueError::new_err(format!(
+                "Error during QASM translation: {:?}",
+                RoqoqoBackendError::OperationNotInBackend {
+                    backend: "QASM",
+                    hqslang: operation.hqslang(),
+                }
+            ))
+            .to_string()
+        );
     })
 }
