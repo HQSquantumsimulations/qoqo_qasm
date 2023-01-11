@@ -53,7 +53,7 @@ pub fn qasm_call_circuit(circuit: &PyAny, qubit_register_name: &str) -> PyResult
 #[pyfunction]
 pub fn qasm_call_operation(operation: &PyAny, qubit_register_name: &str) -> PyResult<String> {
     let operation = convert_pyany_to_operation(operation).map_err(|x| {
-        PyTypeError::new_err(format!("Cannot convert python object to Operation {:?}", x))
+        PyTypeError::new_err(format!("Cannot convert python object to Operation: {:?}", x))
     })?;
     call_operation(&operation, qubit_register_name)
         .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {:?}", x)))

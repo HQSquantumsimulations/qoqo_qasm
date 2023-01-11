@@ -16,7 +16,6 @@ use pyo3::exceptions::PyTypeError;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use qoqo::QoqoBackendError;
-use qoqo::QoqoError;
 use roqoqo::RoqoqoBackendError;
 
 use std::env::temp_dir;
