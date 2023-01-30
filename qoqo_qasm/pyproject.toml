@@ -5,6 +5,6 @@ build-backend = "maturin"
 [tool.maturin]
 bindings = "pyo3"
 compatibility = "manylinux2014"
-skip-auditwheel = true
+skip-auditwheel = false
 strip = true
 profile = "release"
