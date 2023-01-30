@@ -25,7 +25,7 @@ jobs:
         pip install ./qoqo_qasm
     - name: test
       run: |
-        pytest ./tests
+        pytest ./qoqo_qasm/tests/integration
   clippy_check:
     runs-on: ubuntu-latest
     steps:
