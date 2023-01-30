@@ -17,7 +17,3 @@ pub use backend::*;
 #[cfg(test)]
 mod interface;
 pub use interface::*;
-
-#[cfg(test)]
-mod test_acceptance;
-pub use test_acceptance::*;
