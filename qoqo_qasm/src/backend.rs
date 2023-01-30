@@ -63,10 +63,10 @@ impl QasmBackendWrapper {
     #[pyo3(text_signature = "($self, circuit)")]
     pub fn circuit_to_qasm_str(&self, circuit: &PyAny) -> PyResult<String> {
         let circuit = convert_into_circuit(circuit).map_err(|x| {
-            PyTypeError::new_err(format!("Cannot convert python object to Circuit: {:?}", x))
+            PyTypeError::new_err(format!("Cannot convert python object to Circuit: {x:?}"))
         })?;
         roqoqo_qasm::Backend::circuit_to_qasm_str(&self.internal, &circuit)
-            .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {:?}", x)))
+            .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
     }
 
     /// Translates a Circuit to a QASM file.
@@ -92,7 +92,7 @@ impl QasmBackendWrapper {
         overwrite: bool,
     ) -> PyResult<()> {
         let circuit = convert_into_circuit(circuit).map_err(|x| {
-            PyTypeError::new_err(format!("Cannot convert python object to Circuit: {:?}", x))
+            PyTypeError::new_err(format!("Cannot convert python object to Circuit: {x:?}"))
         })?;
         let folder_name = Path::new(&folder_name);
         let filename = Path::new(&filename);
@@ -103,6 +103,6 @@ impl QasmBackendWrapper {
             filename,
             overwrite,
         )
-        .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {:?}", x)))
+        .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
     }
 }
