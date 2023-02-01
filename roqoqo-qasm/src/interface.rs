@@ -18,7 +18,15 @@ use roqoqo::Circuit;
 use roqoqo::RoqoqoBackendError;
 
 // Pragma operations that are ignored by backend and do not throw an error
-const ALLOWED_OPERATIONS: &[&str; 2] = &["PragmaSetNumberOfMeasurements", "InputSymbolic"];
+const ALLOWED_OPERATIONS: &[&str; 7] = &[
+    "PragmaSleep",
+    "PragmaGlobalPhase",
+    "PragmaStopParallelBlock",
+    "PragmaStopDecompositionBlock",
+    "PragmaSetNumberOfMeasurements",
+    "PragmaStartDecompositionBlock",
+    "InputSymbolic",
+];
 
 /// Translate the qoqo circuit into QASM ouput.
 ///
@@ -154,6 +162,11 @@ pub fn call_operation(
                 op.qubit()
             ))
         }
+        Operation::PragmaRepeatGate(_op) => todo!(),
+        Operation::PragmaActiveReset(op) => {
+            Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
+        }
+        Operation::PragmaConditional(_op) => todo!(),
         Operation::PragmaRepeatedMeasurement(op) => match op.qubit_mapping() {
             None => Ok(format!(
                 "measure {} -> {};",
