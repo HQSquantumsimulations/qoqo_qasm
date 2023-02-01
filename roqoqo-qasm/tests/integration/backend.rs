@@ -103,7 +103,7 @@ fn test_debug_clone_partialeq() {
 
     // Test Debug trait
     assert_eq!(
-        format!("{:?}", backend),
+        format!("{backend:?}"),
         "Backend { qubit_register_name: \"qtest\" }"
     );
 
