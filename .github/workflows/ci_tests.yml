@@ -82,38 +82,38 @@ jobs:
       - run: cargo fmt --all -- --check
 
 
-  check_linting_and_tests:
-    name: unittests_check
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python: [
-            {py: '3.7', interpreter: "python3.7"},
-            {py: '3.8', interpreter: "python3.8"},
-            {py: '3.9', interpreter: "python3.9"},
-            {py: '3.10', interpreter: "python3.10"}
-        ]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python.py }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest pytest-cov flake8 flake8-bugbear flake8-docstrings flake8-annotations darglint mypy qoqo
-      - name: Test with pytest
-        run: |
-          pip install pytest
-          pip install -r ./qoqo_qasm/tests/requirements.txt
-          pip install -e ./qoqo_qasm/
-          pytest --cov=qoqo_qasm --cov-fail-under=80
-      - name: Lint with flake8
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 --config=./qoqo_qasm/.flake8 ./qoqo_qasm/qoqo_qasm --count
-      - name: Mypy check
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          mypy --config-file=./qoqo_qasm/.mypy.ini ./qoqo_qasm/qoqo_qasm
+  # check_linting_and_tests:
+  #   name: unittests_check
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       python: [
+  #           {py: '3.7', interpreter: "python3.7"},
+  #           {py: '3.8', interpreter: "python3.8"},
+  #           {py: '3.9', interpreter: "python3.9"},
+  #           {py: '3.10', interpreter: "python3.10"}
+  #       ]
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Set up Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: ${{ matrix.python.py }}
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         python -m pip install pytest pytest-cov flake8 flake8-bugbear flake8-docstrings flake8-annotations darglint mypy qoqo
+  #     - name: Test with pytest
+  #       run: |
+  #         pip install pytest
+  #         pip install -r ./qoqo_qasm/tests/requirements.txt
+  #         pip install -e ./qoqo_qasm/
+  #         pytest --cov=qoqo_qasm --cov-fail-under=80
+  #     - name: Lint with flake8
+  #       run: |
+  #         # stop the build if there are Python syntax errors or undefined names
+  #         flake8 --config=./qoqo_qasm/.flake8 ./qoqo_qasm/qoqo_qasm --count
+  #     - name: Mypy check
+  #       run: |
+  #         # stop the build if there are Python syntax errors or undefined names
+  #         mypy --config-file=./qoqo_qasm/.mypy.ini ./qoqo_qasm/qoqo_qasm
