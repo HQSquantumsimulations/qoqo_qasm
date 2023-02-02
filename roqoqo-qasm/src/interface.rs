@@ -118,6 +118,9 @@ pub fn call_operation(
         Operation::SqrtPauliX(op) => {
             Ok(format!("rx(pi/2) {}[{}];", qubit_register_name, op.qubit()))
         }
+        Operation::InvSqrtPauliX(op) => {
+            Ok(format!("rx(pi/4) {}[{}];", qubit_register_name, op.qubit()))
+        }
         Operation::CNOT(op) => Ok(format!(
             "cx {}[{}],{}[{}];",
             qubit_register_name,
@@ -162,11 +165,11 @@ pub fn call_operation(
                 op.qubit()
             ))
         }
-        Operation::PragmaRepeatGate(_op) => todo!(),
+        Operation::PragmaRepeatGate(_op) => todo!(),  // needs more info, different structure
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
         }
-        Operation::PragmaConditional(_op) => todo!(),
+        Operation::PragmaConditional(_op) => todo!(),  // can't handle multiple operations under if condition
         Operation::PragmaRepeatedMeasurement(op) => match op.qubit_mapping() {
             None => Ok(format!(
                 "measure {} -> {};",
