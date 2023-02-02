@@ -115,6 +115,12 @@ pub fn call_operation(
         Operation::PauliZ(op) => Ok(format!("z {}[{}];", qubit_register_name, op.qubit())),
         Operation::SGate(op) => Ok(format!("s {}[{}];", qubit_register_name, op.qubit())),
         Operation::TGate(op) => Ok(format!("t {}[{}];", qubit_register_name, op.qubit())),
+        Operation::PhaseShiftState1(op) => Ok(format!(
+            "p({}) {}[{}];",
+            op.theta().float().unwrap(),
+            qubit_register_name,
+            op.qubit()
+        )),
         Operation::SqrtPauliX(op) => Ok(format!("sx {}[{}];", qubit_register_name, op.qubit())),
         Operation::InvSqrtPauliX(op) => {
             Ok(format!("sxdg {}[{}];", qubit_register_name, op.qubit()))

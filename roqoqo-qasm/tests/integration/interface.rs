@@ -36,6 +36,7 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(Hadamard::new(0)), "h q[0];"; "Hadamard")]
 #[test_case(Operation::from(SGate::new(0)), "s q[0];"; "SGate")]
 #[test_case(Operation::from(TGate::new(0)), "t q[0];"; "TGate")]
+#[test_case(Operation::from(PhaseShiftState1::new(0, CalculatorFloat::from(PI))), "p(3.141592653589793) q[0];"; "PhaseShiftState1")]
 #[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "rx(-3.141592653589793) q[0];"; "RotateX")]
 #[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "ry(-3.141592653589793) q[0];"; "RotateY")]
 #[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "rz(-3.141592653589793) q[0];"; "RotateZ")]
