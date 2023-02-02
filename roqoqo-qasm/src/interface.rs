@@ -115,11 +115,9 @@ pub fn call_operation(
         Operation::PauliZ(op) => Ok(format!("z {}[{}];", qubit_register_name, op.qubit())),
         Operation::SGate(op) => Ok(format!("s {}[{}];", qubit_register_name, op.qubit())),
         Operation::TGate(op) => Ok(format!("t {}[{}];", qubit_register_name, op.qubit())),
-        Operation::SqrtPauliX(op) => {
-            Ok(format!("rx(pi/2) {}[{}];", qubit_register_name, op.qubit()))
-        }
+        Operation::SqrtPauliX(op) => Ok(format!("sx {}[{}];", qubit_register_name, op.qubit())),
         Operation::InvSqrtPauliX(op) => {
-            Ok(format!("rx(pi/4) {}[{}];", qubit_register_name, op.qubit()))
+            Ok(format!("sxdg {}[{}];", qubit_register_name, op.qubit()))
         }
         Operation::CNOT(op) => Ok(format!(
             "cx {}[{}],{}[{}];",
@@ -165,11 +163,31 @@ pub fn call_operation(
                 op.qubit()
             ))
         }
-        Operation::PragmaRepeatGate(_op) => todo!(),  // needs more info, different structure
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
         }
-        Operation::PragmaConditional(_op) => todo!(),  // can't handle multiple operations under if condition
+        Operation::PragmaConditional(op) => {
+            let mut ite = op.circuit().iter().peekable();
+            let mut data = "".to_string();
+            while let Some(int_op) = ite.next() {
+                if ite.peek().is_none() {
+                    data.push_str(&format!(
+                        "if({}[{}]==1) {};",
+                        op.condition_register(),
+                        op.condition_index(),
+                        call_operation(int_op, qubit_register_name).unwrap()
+                    ));
+                } else {
+                    data.push_str(&format!(
+                        "if({}[{}]==1) {};\n",
+                        op.condition_register(),
+                        op.condition_index(),
+                        call_operation(int_op, qubit_register_name).unwrap()
+                    ));
+                }
+            }
+            Ok(data)
+        } // can't handle multiple operations under if condition
         Operation::PragmaRepeatedMeasurement(op) => match op.qubit_mapping() {
             None => Ok(format!(
                 "measure {} -> {};",
