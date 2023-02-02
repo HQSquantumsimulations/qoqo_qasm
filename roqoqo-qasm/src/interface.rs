@@ -172,14 +172,14 @@ pub fn call_operation(
             while let Some(int_op) = ite.next() {
                 if ite.peek().is_none() {
                     data.push_str(&format!(
-                        "if({}[{}]==1) {};",
+                        "if({}[{}]==1) {}",
                         op.condition_register(),
                         op.condition_index(),
                         call_operation(int_op, qubit_register_name).unwrap()
                     ));
                 } else {
                     data.push_str(&format!(
-                        "if({}[{}]==1) {};\n",
+                        "if({}[{}]==1) {}\n",
                         op.condition_register(),
                         op.condition_index(),
                         call_operation(int_op, qubit_register_name).unwrap()

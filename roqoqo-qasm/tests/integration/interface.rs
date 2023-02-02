@@ -39,7 +39,8 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "rx(-3.141592653589793) q[0];"; "RotateX")]
 #[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "ry(-3.141592653589793) q[0];"; "RotateY")]
 #[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "rz(-3.141592653589793) q[0];"; "RotateZ")]
-#[test_case(Operation::from(SqrtPauliX::new(0)), "rx(pi/2) q[0];"; "SqrtPauliX")]
+#[test_case(Operation::from(SqrtPauliX::new(0)), "sx q[0];"; "SqrtPauliX")]
+#[test_case(Operation::from(InvSqrtPauliX::new(0)), "sxdg q[0];"; "InvSqrtPauliX")]
 #[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "rxx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
 #[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];"; "CNOT")]
 #[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1];"; "ControlledPauliY")]
@@ -63,6 +64,18 @@ fn test_call_operation(operation: Operation, converted: &str) {
         call_operation(&operation, "q").unwrap(),
         converted.to_string()
     )
+}
+
+#[test]
+fn test_pragma_conditional() {
+    let mut circuit = Circuit::new();
+    circuit += Hadamard::new(0);
+    circuit += PauliX::new(0);
+
+    let pcond = PragmaConditional::new("c".to_string(), 0, circuit);
+
+    let data = "if(c[0]==1) h q[0];\nif(c[0]==1) x q[0];";
+    assert_eq!(call_operation(&Operation::from(pcond), "q").unwrap(), data);
 }
 
 #[test]
