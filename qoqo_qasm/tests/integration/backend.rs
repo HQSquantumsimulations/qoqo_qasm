@@ -40,7 +40,7 @@ fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrap
     let circuitpy = circuit_type
         .call0()
         .unwrap()
-        .cast_as::<PyCell<CircuitWrapper>>()
+        .downcast::<PyCell<CircuitWrapper>>()
         .unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op).unwrap();
@@ -54,7 +54,7 @@ fn new_qasmbackend(py: Python, qubit_register_name: Option<String>) -> &PyCell<Q
     circuit_type
         .call1((qubit_register_name,))
         .unwrap()
-        .cast_as::<PyCell<QasmBackendWrapper>>()
+        .downcast::<PyCell<QasmBackendWrapper>>()
         .unwrap()
 }
 

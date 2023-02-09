@@ -39,7 +39,7 @@ fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrap
     let circuitpy = circuit_type
         .call0()
         .unwrap()
-        .cast_as::<PyCell<CircuitWrapper>>()
+        .downcast::<PyCell<CircuitWrapper>>()
         .unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op).unwrap();
