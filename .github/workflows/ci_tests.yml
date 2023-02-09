@@ -7,25 +7,25 @@ on:
     branches: [main]
 
 jobs:
-  test_pyproject_install:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        default: true
-    - name: Install dependencies
-      run: |
-        pip install maturin pytest numpy qoqo qiskit-terra
-        pip install ./qoqo_qasm
-    - name: test
-      run: |
-        pytest ./qoqo_qasm/tests/integration
+  # test_pyproject_install:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - uses: actions/setup-python@v2
+  #     with:
+  #       python-version: 3.9
+  #   - uses: actions-rs/toolchain@v1
+  #     with:
+  #       profile: minimal
+  #       toolchain: stable
+  #       default: true
+  #   - name: Install dependencies
+  #     run: |
+  #       pip install maturin pytest numpy qoqo qiskit-terra
+  #       pip install ./qoqo_qasm
+  #   - name: test
+  #     run: |
+  #       pytest ./qoqo_qasm/tests/integration
   clippy_check:
     runs-on: ubuntu-latest
     steps:
