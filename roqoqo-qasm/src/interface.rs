@@ -115,6 +115,7 @@ pub fn call_operation(
         Operation::PauliZ(op) => Ok(format!("z {}[{}];", qubit_register_name, op.qubit())),
         Operation::SGate(op) => Ok(format!("s {}[{}];", qubit_register_name, op.qubit())),
         Operation::TGate(op) => Ok(format!("t {}[{}];", qubit_register_name, op.qubit())),
+        Operation::PhaseShiftState0(_op) => todo!(), // something similar to PSS1?
         Operation::PhaseShiftState1(op) => Ok(format!(
             "p({}) {}[{}];",
             op.theta().float().unwrap(),
@@ -139,6 +140,14 @@ pub fn call_operation(
             qubit_register_name,
             op.target()
         )),
+        Operation::VariableMSXX(op) => Ok(format!(
+            "rxx({}) {}[{}],{}[{}]",
+            op.theta(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
         Operation::ControlledPauliY(op) => Ok(format!(
             "cy {}[{}],{}[{}];",
             qubit_register_name,
@@ -148,6 +157,21 @@ pub fn call_operation(
         )),
         Operation::ControlledPauliZ(op) => Ok(format!(
             "cz {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::ControlledPhaseShift(op) => Ok(format!(
+            "cp({}) {}[{}],{}[{}];",
+            op.theta(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::SWAP(op) => Ok(format!(
+            "swap {}[{}],{}[{}]",
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -168,11 +192,11 @@ pub fn call_operation(
                 qubit_register_name,
                 op.qubit()
             ))
-        }
+        },
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
-        }
-        Operation::PragmaConditional(op) => {
+        },
+        Operation::PragmaConditional(op) => { // can't handle multiple operations under if condition
             let mut ite = op.circuit().iter().peekable();
             let mut data = "".to_string();
             while let Some(int_op) = ite.next() {
@@ -193,7 +217,7 @@ pub fn call_operation(
                 }
             }
             Ok(data)
-        } // can't handle multiple operations under if condition
+        },
         Operation::PragmaRepeatedMeasurement(op) => match op.qubit_mapping() {
             None => Ok(format!(
                 "measure {} -> {};",
