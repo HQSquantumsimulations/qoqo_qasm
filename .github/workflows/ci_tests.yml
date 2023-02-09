@@ -10,7 +10,7 @@ jobs:
   test_pyproject_install:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3.1.0
     - uses: actions/setup-python@v2
       with:
         python-version: 3.9
@@ -29,7 +29,7 @@ jobs:
   clippy_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -54,7 +54,7 @@ jobs:
             {py: '3.10', interpreter: "python3.10"}
         ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -73,7 +73,7 @@ jobs:
   format_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -94,7 +94,7 @@ jobs:
             {py: '3.10', interpreter: "python3.10"}
         ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
