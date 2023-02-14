@@ -13,6 +13,7 @@ __version__ = lines[-1].strip().split("'")[1].strip()
 install_requires = [
     'numpy',
     'qoqo>=1.2',
+    'qoqo_qasm>=0.5',
     'qiskit'
 ]
 
