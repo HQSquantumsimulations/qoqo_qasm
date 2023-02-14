@@ -1,0 +1,3 @@
+numpy
+qoqo>=1.2
+qiskit
