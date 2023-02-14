@@ -11,7 +11,6 @@ with open(os.path.join(path, 'qoqo-qiskit/__version__.py')) as f:
 __version__ = lines[-1].strip().split("'")[1].strip()
 
 install_requires = [
-    'numpy',
     'qoqo>=1.2',
     'qoqo_qasm>=0.5',
     'qiskit'
