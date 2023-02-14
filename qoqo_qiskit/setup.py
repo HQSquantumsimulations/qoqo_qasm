@@ -16,7 +16,7 @@ install_requires = [
     'qiskit'
 ]
 
-setup(name='qoqo-qiskit',
+setup(name='qoqo_qiskit',
     version=__version__,
     python_requires='>=3.7',
     packages=find_packages(exclude=('docs')),
