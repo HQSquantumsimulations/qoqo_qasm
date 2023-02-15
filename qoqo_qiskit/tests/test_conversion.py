@@ -28,10 +28,12 @@ def test_basic_circuit():
 def test_qreg_creg_names():
     circuit = Circuit()
     circuit += ops.DefinitionBit('cr', 2, is_output=True)
+    circuit += ops.DefinitionBit('crr', 3, is_output=True)
 
     qr = QuantumRegister(1, 'qrg')
     cr = ClassicalRegister(2, 'cr')
-    qc = QuantumCircuit(qr, cr)
+    cr2 = ClassicalRegister(3, 'crr')
+    qc = QuantumCircuit(qr, cr, cr2)
 
     out_circ, _ = to_qiskit_circuit(circuit, qubit_register_name='qrg')
 
@@ -39,11 +41,43 @@ def test_qreg_creg_names():
 
 
 def test_setstatevector():
-    pass
+    circuit = Circuit()
+    circuit += ops.PragmaSetStateVector([0, 1])
+
+    qc = QuantumCircuit(1)
+    qc.initialize([0, 1])
+
+    out_circ, _ = to_qiskit_circuit(circuit)
+
+    assert (out_circ == qc)
+
+    circuit = Circuit()
+    circuit += ops.PragmaSetStateVector([0, 1])
+    circuit += ops.RotateX(0, 0.23)
+
+    qc = QuantumCircuit(1)
+    qc.initialize([0, 1])
+    qc.rx(0.23, 0)
+
+    out_circ, _ = to_qiskit_circuit(circuit)
+
+    assert (out_circ == qc)
 
 
 def test_repeated_measurement():
-    pass
+    circuit = Circuit()
+    circuit += ops.DefinitionBit("ri", 1, True)
+    circuit += ops.PragmaRepeatedMeasurement("ri", 300)
+
+    qr = QuantumRegister(1, 'q')
+    cr = ClassicalRegister(1, 'ri')
+    qc = QuantumCircuit(qr, cr)
+    qc.measure(0, cr)
+
+    out_circ, sim_dict = to_qiskit_circuit(circuit)
+
+    assert (out_circ == qc)
+    assert (('ri', 300, None) in sim_dict["measurements"])
 
 
 def test_measure_qubit():
