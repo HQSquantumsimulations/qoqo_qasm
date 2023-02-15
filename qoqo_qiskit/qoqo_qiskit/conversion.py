@@ -6,14 +6,18 @@ from qiskit import QuantumCircuit
 
 from qoqo_qasm import QasmBackend
 
-from typing import Tuple
+from typing import Tuple, Optional
 
 
-def to_qiskit_circuit(circuit: Circuit) -> Tuple[QuantumCircuit, dict[str, int]]:
+def to_qiskit_circuit(
+    circuit: Circuit,
+    qubit_register_name: Optional[str] = None
+) -> Tuple[QuantumCircuit, dict[str, int]]:
     """Applies the qoqo Circuit -> Qiskit QuantumCircuit conversion.
 
     Args:
         circuit (Circuit): the qoqo Circuit to port.
+        qubit_register_name (Optional[str]): the name of the qubit register.
 
     Returns:
         Tuple[QuantumCircuit, dict[str, int]]: the equivalent QuantumCircuit and the dict containing
@@ -36,7 +40,7 @@ def to_qiskit_circuit(circuit: Circuit) -> Tuple[QuantumCircuit, dict[str, int]]
         else:
             filtered_circuit += op
 
-    qasm_backend = QasmBackend()
+    qasm_backend = QasmBackend(qubit_register_name=qubit_register_name)
     input_qasm_str = qasm_backend.circuit_to_qasm_str(filtered_circuit)
 
     return_circuit = QuantumCircuit()
