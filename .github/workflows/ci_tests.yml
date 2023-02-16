@@ -43,7 +43,7 @@ jobs:
           target: ${{ matrix.combinations.rust }}
           default: true
           components: rustfmt
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python.py }}
       - run: |
