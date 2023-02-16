@@ -1,4 +1,4 @@
-// Copyright © 2021-2023 HQS Quantum Simulations GmbH. All Rights Reserved.
+// Copyright © 2020-2023 HQS Quantum Simulations GmbH. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License. You may obtain a copy of the License at
@@ -10,10 +10,6 @@
 // express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(test)]
-mod backend;
-pub use backend::*;
-
-#[cfg(test)]
-mod interface;
-pub use interface::*;
+fn main() {
+    pyo3_build_config::add_extension_module_link_args();
+}
