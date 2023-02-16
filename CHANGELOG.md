@@ -2,7 +2,9 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
-## Not released
+### 0.5.0
+
+* Updated to qoqo 1.2, refactored qoqo_qasm codebase to roqoqo_qasm Python interface
 
 ### 0.4.6
 
