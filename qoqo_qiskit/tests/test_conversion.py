@@ -66,13 +66,17 @@ def test_setstatevector():
 
 def test_repeated_measurement():
     circuit = Circuit()
-    circuit += ops.DefinitionBit("ri", 1, True)
+    circuit += ops.Hadamard(0)
+    circuit += ops.Hadamard(1)
+    circuit += ops.DefinitionBit("ri", 2, True)
     circuit += ops.PragmaRepeatedMeasurement("ri", 300)
 
-    qr = QuantumRegister(1, 'q')
-    cr = ClassicalRegister(1, 'ri')
+    qr = QuantumRegister(2, 'q')
+    cr = ClassicalRegister(2, 'ri')
     qc = QuantumCircuit(qr, cr)
-    qc.measure(0, cr)
+    qc.h(0)
+    qc.h(1)
+    qc.measure(qr, cr)
 
     out_circ, sim_dict = to_qiskit_circuit(circuit)
 
@@ -81,7 +85,23 @@ def test_repeated_measurement():
 
 
 def test_measure_qubit():
-    pass
+    circuit = Circuit()
+    circuit += ops.Hadamard(0)
+    circuit += ops.PauliZ(1)
+    circuit += ops.DefinitionBit("crg", 1, is_output=True)
+    circuit += ops.PragmaRepeatedMeasurement("crg", 1, {0: 0})
+
+    qr = QuantumRegister(2, 'q')
+    cr = ClassicalRegister(1, "crg")
+    qc = QuantumCircuit(qr, cr)
+    qc.h(0)
+    qc.z(1)
+    qc.measure(0, cr)
+
+    out_circ, sim_dict = to_qiskit_circuit(circuit)
+
+    assert (out_circ == qc)
+    assert (("crg", 1, {0: 0}) in sim_dict["measurements"])
 
 
 # For pytest

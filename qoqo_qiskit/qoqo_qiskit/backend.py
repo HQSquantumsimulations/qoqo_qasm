@@ -63,7 +63,8 @@ class QoqoQiskitSimulator:
     #     """
     #     if not self._are_measurement_operations_in(quantum_program):
     #         raise ValueError(
-    #             "The QuantumProgram does not contain Measurement operations. Simulation not possible.")
+    #             "The QuantumProgram does not contain Measurement operations.
+    # Simulation not possible.")
 
     #     constant_circuit_count = self.simulate_circuit(
     #         quantum_program.measurement.constant_circuit())
