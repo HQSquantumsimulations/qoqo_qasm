@@ -192,11 +192,12 @@ pub fn call_operation(
                 qubit_register_name,
                 op.qubit()
             ))
-        },
+        }
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
-        },
-        Operation::PragmaConditional(op) => { // can't handle multiple operations under if condition
+        }
+        Operation::PragmaConditional(op) => {
+            // can't handle multiple operations under if condition
             let mut ite = op.circuit().iter().peekable();
             let mut data = "".to_string();
             while let Some(int_op) = ite.next() {
@@ -217,7 +218,7 @@ pub fn call_operation(
                 }
             }
             Ok(data)
-        },
+        }
         Operation::PragmaRepeatedMeasurement(op) => match op.qubit_mapping() {
             None => Ok(format!(
                 "measure {} -> {};",
