@@ -1,5 +1,5 @@
 # Copyright © 2023 HQS Quantum Simulations GmbH.
-"""Qoqo-qiskit circuit conversion functions."""
+"""Qiskit interface for qoqo circuits."""
 
 from qoqo import Circuit
 from qiskit import QuantumCircuit
