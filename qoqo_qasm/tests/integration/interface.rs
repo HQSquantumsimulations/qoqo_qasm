@@ -1,4 +1,4 @@
-// Copyright © 2022 HQS Quantum Simulations GmbH. All Rights Reserved.
+// Copyright © 2022-2023 HQS Quantum Simulations GmbH. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License. You may obtain a copy of the License at
@@ -39,7 +39,7 @@ fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrap
     let circuitpy = circuit_type
         .call0()
         .unwrap()
-        .cast_as::<PyCell<CircuitWrapper>>()
+        .downcast::<PyCell<CircuitWrapper>>()
         .unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op).unwrap();

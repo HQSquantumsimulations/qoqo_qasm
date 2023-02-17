@@ -91,7 +91,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'qoqo_qasm'
-copyright = '2019-2021, HQS Quantum Simulations GmbH'
+copyright = '2019-2023, HQS Quantum Simulations GmbH'
 author = 'The qoqo developers'
 
 # The version info for the project you're documenting, acts as replacement for
