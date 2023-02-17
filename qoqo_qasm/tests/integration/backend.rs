@@ -113,7 +113,6 @@ fn test_circuit_to_qasm_file() {
 
 /// Test circuit_to_qasm_str and circuit_to_qasm_file errors
 #[test_case(Operation::from(ISwap::new(0, 1)))]
-#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(0.23))))]
 #[test_case(Operation::from(FSwap::new(0, 1)))]
 #[test_case(Operation::from(RotateXY::new(
     0,

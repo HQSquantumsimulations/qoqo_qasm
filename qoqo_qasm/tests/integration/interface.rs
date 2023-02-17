@@ -81,7 +81,7 @@ fn test_qasm_call_circuit() {
 #[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "rx(-3.141592653589793) q[0];"; "RotateX")]
 #[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "ry(-3.141592653589793) q[0];"; "RotateY")]
 #[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "rz(-3.141592653589793) q[0];"; "RotateZ")]
-#[test_case(Operation::from(SqrtPauliX::new(0)), "rx(pi/2) q[0];"; "SqrtPauliX")]
+#[test_case(Operation::from(SqrtPauliX::new(0)), "sx q[0];"; "SqrtPauliX")]
 #[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "rxx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
 #[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];"; "CNOT")]
 #[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1];"; "ControlledPauliY")]
@@ -108,7 +108,6 @@ fn test_qasm_call_operation(operation: Operation, converted: &str) {
 
 /// Test qasm_call_operation and qasm_call_circuit errors
 #[test_case(Operation::from(ISwap::new(0, 1)))]
-#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(0.23))))]
 #[test_case(Operation::from(FSwap::new(0, 1)))]
 #[test_case(Operation::from(RotateXY::new(
     0,
