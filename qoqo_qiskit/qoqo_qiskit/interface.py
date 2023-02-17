@@ -41,6 +41,13 @@ def to_qiskit_circuit(
             sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"].append(
                 (op.readout(), op.number_measurements(), op.qubit_mapping()))
             filtered_circuit += op
+        elif "MeasureQubit" in op.tags():
+            if "MeasureQubit" not in sim_dict["MeasurementInfo"]:
+                sim_dict["MeasurementInfo"]["MeasureQubit"] = []
+            sim_dict["MeasurementInfo"]["MeasureQubit"].append(
+                (op.qubit(), op.readout(), op.readout_index())
+            )
+            filtered_circuit += op
         else:
             filtered_circuit += op
 

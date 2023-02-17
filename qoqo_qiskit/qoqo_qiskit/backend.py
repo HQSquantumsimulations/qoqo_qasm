@@ -1,7 +1,7 @@
 # Copyright © 2023 HQS Quantum Simulations GmbH.
 """Qoqo-qiskit backend for simulation purposes."""
 
-from qoqo import QuantumProgram, Circuit
+from qoqo import Circuit
 from qiskit import Aer
 from qiskit.providers import Backend
 
@@ -72,22 +72,29 @@ class QoqoQiskitSimulator:
             if complex_def.is_output():
                 output_complex_register_dict[complex_def.name()] = cast(List[List[complex]], list())
 
-        # Filtering & Qiskit conversion
-        if not self._are_measurement_operations_in(circuit):
+        # Qiskit conversion
+        compiled_circuit, run_options = to_qiskit_circuit(circuit)
+
+        # Raise ValueError if no measurement is performed
+        if not run_options["MeasurementInfo"]:
             raise ValueError(
                 "The Circuit does not contain Measurement operations. Simulation not possible.")
 
-        compiled_circuit, _ = to_qiskit_circuit(circuit)
+        # TODO: handle Pragmas options for simulation
 
         # Simulation
-        result = self.simulator.run(compiled_circuit).result()
+        result = self.simulator.run(
+            compiled_circuit,
+            # shots=run_options["MeasurementInfo"]["PragmaRepeatedMeasurement"]
+            memory=True
+        ).result()
 
         # Result transformation
-        # output_bit_register_dict, output_float_register_dict, output_complex_register_dict = \
-        #     self._counts_to_registers(result.get_counts(compiled_circuit))
+        transformed_counts = self._counts_to_registers(result.get_memory())
+        for reg in output_bit_register_dict:
+            output_bit_register_dict[reg] = transformed_counts.pop()
 
-        # return output_bit_register_dict, output_float_register_dict, output_complex_register_dict
-        return result.get_counts(compiled_circuit)
+        return output_bit_register_dict, output_float_register_dict, output_complex_register_dict
 
     def run_measurement_registers(self, measurement: Any) -> Tuple[Dict[str, List[List[bool]]],
                                                                    Dict[str, List[List[float]]],
@@ -148,15 +155,34 @@ class QoqoQiskitSimulator:
 
     def _counts_to_registers(
         self,
-        counts: Union[Dict[str, int], List[Dict[str, int]]]
-    ) -> Tuple[Dict[str, List[List[bool]]],
-               Dict[str, List[List[float]]],
-               Dict[str, List[List[complex]]]]:
-        pass
+        counts: List[str]  # result.get_memory() style
+    ) -> Union[List[str], List[List[str]]]:
+        bit_map = []
+        reg_num = counts[0].count(" ")
 
-    def _are_measurement_operations_in(self, input: Union[Circuit, QuantumProgram]) -> bool:
-        # if isinstance(input, Circuit):
+        # if reg_num == 0:
+        #     bit_map.append(counts)
+        # else:
+        for _ in range(reg_num + 1):
+            bit_map.append([])
+        for count in counts:
+            splitted = count.split()
+            for id, measurement in enumerate(splitted):
+                measurement = self._bit_to_bool(measurement)
+                bit_map[id].append(measurement)
+
+        return bit_map
+
+    def _are_measurement_operations_in(self, input: Circuit) -> bool:
         for op in input:
             if "Measurement" in op.tags():
                 return True
         return False
+
+    def _bit_to_bool(self, element: str) -> Union[bool, List[bool]]:
+        ret = []
+
+        for char in element:
+            ret.append(char.lower() in ("1"))
+
+        return ret
