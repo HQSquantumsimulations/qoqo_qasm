@@ -23,7 +23,7 @@ qoqo-qasm provides the QasmBackend class that allows users translate a qoqo circ
 Not all qoqo operations have a corresponding qasm expression.  
 Circuits containing operations without a corresponding expression can not be translated.
 
-A source distribution now exists but requires a Rust install with a rust version > 1.47 and a maturin version { >= 0.12, <0.13 } in order to be built.
+A source distribution now exists but requires a Rust install with a rust version > 1.47 and a maturin version { >= 0.14, <0.15 } in order to be built.
 
 ## roqoqo-qasm
 
