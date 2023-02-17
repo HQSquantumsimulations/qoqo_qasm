@@ -7,7 +7,7 @@ from qiskit.providers import Backend
 
 from qoqo_qiskit.interface import to_qiskit_circuit  # type:ignore
 
-from typing import Tuple, Union, Dict, List, cast
+from typing import Tuple, Union, Dict, List, cast, Any, Optional
 
 ALLOWED_PROVIDERS = ["aer_simulator"]
 
@@ -72,23 +72,79 @@ class QoqoQiskitSimulator:
             if complex_def.is_output():
                 output_complex_register_dict[complex_def.name()] = cast(List[List[complex]], list())
 
+        # Filtering & Qiskit conversion
         if not self._are_measurement_operations_in(circuit):
             raise ValueError(
                 "The Circuit does not contain Measurement operations. Simulation not possible.")
 
         compiled_circuit, _ = to_qiskit_circuit(circuit)
 
+        # Simulation
         result = self.simulator.run(compiled_circuit).result()
-        output_bit_register_dict, output_float_register_dict, output_complex_register_dict = \
-            self._counts_to_registers(result.get_counts(compiled_circuit))
 
-        return output_bit_register_dict, output_float_register_dict, output_complex_register_dict
+        # Result transformation
+        # output_bit_register_dict, output_float_register_dict, output_complex_register_dict = \
+        #     self._counts_to_registers(result.get_counts(compiled_circuit))
 
-    def run_measurement_registers():
-        pass
+        # return output_bit_register_dict, output_float_register_dict, output_complex_register_dict
+        return result.get_counts(compiled_circuit)
 
-    def run_measurement():
-        pass
+    def run_measurement_registers(self, measurement: Any) -> Tuple[Dict[str, List[List[bool]]],
+                                                                   Dict[str, List[List[float]]],
+                                                                   Dict[str, List[List[complex]]]]:
+        """Run all circuits of a measurement with the PyQuEST backend.
+
+        Args:
+            measurement: The measurement that is run.
+
+        Returns:
+            Tuple[Dict[str, List[List[bool]]],
+                  Dict[str, List[List[float]]],
+                  Dict[str, List[List[complex]]]]
+        """
+        constant_circuit = measurement.constant_circuit()
+        output_bit_register_dict: Dict[str, List[List[bool]]] = dict()
+        output_float_register_dict: Dict[str, List[List[float]]] = dict()
+        output_complex_register_dict: Dict[str, List[List[complex]]] = dict()
+
+        for circuit in measurement.circuits():
+            if constant_circuit is None:
+                run_circuit = circuit
+            else:
+                run_circuit = constant_circuit + circuit
+
+            (tmp_bit_register_dict,
+             tmp_float_register_dict,
+             tmp_complex_register_dict) = self.run_circuit(
+                run_circuit
+            )
+
+            output_bit_register_dict.update(tmp_bit_register_dict)
+            output_float_register_dict.update(tmp_float_register_dict)
+            output_complex_register_dict.update(tmp_complex_register_dict)
+
+        return (
+            output_bit_register_dict,
+            output_float_register_dict,
+            output_complex_register_dict)
+
+    def run_measurement(self, measurement: Any) -> Optional[Dict[str, float]]:
+        """Run a circuit with the PyQuEST backend.
+
+        Args:
+            measurement: The measurement that is run.
+
+        Returns:
+            Optional[Dict[str, float]]
+        """
+        (output_bit_register_dict,
+            output_float_register_dict,
+            output_complex_register_dict) = self.run_measurement_registers(measurement)
+
+        return measurement.evaluate(
+            output_bit_register_dict,
+            output_float_register_dict,
+            output_complex_register_dict)
 
     def _counts_to_registers(
         self,

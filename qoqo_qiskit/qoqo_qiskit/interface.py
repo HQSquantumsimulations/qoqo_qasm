@@ -2,7 +2,7 @@
 """Qiskit interface for qoqo circuits."""
 
 from qoqo import Circuit
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 
 from qoqo_qasm import QasmBackend
 
@@ -25,16 +25,20 @@ def to_qiskit_circuit(
     """
     filtered_circuit = Circuit()
     sim_dict = {}
-    sim_dict["measurements"] = []
+    sim_dict["MeasurementInfo"] = {}
     initial_statevector = []
     for op in circuit:
         if "PragmaSetStateVector" in op.tags():
             initial_statevector = op.statevector()
         elif "PragmaSetNumberOfMeasurements" in op.tags():
-            sim_dict["measurements"].append((op.readout(), op.number_measurements(), {}))
-            filtered_circuit += op
+            if "PragmaSetNumberOfMeasurements" not in sim_dict["MeasurementInfo"]:
+                sim_dict["MeasurementInfo"]["PragmaSetNumberOfMeasurements"] = []
+            sim_dict["MeasurementInfo"]["PragmaSetNumberOfMeasurements"].append(
+                (op.readout(), op.number_measurements()))
         elif "PragmaRepeatedMeasurement" in op.tags():
-            sim_dict["measurements"].append(
+            if "PragmaRepeatedMeasurement" not in sim_dict["MeasurementInfo"]:
+                sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"] = []
+            sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"].append(
                 (op.readout(), op.number_measurements(), op.qubit_mapping()))
             filtered_circuit += op
         else:
@@ -43,10 +47,18 @@ def to_qiskit_circuit(
     qasm_backend = QasmBackend(qubit_register_name=qubit_register_name)
     input_qasm_str = qasm_backend.circuit_to_qasm_str(filtered_circuit)
 
+    # Handling PragmaSetStateVector
     return_circuit = QuantumCircuit()
     from_qasm_circuit = QuantumCircuit().from_qasm_str(input_qasm_str)
     if len(initial_statevector) != 0:
-        initial_circuit = QuantumCircuit(from_qasm_circuit.num_qubits, from_qasm_circuit.num_clbits)
+        qregs = []
+        for qreg in from_qasm_circuit.qregs:
+            qregs.append(QuantumRegister(qreg.size, qreg.name))
+        cregs = []
+        for creg in from_qasm_circuit.cregs:
+            cregs.append(ClassicalRegister(creg.size, creg.name))
+        regs = qregs + cregs
+        initial_circuit = QuantumCircuit(*regs)
         initial_circuit.initialize(initial_statevector)
         return_circuit = initial_circuit.compose(from_qasm_circuit)
     else:
