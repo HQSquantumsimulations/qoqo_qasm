@@ -115,7 +115,6 @@ pub fn call_operation(
         Operation::PauliZ(op) => Ok(format!("z {}[{}];", qubit_register_name, op.qubit())),
         Operation::SGate(op) => Ok(format!("s {}[{}];", qubit_register_name, op.qubit())),
         Operation::TGate(op) => Ok(format!("t {}[{}];", qubit_register_name, op.qubit())),
-        Operation::PhaseShiftState0(_op) => todo!(), // something similar to PSS1?
         Operation::PhaseShiftState1(op) => Ok(format!(
             "p({}) {}[{}];",
             op.theta().float().unwrap(),
@@ -141,7 +140,7 @@ pub fn call_operation(
             op.target()
         )),
         Operation::VariableMSXX(op) => Ok(format!(
-            "rxx({}) {}[{}],{}[{}]",
+            "rxx({}) {}[{}],{}[{}];",
             op.theta(),
             qubit_register_name,
             op.control(),
@@ -171,7 +170,7 @@ pub fn call_operation(
             op.target()
         )),
         Operation::SWAP(op) => Ok(format!(
-            "swap {}[{}],{}[{}]",
+            "swap {}[{}],{}[{}];",
             qubit_register_name,
             op.control(),
             qubit_register_name,
