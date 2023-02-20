@@ -98,7 +98,12 @@ fn test_pragma_repeated_operation() {
 /// Test that non-included gates return an error
 #[test]
 fn test_call_operation_error() {
-    let operation = Operation::from(Bogoliubov::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2)));
+    let operation = Operation::from(Bogoliubov::new(
+        0,
+        1,
+        CalculatorFloat::from(0.2),
+        CalculatorFloat::from(0.2),
+    ));
     assert_eq!(
         call_operation(&operation, "q"),
         Err(RoqoqoBackendError::OperationNotInBackend {
