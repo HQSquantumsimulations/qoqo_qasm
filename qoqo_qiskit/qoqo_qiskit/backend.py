@@ -80,12 +80,12 @@ class QoqoQiskitSimulator:
             raise ValueError(
                 "The Circuit does not contain Measurement operations. Simulation not possible.")
 
-        # TODO: handle Pragmas options for simulation
+        # Handle simulation Options
 
         # Simulation
         result = self.simulator.run(
             compiled_circuit,
-            # shots=run_options["MeasurementInfo"]["PragmaRepeatedMeasurement"]
+            shots=1,
             memory=True
         ).result()
 
@@ -156,13 +156,9 @@ class QoqoQiskitSimulator:
     def _counts_to_registers(
         self,
         counts: List[str]  # result.get_memory() style
-    ) -> Union[List[str], List[List[str]]]:
+    ) -> Union[List[bool], List[List[bool]]]:
         bit_map = []
         reg_num = counts[0].count(" ")
-
-        # if reg_num == 0:
-        #     bit_map.append(counts)
-        # else:
         for _ in range(reg_num + 1):
             bit_map.append([])
         for count in counts:
@@ -170,7 +166,6 @@ class QoqoQiskitSimulator:
             for id, measurement in enumerate(splitted):
                 measurement = self._bit_to_bool(measurement)
                 bit_map[id].append(measurement)
-
         return bit_map
 
     def _are_measurement_operations_in(self, input: Circuit) -> bool:
@@ -181,8 +176,6 @@ class QoqoQiskitSimulator:
 
     def _bit_to_bool(self, element: str) -> Union[bool, List[bool]]:
         ret = []
-
         for char in element:
             ret.append(char.lower() in ("1"))
-
         return ret
