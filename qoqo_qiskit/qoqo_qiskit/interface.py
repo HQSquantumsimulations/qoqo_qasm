@@ -23,6 +23,11 @@ def to_qiskit_circuit(
         Tuple[QuantumCircuit, dict[str, int]]: the equivalent QuantumCircuit and the dict containing
                                      info for Qiskit's simulator.
     """
+    # Populating dict output. Currently handling:
+    #   - PragmaSetStateVector (continues further down)
+    #   - PragmaSetNumberOfMeasurement
+    #   - PragmaRepeatedMeasurement
+    #   - MeasureQubit
     filtered_circuit = Circuit()
     sim_dict = {}
     sim_dict["MeasurementInfo"] = {}
@@ -51,10 +56,11 @@ def to_qiskit_circuit(
         else:
             filtered_circuit += op
 
+    # qoqo_qasm call
     qasm_backend = QasmBackend(qubit_register_name=qubit_register_name)
     input_qasm_str = qasm_backend.circuit_to_qasm_str(filtered_circuit)
 
-    # Handling PragmaSetStateVector
+    # Handling PragmaSetStateVector + QASM -> Qiskit transformation
     return_circuit = QuantumCircuit()
     from_qasm_circuit = QuantumCircuit().from_qasm_str(input_qasm_str)
     if len(initial_statevector) != 0:

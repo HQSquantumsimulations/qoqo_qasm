@@ -81,6 +81,7 @@ class QoqoQiskitSimulator:
                 "The Circuit does not contain Measurement operations. Simulation not possible.")
 
         # Handle simulation Options
+        # TODO
 
         # Simulation
         result = self.simulator.run(
