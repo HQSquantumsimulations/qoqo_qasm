@@ -7,7 +7,7 @@ from qoqo import Circuit
 from qoqo import operations as ops
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 
-from qoqo_qiskit.conversion import to_qiskit_circuit
+from qoqo_qiskit.interface import to_qiskit_circuit
 
 
 def test_basic_circuit():
@@ -22,7 +22,7 @@ def test_basic_circuit():
     out_circ, sim_dict = to_qiskit_circuit(circuit)
 
     assert (out_circ == qc)
-    assert (len(sim_dict["measurements"]) == 0)
+    assert (len(sim_dict["MeasurementInfo"]) == 0)
 
 
 def test_qreg_creg_names():
@@ -81,7 +81,7 @@ def test_repeated_measurement():
     out_circ, sim_dict = to_qiskit_circuit(circuit)
 
     assert (out_circ == qc)
-    assert (('ri', 300, None) in sim_dict["measurements"])
+    assert (('ri', 300, None) in sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"])
 
 
 def test_measure_qubit():
@@ -89,7 +89,7 @@ def test_measure_qubit():
     circuit += ops.Hadamard(0)
     circuit += ops.PauliZ(1)
     circuit += ops.DefinitionBit("crg", 1, is_output=True)
-    circuit += ops.PragmaRepeatedMeasurement("crg", 1, {0: 0})
+    circuit += ops.MeasureQubit(0, "crg", 0)
 
     qr = QuantumRegister(2, 'q')
     cr = ClassicalRegister(1, "crg")
@@ -101,7 +101,7 @@ def test_measure_qubit():
     out_circ, sim_dict = to_qiskit_circuit(circuit)
 
     assert (out_circ == qc)
-    assert (("crg", 1, {0: 0}) in sim_dict["measurements"])
+    assert ((0, "crg", 0) in sim_dict["MeasurementInfo"]["MeasureQubit"])
 
 
 # For pytest
