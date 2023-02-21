@@ -28,7 +28,7 @@ jobs:
         # updated and accepts the upload
         sleep 60
         # Publish second package
-        cargo publish -manifest-path=qoqo_qasm/Cargo.toml
+        cargo publish --manifest-path=qoqo_qasm/Cargo.toml
 
 # Build linux wheels and upload them to PyPi
   build_maturin_builds_linux:
