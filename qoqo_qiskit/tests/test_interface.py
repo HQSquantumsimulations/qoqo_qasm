@@ -1,5 +1,5 @@
 # Copyright © 2023 HQS Quantum Simulations GmbH.
-"""Test file for conversion.py."""
+"""Test file for interface.py."""
 
 import pytest
 import sys
