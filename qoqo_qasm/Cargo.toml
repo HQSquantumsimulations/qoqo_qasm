@@ -28,7 +28,7 @@ version = "0.18"
 features = ["num-complex"]
 
 [dev-dependencies]
-test-case = "2.2"
+test-case = "3.0"
 qoqo_calculator = "1.1"
 
 [build-dependencies]
