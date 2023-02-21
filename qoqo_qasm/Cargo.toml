@@ -2,6 +2,7 @@
 name = "qoqo_qasm"
 version = "0.5.0"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
+license = "Apache-2.0"
 edition = "2018"
 categories = ["science", "simulation"]
 readme = "README.md"
