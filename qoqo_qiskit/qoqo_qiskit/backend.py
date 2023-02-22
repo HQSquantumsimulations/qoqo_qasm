@@ -2,7 +2,7 @@
 """Qoqo-qiskit backend for simulation purposes."""
 
 from qoqo import Circuit
-from qiskit import Aer
+from qiskit_aer import AerSimulator
 from qiskit.providers import Backend
 
 from qoqo_qiskit.interface import to_qiskit_circuit  # type:ignore
@@ -26,7 +26,7 @@ class QoqoQiskitSimulator:
             ValueError: the selected simulator is not allowed.
         """
         if simulator is None:
-            self.simulator = Aer.get_backend("aer_simulator")
+            self.simulator = AerSimulator()
         elif not isinstance(simulator, Backend):
             raise TypeError("The input is not a valid Qiskit Backend instance.")
         elif simulator.name() not in ALLOWED_PROVIDERS:
