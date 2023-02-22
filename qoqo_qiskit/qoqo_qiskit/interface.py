@@ -62,7 +62,7 @@ def to_qiskit_circuit(
 
     # Handling PragmaSetStateVector + QASM -> Qiskit transformation
     return_circuit = QuantumCircuit()
-    from_qasm_circuit = QuantumCircuit().from_qasm_str(input_qasm_str)
+    from_qasm_circuit = QuantumCircuit.from_qasm_str(input_qasm_str)
     if len(initial_statevector) != 0:
         qregs = []
         for qreg in from_qasm_circuit.qregs:
