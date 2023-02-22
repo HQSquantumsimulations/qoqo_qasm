@@ -63,7 +63,6 @@ const ALLOWED_OPERATIONS: &[&str; 7] = &[
 ///
 /// assert_eq!(circuit, manual_circuit);
 /// ```
-///
 pub fn call_circuit(
     circuit: &Circuit,
     qubit_register_name: &str,
@@ -85,7 +84,6 @@ pub fn call_circuit(
 ///
 /// * `Ok(&str)` - Converted operation in &str form.
 /// * `Err(RoqoqoBackendError)` - Operation not supported by QASM backend.
-///
 pub fn call_operation(
     operation: &Operation,
     qubit_register_name: &str,
@@ -272,11 +270,11 @@ pub fn call_operation(
 /// # Returns
 ///
 /// * `Ok(String)` - The gate QASM gate definition.
-/// * `RoqoqoBackendError::GenericError` - TODO
+/// * `RoqoqoBackendError::GenericError` - Specific Operation error.
+/// * `RoqoqoBackendError::OperationNotInBackend` - Operation not supported by QASM backend.
 pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendError> {
     match operation {
         // TODO: always in output: u1 u2 u3
-        // TODO: add all basic definitions of the ops up
         Operation::RotateX(_) => Ok(String::from(
             "gate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\n"
         )),
