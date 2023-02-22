@@ -16,7 +16,7 @@ use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::prelude::*;
 use roqoqo::Circuit;
-use roqoqo_qasm::{call_circuit, call_operation};
+use roqoqo_qasm::{call_circuit, call_operation, gate_definition};
 use std::collections::HashMap;
 use std::f64::consts::PI;
 use std::usize;
@@ -69,6 +69,50 @@ fn test_call_operation(operation: Operation, converted: &str) {
         call_operation(&operation, "q").unwrap(),
         converted.to_string()
     )
+}
+
+#[test_case(Operation::from(PauliX::new(0)), "gate x a { u3(pi,0,pi) a; }\n"; "PauliX")]
+#[test_case(Operation::from(PauliY::new(0)), "gate y a { u3(pi,pi/2,pi/2) a; }\n"; "PauliY")]
+#[test_case(Operation::from(PauliZ::new(0)), "gate z a { u1(pi) a; }\n"; "PauliZ")]
+#[test_case(Operation::from(Hadamard::new(0)), "gate h a { u2(0,pi) a; }\n"; "Hadamard")]
+#[test_case(Operation::from(SGate::new(0)), "gate s a { u1(pi/2) a; }\n"; "SGate")]
+#[test_case(Operation::from(TGate::new(0)), "gate t a { u1(pi/4) a; }\n"; "TGate")]
+#[test_case(Operation::from(PhaseShiftState1::new(0, CalculatorFloat::from(PI))), "gate p(lambda) q { U(0,0,lambda) q; }\n"; "PhaseShiftState1")]
+#[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "gate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\n"; "RotateX")]
+#[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "gate ry(theta) a { u3(theta,0,0) a; }\n"; "RotateY")]
+#[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "gate rz(phi) a { u1(phi) a; }\n"; "RotateZ")]
+#[test_case(Operation::from(SqrtPauliX::new(0)), "gate sx a { u1(-pi/2) a; u2(0,pi) a; u1(-pi/2) a; }\n"; "SqrtPauliX")]
+#[test_case(Operation::from(InvSqrtPauliX::new(0)), "gate sxdg a { u1(pi/2) a; u2(0,pi) a; u1(pi/2) a; }\n"; "InvSqrtPauliX")]
+#[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "gate rxx(theta) a,b { u3(pi/2,theta,0) a; u2(0,pi) b; CX a,b; u1(-theta) b; CX a,b; u2(0,pi) b; u2(-pi,pi-theta) a; }\n"; "MolmerSorensenXX")]
+#[test_case(Operation::from(CNOT::new(0, 1)), "gate cx c,t { CX c,t; }\n"; "CNOT")]
+#[test_case(Operation::from(VariableMSXX::new(0, 1, CalculatorFloat::from(PI/2.0))), "gate rxx(theta) a,b { u3(pi/2,theta,0) a; u2(0,pi) b; CX a,b; u1(-theta) b; CX a,b; u2(0,pi) b; u2(-pi,pi-theta) a; }\n"; "VariableMSXX")]
+#[test_case(Operation::from(ControlledPauliY::new(0, 1)), "gate cy a,b { u1(-pi/2) b; CX a,b; u1(pi/2) b; }\n"; "ControlledPauliY")]
+#[test_case(Operation::from(ControlledPauliZ::new(0, 1)), "gate cz a,b { u2(0,pi) b; CX a,b; u2(0,pi) b; }\n"; "ControlledPauliZ")]
+#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(PI/4.0))), "gate cp(lambda) a,b { U(0,0,lambda/2) a; CX a,b; U(0,0,-lambda/2) b; CX a,b; U(0,0,lambda/2) b; }\n"; "ControlledPhaseShift")]
+#[test_case(Operation::from(SWAP::new(0, 1)), "gate swap a,b { CX a,b; CX b,a; CX a,b; }\n"; "SWAP")]
+#[test_case(Operation::from(ISwap::new(0, 1)), "gate iswap a,b { rx(pi/2) a; CX a,b; rx(-pi/2) a; ry(-pi/2) b; CX a,b; rx(-pi/2) a; }\n"; "ISwap")]
+#[test_case(Operation::from(SqrtISwap::new(0, 1)), "gate siswap a,b { rx(pi/2) a; CX a,b; rx(-pi/4) a; ry(-pi/4) b; CX a,b; rx(-pi/2) a; }\n"; "SqrtISwap")]
+#[test_case(Operation::from(InvSqrtISwap::new(0, 1)), "gate siswapdg a,b { rx(pi/2) a; CX a,b; rx(pi/4) a; ry(pi/4) b; CX a,b; rx(-pi/2) a; }\n"; "InvSqrtISwap")]
+#[test_case(Operation::from(FSwap::new(0, 1)), "gate fswap a,b { rz(-pi/2) a; rz(-pi/2) b; rx(pi/2) a; CX a,b; rx(-pi/2) a; ry(-pi/2) b; CX a,b; rx(-pi/2) a; }\n"; "FSwap")]
+#[test_case(Operation::from(Fsim::new(0, 1, CalculatorFloat::from(PI/2.0), CalculatorFloat::from(PI/2.0), CalculatorFloat::from(PI/2.0))), "gate fsim(t,u,phi) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-t+phi+pi/2) a; rx(pi) a; ry(-pi/2) b; rz((u-pi)/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(t+phi+pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; rz((-u-pi)/2) a; rz((-u-pi)/2) b; }\n"; "Fsim")]
+#[test_case(Operation::from(PMInteraction::new(0, 1, CalculatorFloat::from(PI/2.0))), "gate pmint(theta) a,b { rx(pi/2) a; CX a,b; rx(theta) a; ry(theta) b; CX a,b; rx(-pi/2) a; }\n"; "PMInteraction")]
+#[test_case(Operation::from(GivensRotation::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.3))), "gate gvnsrot(theta,phi) a,b { rz(phi+pi/2) b; rx(pi/2) a; CX a,b; rx(-theta) a; ry(-theta) b; CX a,b; rx(-pi/2) a; rz(-pi/2) b; }\n"; "GivensRotation")]
+#[test_case(Operation::from(GivensRotationLittleEndian::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.3))), "gate gvnsrotle(theta,phi) a,b { rz(-pi/2) a; rx(pi/2) a; CX a,b; rx(-theta) a; ry(-theta) b; CX a,b; rx(-pi/2) a; rz(phi+pi/2) a; }\n"; "GivensRotationLittleEndian")]
+#[test_case(Operation::from(Qsim::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.3), CalculatorFloat::from(0.2))), "gate qsim(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-2*xc+pi/2) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(2*yc+pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; }\n"; "Qsim")]
+#[test_case(Operation::from(XY::new(0, 1, CalculatorFloat::from(0.3))), "gate xy(theta) a,b { rx(pi/2) a; CX a,b; rx(-theta/2) a; ry(-theta/2) b; CX a,b; rx(-pi/2) a; }\n"; "XY")]
+#[test_case(Operation::from(RotateXY::new(0, CalculatorFloat::from(0.3), CalculatorFloat::from(0.3))), "gate rxy(theta,phi) q { u3(theta,phi-pi/2,pi/2-phi) q; }\n"; "RotateXY")]
+#[test_case(Operation::from(SpinInteraction::new(0, 1, CalculatorFloat::from(0.3), CalculatorFloat::from(0.3), CalculatorFloat::from(0.3))), "gate spinint(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-2*xc) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(2*yc+pi) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; }\n"; "SpinInteraction")]
+#[test_case(Operation::from(PhaseShiftedControlledZ::new(0, 1, CalculatorFloat::from(0.2))), "gate pscz(phi) a,b { rz(pi/2) a; rz(pi/2) b; ry(pi/2) b; CX a,b; rx(-pi/2) b; rz(-pi/2) a; ry(-pi/2) b; rz(phi) a; rz(phi) b; }\n"; "PhaseShiftedControlledZ")]
+#[test_case(Operation::from(PhaseShiftedControlledPhase::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "gate pscp(theta,phi) a,b { rz(theta/2) a; rz(theta/2) b; CX a,b; rz(-theta/2) b; CX a,b; rz(phi) a; rz(phi) b; }\n"; "PhaseShiftedControlledPhase")]
+#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), ""; "PragmaSleep")]
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(0.3))), "gate gphase(theta) q { u3(pi,0,pi) q; u1(theta) q; u3(pi,0,pi) q; u1(theta) q; }\n"; "PragmaGlobalPhase")]
+#[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), ""; "PragmaStopDecompositionBlock")]
+#[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), ""; "PragmaStopParallelBlock")]
+#[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
+#[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), ""; "PragmaStartDecompositionBlock")]
+#[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), ""; "InputSymbolic")]
+fn test_gate_definition(operation: Operation, converted: &str) {
+    assert_eq!(gate_definition(&operation).unwrap(), converted.to_string())
 }
 
 #[test]
