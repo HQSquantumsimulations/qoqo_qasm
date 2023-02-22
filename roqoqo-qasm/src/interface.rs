@@ -265,20 +265,20 @@ pub fn call_operation(
 
 /// Outputs the QASM gate definition of many qoqo operations.
 ///
-/// # Arguments:
+/// # Arguments
 ///
 /// * `operation` - The roqoqo Operation to be defined.
 ///
-/// # Returns:
+/// # Returns
 ///
 /// * `Ok(String)` - The gate QASM gate definition.
 /// * `RoqoqoBackendError::GenericError` - TODO
 pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendError> {
     match operation {
-        // TODO: add u1 u2 u3 definitions
+        // TODO: always in output: u1 u2 u3
         // TODO: add all basic definitions of the ops up
         Operation::RotateX(_) => Ok(String::from(
-            "gate rx(theta) a { u3(theta, -pi/2,pi/2) a; }\n"
+            "gate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\n"
         )),
         Operation::RotateY(_) => Ok(String::from(
             "gate ry(theta) a { u3(theta,0,0) a; }\n"
@@ -286,11 +286,50 @@ pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendErr
         Operation::RotateZ(_) => Ok(String::from(
             "gate rz(phi) a { u1(phi) a; }\n"
         )),
+        Operation::PauliX(_) => Ok(String::from(
+            "gate x a { u3(pi,0,pi) a; }\n"
+        )),
+        Operation::PauliY(_) => Ok(String::from(
+            "gate y a { u3(pi,pi/2,pi/2) a; }\n"
+        )),
+        Operation::PauliZ(_) => Ok(String::from(
+            "gate z a { u1(pi) a; }\n"
+        )),
+        Operation::SGate(_) => Ok(String::from(
+            "gate s a { u1(pi/2) a; }\n"
+        )),
+        Operation::TGate(_) => Ok(String::from(
+            "gate t a { u1(pi/4) a; }\n"
+        )),
         Operation::Hadamard(_) => Ok(String::from(
             "gate h a { u2(0,pi) a; }\n"
         )),
         Operation::CNOT(_) => Ok(String::from(
             "gate cx c,t { CX c,t; }\n"
+        )),
+        Operation::PhaseShiftState1(_) => Ok(String::from(
+            "gate p(lambda) q { U(0,0,lambda) q; }\n"
+        )),
+        Operation::SqrtPauliX(_) => Ok(String::from(
+            "gate sx a { u1(-pi/2) a; u2(0,pi) a; u1(-pi/2) a; }\n"
+        )),
+        Operation::InvSqrtPauliX(_) => Ok(String::from(
+            "gate sxdg a { u1(pi/2) a; u2(0,pi) a; u1(pi/2) a; }\n"
+        )),
+        Operation::MolmerSorensenXX(_) | Operation::VariableMSXX(_) => Ok(String::from(
+            "gate rxx(theta) a,b { u3(pi/2,theta,0) a; u2(0,pi) b; CX a,b; u1(-theta) b; CX a,b; u2(0,pi) b; u2(-pi,pi-theta) a; }\n"
+        )),
+        Operation::ControlledPauliY(_) => Ok(String::from(
+            "gate cy a,b { u1(-pi/2) b; CX a,b; u1(pi/2) b; }\n"
+        )),
+        Operation::ControlledPauliZ(_) => Ok(String::from(
+            "gate cz a,b { u2(0,pi) b; CX a,b; u2(0,pi) b; }\n"
+        )),
+        Operation::ControlledPhaseShift(_) => Ok(String::from(
+            "gate cp(lambda) a,b { U(0,0,lambda/2) a; CX a,b; U(0,0,-lambda/2) b; CX a,b; U(0,0,lambda/2) b; }\n"
+        )),
+        Operation::SWAP(_) => Ok(String::from(
+            "gate swap a,b { CX a,b; CX b,a; CX a,b; }\n"
         )),
         Operation::ISwap(_) => Ok(String::from(
             "gate iswap a,b { rx(pi/2) a; CX a,b; rx(-pi/2) a; ry(-pi/2) b; CX a,b; rx(-pi/2) a; }\n"
@@ -305,7 +344,7 @@ pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendErr
             "gate fswap a,b { rz(-pi/2) a; rz(-pi/2) b; rx(pi/2) a; CX a,b; rx(-pi/2) a; ry(-pi/2) b; CX a,b; rx(-pi/2) a; }\n"
         )),
         Operation::Fsim(_) => Ok(String::from(
-            "gate fsim(t,u,phi) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; h b; CX a,b; h b; ry(-t+phi+pi/2) a; rx(pi) a; ry(-pi/2) b; rz((u-pi)/2) b; h b; CX a,b; h b; rz(pi) a; ry(t+phi+pi/2) a; rz(pi) b; ry(pi/2) b; h b; CX a,b; h b; rz(-pi/2) b; rx(-pi/2) b; rz((-u-pi)/2) a; rz((-u-pi)/2) b; }\n"
+            "gate fsim(t,u,phi) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-t+phi+pi/2) a; rx(pi) a; ry(-pi/2) b; rz((u-pi)/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(t+phi+pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; rz((-u-pi)/2) a; rz((-u-pi)/2) b; }\n"
         )),
         Operation::PMInteraction(_) => Ok(String::from(
             "gate pmint(theta) a,b { rx(pi/2) a; CX a,b; rx(theta) a; ry(theta) b; CX a,b; rx(-pi/2) a; }\n"
@@ -317,13 +356,13 @@ pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendErr
             "gate gvnsrotle(theta,phi) a,b { rz(-pi/2) a; rx(pi/2) a; CX a,b; rx(-theta) a; ry(-theta) b; CX a,b; rx(-pi/2) a; rz(phi+pi/2) a; }\n"
         )),
         Operation::Qsim(_) => Ok(String::from(
-            "gate qsim(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; h b; CX a,b; h b; ry(-2*xc+pi/2) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi) b; h b; CX a,b; h b; rz(pi) a; ry(2*yc+pi/2) a; rz(pi) b; ry(pi/2) b; h b; CX a,b; h b; rz(-pi/2) b; rx(-pi/2) b; }\n"
+            "gate qsim(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-2*xc+pi/2) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(2*yc+pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; }\n"
         )),
         Operation::XY(_) => Ok(String::from(
             "gate xy(theta) a,b { rx(pi/2) a; CX a,b; rx(-theta/2) a; ry(-theta/2) b; CX a,b; rx(-pi/2) a; }\n"
         )),
         Operation::SpinInteraction(_) => Ok(String::from(
-            "gate spinint(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; h b; CX a,b; h b; ry(-2*xc) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi/2) b; h b; CX a,b; h b; rz(pi) a; ry(2*yc+pi) a; rz(pi) b; ry(pi/2) b; h b; CX a,b; h b; rz(-pi/2) b; rx(-pi/2) b; }\n"
+            "gate spinint(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-2*xc) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(2*yc+pi) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; }\n"
         )),
         Operation::PhaseShiftedControlledZ(_) => Ok(String::from(
             "gate pscz(phi) a,b { rz(pi/2) a; rz(pi/2) b; ry(pi/2) b; CX a,b; rx(-pi/2) b; rz(-pi/2) a; ry(-pi/2) b; rz(phi) a; rz(phi) b; }\n"
@@ -333,11 +372,21 @@ pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendErr
         )),
         // TODO: to be applied to each qubit
         Operation::PragmaGlobalPhase(_) => Ok(String::from(
-            "gate gphase(theta) q { x q; u1(theta) q; x q; u1(theta) q; }\n"
+            "gate gphase(theta) q { u3(pi,0,pi) q; u1(theta) q; u3(pi,0,pi) q; u1(theta) q; }\n"
         )),
         Operation::RotateXY(_) => Ok(String::from(
             "gate rxy(theta,phi) q { u3(theta,phi-pi/2,pi/2-phi) q; }\n"
         )),
-        _ => Err(RoqoqoBackendError::GenericError { msg: "TODO".to_string() }),
+        Operation::SingleQubitGate(_) => Err(RoqoqoBackendError::GenericError { msg: "The Operation is too simple - the default suffices in representing it.".to_string() }),
+        _ => {
+            if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
+                Ok("".to_string())
+            } else {
+                Err(RoqoqoBackendError::OperationNotInBackend {
+                    backend: "QASM",
+                    hqslang: operation.hqslang(),
+                })
+            }
+        }
     }
 }

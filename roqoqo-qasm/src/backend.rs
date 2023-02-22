@@ -47,8 +47,6 @@ impl Backend {
     /// # Arguments
     ///
     /// * `qubit_register_name` - The number of qubits in the backend.
-    /// * ``
-    ///
     pub fn new(qubit_register_name: Option<String>) -> Self {
         match qubit_register_name {
             None => Self {
