@@ -14,7 +14,7 @@ use pyo3::exceptions::PyValueError;
 use pyo3::{exceptions::PyTypeError, prelude::*};
 use qoqo::convert_into_circuit;
 use qoqo::operations::convert_pyany_to_operation;
-use roqoqo_qasm::{call_circuit, call_operation};
+use roqoqo_qasm::{call_circuit, call_operation, gate_definition};
 
 /// Translate the qoqo circuit into QASM ouput
 ///
@@ -59,4 +59,14 @@ pub fn qasm_call_operation(operation: &PyAny, qubit_register_name: &str) -> PyRe
     })?;
     call_operation(&operation, qubit_register_name)
         .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
+}
+
+/// 
+#[pyfunction]
+pub fn qasm_gate_definition(operation: &PyAny) -> PyResult<String> {
+    let operation = convert_pyany_to_operation(operation).map_err(|x| {
+        PyTypeError::new_err(format!("Cannot convert python object to Operation: {x:?}"))
+    })?;
+    gate_definition(&operation)
+        .map_err(|x| PyValueError::new_err(format!("Error during QASM gate definition: {x:?}")))
 }
