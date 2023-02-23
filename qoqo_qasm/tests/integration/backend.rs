@@ -112,8 +112,18 @@ fn test_circuit_to_qasm_file() {
 }
 
 /// Test circuit_to_qasm_str and circuit_to_qasm_file errors
-#[test_case(Operation::from(Bogoliubov::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.3))))]
-#[test_case(Operation::from(ComplexPMInteraction::new(0, 1, CalculatorFloat::from(0.3), CalculatorFloat::from(0.2))))]
+#[test_case(Operation::from(Bogoliubov::new(
+    0,
+    1,
+    CalculatorFloat::from(0.2),
+    CalculatorFloat::from(0.3)
+)))]
+#[test_case(Operation::from(ComplexPMInteraction::new(
+    0,
+    1,
+    CalculatorFloat::from(0.3),
+    CalculatorFloat::from(0.2)
+)))]
 fn test_circuit_to_qasm_error(operation: Operation) {
     let mut wrong_circuit = Circuit::new();
     wrong_circuit += operation.clone();
