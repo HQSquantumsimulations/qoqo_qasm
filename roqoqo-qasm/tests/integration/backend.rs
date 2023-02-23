@@ -69,6 +69,21 @@ fn simple_circuit_iterator_to_file() {
     assert_eq!(lines, extracted.unwrap());
 }
 
+/// Test duplicate gates definitions
+#[test]
+fn test_duplicate_definitions() {
+    let backend = Backend::new(Some("qr".to_string()));
+    let mut circuit = Circuit::new();
+    circuit += DefinitionBit::new("ro".to_string(), 2, true);
+    circuit += PauliX::new(0);
+    circuit += PauliX::new(1);
+    circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
+
+    let output = backend.circuit_to_qasm_str(&circuit).unwrap();
+    let lines = String::from("OPENQASM 2.0;\n\ngate x a { u3(pi,0,pi) a; }\n\nqreg qr[2];\ncreg ro[2];\nx qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+    assert_eq!(output, lines);
+}
+
 /// Test that backend returns error when running for a file that exists without overwrite
 #[test]
 fn run_error() {

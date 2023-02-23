@@ -77,6 +77,7 @@ impl Backend {
         let mut qasm_string = String::from("OPENQASM 2.0;\n\n");
 
         let mut number_qubits_required: usize = 0;
+        let mut already_seen_definitions: Vec<String> = vec![];
         for op in circuit {
             if let InvolvedQubits::Set(involved_qubits) = op.involved_qubits() {
                 number_qubits_required =
@@ -85,9 +86,12 @@ impl Backend {
                         Some(n) => *n,
                     })
             }
-            definitions.push_str(&gate_definition(op)?);
-            if !definitions.is_empty() {
-                definitions.push('\n');
+            if !already_seen_definitions.contains(&op.hqslang().to_string()) {
+                already_seen_definitions.push(op.hqslang().to_string());
+                definitions.push_str(&gate_definition(op)?);
+                if !definitions.is_empty() {
+                    definitions.push('\n');
+                }
             }
             data.push_str(&call_operation(op, &self.qubit_register_name)?);
             if !data.is_empty() {
