@@ -10,7 +10,7 @@
 // express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::call_operation;
+use crate::{call_operation, gate_definition};
 use roqoqo::operations::*;
 use roqoqo::{Circuit, RoqoqoBackendError};
 use std::fs::File;
@@ -72,8 +72,9 @@ impl Backend {
         &self,
         circuit: impl Iterator<Item = &'a Operation>,
     ) -> Result<String, RoqoqoBackendError> {
+        let mut definitions: String = "".to_string();
         let mut data: String = "".to_string();
-        let mut qasm_string = String::from("OPENQASM 2.0;\ninclude \"qelib1.inc\";\n\n");
+        let mut qasm_string = String::from("OPENQASM 2.0;\n\n");
 
         let mut number_qubits_required: usize = 0;
         for op in circuit {
@@ -84,9 +85,17 @@ impl Backend {
                         Some(n) => *n,
                     })
             }
+            definitions.push_str(&gate_definition(op)?);
+            if !definitions.is_empty() {
+                definitions.push('\n');
+            }
             data.push_str(&call_operation(op, &self.qubit_register_name)?);
-            data.push('\n');
+            if !data.is_empty() {
+                data.push('\n');
+            }
         }
+        qasm_string.push_str(definitions.as_str());
+
         qasm_string.push_str(
             format!(
                 "qreg {}[{}];\n",
@@ -95,7 +104,6 @@ impl Backend {
             )
             .as_str(),
         );
-
         qasm_string.push_str(data.as_str());
 
         Ok(qasm_string)

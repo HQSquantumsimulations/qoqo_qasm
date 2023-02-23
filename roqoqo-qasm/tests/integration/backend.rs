@@ -37,7 +37,7 @@ fn run_simple_circuit() {
         )
         .unwrap();
 
-    let lines = String::from("OPENQASM 2.0;\ninclude \"qelib1.inc\";\n\nqreg qr[2];\ncreg ro[2];\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+    let lines = String::from("OPENQASM 2.0;\n\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate x a { u3(pi,0,pi) a; }\n\nqreg qr[2];\ncreg ro[2];\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
     let read_in_path = temp_dir().join(Path::new("test_simple0.qasm"));
     let extracted = fs::read_to_string(&read_in_path);
     fs::remove_file(&read_in_path).unwrap();
@@ -62,7 +62,7 @@ fn simple_circuit_iterator_to_file() {
         )
         .unwrap();
 
-    let lines = String::from("OPENQASM 2.0;\ninclude \"qelib1.inc\";\n\nqreg q[2];\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
+    let lines = String::from("OPENQASM 2.0;\n\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate x a { u3(pi,0,pi) a; }\n\nqreg q[2];\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
     let read_in_path = temp_dir().join(Path::new("test_simple1.qasm"));
     let extracted = fs::read_to_string(&read_in_path);
     fs::remove_file(&read_in_path).unwrap();

@@ -107,13 +107,8 @@ fn test_qasm_call_operation(operation: Operation, converted: &str) {
 }
 
 /// Test qasm_call_operation and qasm_call_circuit errors
-#[test_case(Operation::from(ISwap::new(0, 1)))]
-#[test_case(Operation::from(FSwap::new(0, 1)))]
-#[test_case(Operation::from(RotateXY::new(
-    0,
-    CalculatorFloat::from(0.23),
-    CalculatorFloat::from(0.23)
-)))]
+#[test_case(Operation::from(Bogoliubov::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.3))))]
+#[test_case(Operation::from(ComplexPMInteraction::new(0, 1, CalculatorFloat::from(0.3), CalculatorFloat::from(0.2))))]
 fn test_qasm_call_error(operation: Operation) {
     let mut wrong_circuit = Circuit::new();
     wrong_circuit += operation.clone();

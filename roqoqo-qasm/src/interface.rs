@@ -17,7 +17,7 @@ use roqoqo::operations::*;
 use roqoqo::Circuit;
 use roqoqo::RoqoqoBackendError;
 
-// Pragma operations that are ignored by backend and do not throw an error
+// Operations that are ignored by backend and do not throw an error
 const ALLOWED_OPERATIONS: &[&str; 7] = &[
     "PragmaSleep",
     "PragmaGlobalPhase",
@@ -26,6 +26,19 @@ const ALLOWED_OPERATIONS: &[&str; 7] = &[
     "PragmaSetNumberOfMeasurements",
     "PragmaStartDecompositionBlock",
     "InputSymbolic",
+];
+
+// Operations that are ignored when looking for a QASM definition
+const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
+    "SingleQubitGate",
+    "DefinitionFloat",
+    "DefinitionUsize",
+    "DefinitionBit",
+    "DefinitionComplex",
+    "PragmaActiveReset",
+    "PragmaConditional",
+    "PragmaRepeatedMeasurement",
+    "MeasureQubit",
 ];
 
 /// Translate the qoqo circuit into QASM ouput.
@@ -174,6 +187,121 @@ pub fn call_operation(
             qubit_register_name,
             op.target()
         )),
+        Operation::ISwap(op) => Ok(format!(
+            "iswap {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::SqrtISwap(op) => Ok(format!(
+            "siswap {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::InvSqrtISwap(op) => Ok(format!(
+            "siswapdg {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::FSwap(op) => Ok(format!(
+            "fswap {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::Fsim(op) => Ok(format!(
+            "fsim({},{},{}) {}[{}],{}[{}];",
+            op.t(),
+            op.u(),
+            op.delta(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::Qsim(op) => Ok(format!(
+            "qsim({},{},{}) {}[{}],{}[{}];",
+            op.x(),
+            op.y(),
+            op.z(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::PMInteraction(op) => Ok(format!(
+            "pmint({}) {}[{}],{}[{}];",
+            op.t(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::GivensRotation(op) => Ok(format!(
+            "gvnsrot({},{}) {}[{}],{}[{}];",
+            op.theta(),
+            op.phi(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::GivensRotationLittleEndian(op) => Ok(format!(
+            "gvnsrotle({},{}) {}[{}],{}[{}];",
+            op.theta(),
+            op.phi(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::XY(op) => Ok(format!(
+            "xy({}) {}[{}],{}[{}];",
+            op.theta(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::SpinInteraction(op) => Ok(format!(
+            "spinint({},{},{}) {}[{}],{}[{}];",
+            op.x(),
+            op.y(),
+            op.z(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::RotateXY(op) => Ok(format!(
+            "rxy({}) {}[{}];",
+            op.phi(),
+            qubit_register_name,
+            op.qubit(),
+        )),
+        Operation::PhaseShiftedControlledZ(op) => Ok(format!(
+            "pscz({}) {}[{}],{}[{}];",
+            op.phi(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
+        Operation::PhaseShiftedControlledPhase(op) => Ok(format!(
+            "pscp({},{}) {}[{}],{}[{}];",
+            op.theta(),
+            op.phi(),
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
         Operation::SingleQubitGate(op) => {
             let alpha = CalculatorComplex::new(op.alpha_r(), op.alpha_i());
             let beta = CalculatorComplex::new(op.beta_r(), op.beta_i());
@@ -194,7 +322,7 @@ pub fn call_operation(
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
         }
         Operation::PragmaConditional(op) => {
-            // can't handle multiple operations under if condition
+            // does not work if the internal circuit has another PragmaConditional
             let mut ite = op.circuit().iter().peekable();
             let mut data = "".to_string();
             while let Some(int_op) = ite.next() {
@@ -270,114 +398,109 @@ pub fn call_operation(
 /// # Returns
 ///
 /// * `Ok(String)` - The gate QASM gate definition.
-/// * `RoqoqoBackendError::GenericError` - Specific Operation error.
 /// * `RoqoqoBackendError::OperationNotInBackend` - Operation not supported by QASM backend.
 pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendError> {
     match operation {
         // TODO: always in output: u1 u2 u3
+        // TODO: check how qoqo-qiskit would react to these rotations
         Operation::RotateX(_) => Ok(String::from(
-            "gate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\n"
+            "gate rx(theta) a { u3(theta,-pi/2,pi/2) a; }"
         )),
         Operation::RotateY(_) => Ok(String::from(
-            "gate ry(theta) a { u3(theta,0,0) a; }\n"
+            "gate ry(theta) a { u3(theta,0,0) a; }"
         )),
         Operation::RotateZ(_) => Ok(String::from(
-            "gate rz(phi) a { u1(phi) a; }\n"
+            "gate rz(phi) a { u1(phi) a; }"
         )),
         Operation::PauliX(_) => Ok(String::from(
-            "gate x a { u3(pi,0,pi) a; }\n"
+            "gate x a { u3(pi,0,pi) a; }"
         )),
         Operation::PauliY(_) => Ok(String::from(
-            "gate y a { u3(pi,pi/2,pi/2) a; }\n"
+            "gate y a { u3(pi,pi/2,pi/2) a; }"
         )),
         Operation::PauliZ(_) => Ok(String::from(
-            "gate z a { u1(pi) a; }\n"
+            "gate z a { u1(pi) a; }"
         )),
         Operation::SGate(_) => Ok(String::from(
-            "gate s a { u1(pi/2) a; }\n"
+            "gate s a { u1(pi/2) a; }"
         )),
         Operation::TGate(_) => Ok(String::from(
-            "gate t a { u1(pi/4) a; }\n"
+            "gate t a { u1(pi/4) a; }"
         )),
         Operation::Hadamard(_) => Ok(String::from(
-            "gate h a { u2(0,pi) a; }\n"
+            "gate h a { u2(0,pi) a; }"
         )),
         Operation::CNOT(_) => Ok(String::from(
-            "gate cx c,t { CX c,t; }\n"
+            "gate cx c,t { CX c,t; }"
         )),
         Operation::PhaseShiftState1(_) => Ok(String::from(
-            "gate p(lambda) q { U(0,0,lambda) q; }\n"
+            "gate p(lambda) q { U(0,0,lambda) q; }"
         )),
         Operation::SqrtPauliX(_) => Ok(String::from(
-            "gate sx a { u1(-pi/2) a; u2(0,pi) a; u1(-pi/2) a; }\n"
+            "gate sx a { u1(-pi/2) a; u2(0,pi) a; u1(-pi/2) a; }"
         )),
         Operation::InvSqrtPauliX(_) => Ok(String::from(
-            "gate sxdg a { u1(pi/2) a; u2(0,pi) a; u1(pi/2) a; }\n"
+            "gate sxdg a { u1(pi/2) a; u2(0,pi) a; u1(pi/2) a; }"
         )),
         Operation::MolmerSorensenXX(_) | Operation::VariableMSXX(_) => Ok(String::from(
-            "gate rxx(theta) a,b { u3(pi/2,theta,0) a; u2(0,pi) b; CX a,b; u1(-theta) b; CX a,b; u2(0,pi) b; u2(-pi,pi-theta) a; }\n"
+            "gate rxx(theta) a,b { u3(pi/2,theta,0) a; u2(0,pi) b; CX a,b; u1(-theta) b; CX a,b; u2(0,pi) b; u2(-pi,pi-theta) a; }"
         )),
         Operation::ControlledPauliY(_) => Ok(String::from(
-            "gate cy a,b { u1(-pi/2) b; CX a,b; u1(pi/2) b; }\n"
+            "gate cy a,b { u1(-pi/2) b; CX a,b; u1(pi/2) b; }"
         )),
         Operation::ControlledPauliZ(_) => Ok(String::from(
-            "gate cz a,b { u2(0,pi) b; CX a,b; u2(0,pi) b; }\n"
+            "gate cz a,b { u2(0,pi) b; CX a,b; u2(0,pi) b; }"
         )),
         Operation::ControlledPhaseShift(_) => Ok(String::from(
-            "gate cp(lambda) a,b { U(0,0,lambda/2) a; CX a,b; U(0,0,-lambda/2) b; CX a,b; U(0,0,lambda/2) b; }\n"
+            "gate cp(lambda) a,b { U(0,0,lambda/2) a; CX a,b; U(0,0,-lambda/2) b; CX a,b; U(0,0,lambda/2) b; }"
         )),
         Operation::SWAP(_) => Ok(String::from(
-            "gate swap a,b { CX a,b; CX b,a; CX a,b; }\n"
+            "gate swap a,b { CX a,b; CX b,a; CX a,b; }"
         )),
         Operation::ISwap(_) => Ok(String::from(
-            "gate iswap a,b { rx(pi/2) a; CX a,b; rx(-pi/2) a; ry(-pi/2) b; CX a,b; rx(-pi/2) a; }\n"
+            "gate iswap a,b { rx(pi/2) a; CX a,b; rx(-pi/2) a; ry(-pi/2) b; CX a,b; rx(-pi/2) a; }"
         )),
         Operation::SqrtISwap(_) => Ok(String::from(
-            "gate siswap a,b { rx(pi/2) a; CX a,b; rx(-pi/4) a; ry(-pi/4) b; CX a,b; rx(-pi/2) a; }\n"
+            "gate siswap a,b { rx(pi/2) a; CX a,b; rx(-pi/4) a; ry(-pi/4) b; CX a,b; rx(-pi/2) a; }"
         )),
         Operation::InvSqrtISwap(_) => Ok(String::from(
-            "gate siswapdg a,b { rx(pi/2) a; CX a,b; rx(pi/4) a; ry(pi/4) b; CX a,b; rx(-pi/2) a; }\n"
+            "gate siswapdg a,b { rx(pi/2) a; CX a,b; rx(pi/4) a; ry(pi/4) b; CX a,b; rx(-pi/2) a; }"
         )),
         Operation::FSwap(_) => Ok(String::from(
-            "gate fswap a,b { rz(-pi/2) a; rz(-pi/2) b; rx(pi/2) a; CX a,b; rx(-pi/2) a; ry(-pi/2) b; CX a,b; rx(-pi/2) a; }\n"
+            "gate fswap a,b { rz(-pi/2) a; rz(-pi/2) b; rx(pi/2) a; CX a,b; rx(-pi/2) a; ry(-pi/2) b; CX a,b; rx(-pi/2) a; }"
         )),
         Operation::Fsim(_) => Ok(String::from(
-            "gate fsim(t,u,phi) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-t+phi+pi/2) a; rx(pi) a; ry(-pi/2) b; rz((u-pi)/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(t+phi+pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; rz((-u-pi)/2) a; rz((-u-pi)/2) b; }\n"
+            "gate fsim(t,u,delta) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-t+delta+pi/2) a; rx(pi) a; ry(-pi/2) b; rz((u-pi)/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(t+delta+pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; rz((-u-pi)/2) a; rz((-u-pi)/2) b; }"
         )),
         Operation::PMInteraction(_) => Ok(String::from(
-            "gate pmint(theta) a,b { rx(pi/2) a; CX a,b; rx(theta) a; ry(theta) b; CX a,b; rx(-pi/2) a; }\n"
+            "gate pmint(theta) a,b { rx(pi/2) a; CX a,b; rx(theta) a; ry(theta) b; CX a,b; rx(-pi/2) a; }"
         )),
         Operation::GivensRotation(_) => Ok(String::from(
-            "gate gvnsrot(theta,phi) a,b { rz(phi+pi/2) b; rx(pi/2) a; CX a,b; rx(-theta) a; ry(-theta) b; CX a,b; rx(-pi/2) a; rz(-pi/2) b; }\n"
+            "gate gvnsrot(theta,phi) a,b { rz(phi+pi/2) b; rx(pi/2) a; CX a,b; rx(-theta) a; ry(-theta) b; CX a,b; rx(-pi/2) a; rz(-pi/2) b; }"
         )),
         Operation::GivensRotationLittleEndian(_) => Ok(String::from(
-            "gate gvnsrotle(theta,phi) a,b { rz(-pi/2) a; rx(pi/2) a; CX a,b; rx(-theta) a; ry(-theta) b; CX a,b; rx(-pi/2) a; rz(phi+pi/2) a; }\n"
+            "gate gvnsrotle(theta,phi) a,b { rz(-pi/2) a; rx(pi/2) a; CX a,b; rx(-theta) a; ry(-theta) b; CX a,b; rx(-pi/2) a; rz(phi+pi/2) a; }"
         )),
         Operation::Qsim(_) => Ok(String::from(
-            "gate qsim(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-2*xc+pi/2) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(2*yc+pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; }\n"
+            "gate qsim(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-2*xc+pi/2) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(2*yc+pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; }"
         )),
         Operation::XY(_) => Ok(String::from(
-            "gate xy(theta) a,b { rx(pi/2) a; CX a,b; rx(-theta/2) a; ry(-theta/2) b; CX a,b; rx(-pi/2) a; }\n"
+            "gate xy(theta) a,b { rx(pi/2) a; CX a,b; rx(-theta/2) a; ry(-theta/2) b; CX a,b; rx(-pi/2) a; }"
         )),
         Operation::SpinInteraction(_) => Ok(String::from(
-            "gate spinint(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-2*xc) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(2*yc+pi) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; }\n"
+            "gate spinint(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; ry(-2*xc) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(pi) a; ry(2*yc+pi) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; CX a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; }"
         )),
         Operation::PhaseShiftedControlledZ(_) => Ok(String::from(
-            "gate pscz(phi) a,b { rz(pi/2) a; rz(pi/2) b; ry(pi/2) b; CX a,b; rx(-pi/2) b; rz(-pi/2) a; ry(-pi/2) b; rz(phi) a; rz(phi) b; }\n"
+            "gate pscz(phi) a,b { rz(pi/2) a; rz(pi/2) b; ry(pi/2) b; CX a,b; rx(-pi/2) b; rz(-pi/2) a; ry(-pi/2) b; rz(phi) a; rz(phi) b; }"
         )),
         Operation::PhaseShiftedControlledPhase(_) => Ok(String::from(
-            "gate pscp(theta,phi) a,b { rz(theta/2) a; rz(theta/2) b; CX a,b; rz(-theta/2) b; CX a,b; rz(phi) a; rz(phi) b; }\n"
-        )),
-        // TODO: to be applied to each qubit
-        Operation::PragmaGlobalPhase(_) => Ok(String::from(
-            "gate gphase(theta) q { u3(pi,0,pi) q; u1(theta) q; u3(pi,0,pi) q; u1(theta) q; }\n"
+            "gate pscp(theta,phi) a,b { rz(theta/2) a; rz(theta/2) b; CX a,b; rz(-theta/2) b; CX a,b; rz(phi) a; rz(phi) b; }"
         )),
         Operation::RotateXY(_) => Ok(String::from(
-            "gate rxy(theta,phi) q { u3(theta,phi-pi/2,pi/2-phi) q; }\n"
+            "gate rxy(theta,phi) q { u3(theta,phi-pi/2,pi/2-phi) q; }"
         )),
-        Operation::SingleQubitGate(_) => Err(RoqoqoBackendError::GenericError { msg: "The Operation is too simple - the default suffices in representing it.".to_string() }),
         _ => {
-            if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
+            if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())
             } else {
                 Err(RoqoqoBackendError::OperationNotInBackend {
