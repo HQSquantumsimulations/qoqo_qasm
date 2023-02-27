@@ -11,6 +11,7 @@
 // limitations under the License.
 
 use crate::{call_operation, gate_definition};
+use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::{Circuit, RoqoqoBackendError};
 use std::fs::File;
@@ -77,7 +78,24 @@ impl Backend {
         let mut qasm_string = String::from("OPENQASM 2.0;\n\n");
 
         let mut number_qubits_required: usize = 0;
-        let mut already_seen_definitions: Vec<String> = vec![];
+        let mut already_seen_definitions: Vec<String> = vec![
+            "RotateX".to_string(),
+            "RotateY".to_string(),
+            "RotateZ".to_string(),
+            "CNOT".to_string()
+        ];
+        definitions.push_str("gate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\n");
+        definitions.push_str("gate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\n");
+        definitions.push_str("gate u1(lambda) q { U(0,0,lambda) q; }\n");
+        definitions.push_str(&gate_definition(&Operation::from(RotateX::new(0, CalculatorFloat::from(0.0))))?);
+        definitions.push('\n');
+        definitions.push_str(&gate_definition(&Operation::from(RotateY::new(0, CalculatorFloat::from(0.0))))?);
+        definitions.push('\n');
+        definitions.push_str(&gate_definition(&Operation::from(RotateZ::new(0, CalculatorFloat::from(0.0))))?);
+        definitions.push('\n');
+        definitions.push_str(&gate_definition(&Operation::from(CNOT::new(0, 1)))?);
+        definitions.push('\n');
+
         for op in circuit {
             if let InvolvedQubits::Set(involved_qubits) = op.involved_qubits() {
                 number_qubits_required =

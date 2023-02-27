@@ -142,7 +142,7 @@ fn test_pragma_conditional() {
 }
 
 #[test]
-fn test_pragma_repeated_operation() {
+fn test_pragma_repeated_operation_mapping() {
     let operation = Operation::from(PragmaRepeatedMeasurement::new(
         "ro".to_string(),
         1,

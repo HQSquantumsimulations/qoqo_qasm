@@ -403,7 +403,6 @@ pub fn call_operation(
 pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendError> {
     match operation {
         // TODO: always in output: u1 u2 u3 rx ry rz cx
-        // TODO: check how qoqo-qiskit would react to these rotations
         Operation::RotateX(_) => Ok(String::from(
             "gate rx(theta) a { u3(theta,-pi/2,pi/2) a; }"
         )),
