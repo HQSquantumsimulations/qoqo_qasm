@@ -82,16 +82,25 @@ impl Backend {
             "RotateX".to_string(),
             "RotateY".to_string(),
             "RotateZ".to_string(),
-            "CNOT".to_string()
+            "CNOT".to_string(),
         ];
         definitions.push_str("gate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\n");
         definitions.push_str("gate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\n");
         definitions.push_str("gate u1(lambda) q { U(0,0,lambda) q; }\n");
-        definitions.push_str(&gate_definition(&Operation::from(RotateX::new(0, CalculatorFloat::from(0.0))))?);
+        definitions.push_str(&gate_definition(&Operation::from(RotateX::new(
+            0,
+            CalculatorFloat::from(0.0),
+        )))?);
         definitions.push('\n');
-        definitions.push_str(&gate_definition(&Operation::from(RotateY::new(0, CalculatorFloat::from(0.0))))?);
+        definitions.push_str(&gate_definition(&Operation::from(RotateY::new(
+            0,
+            CalculatorFloat::from(0.0),
+        )))?);
         definitions.push('\n');
-        definitions.push_str(&gate_definition(&Operation::from(RotateZ::new(0, CalculatorFloat::from(0.0))))?);
+        definitions.push_str(&gate_definition(&Operation::from(RotateZ::new(
+            0,
+            CalculatorFloat::from(0.0),
+        )))?);
         definitions.push('\n');
         definitions.push_str(&gate_definition(&Operation::from(CNOT::new(0, 1)))?);
         definitions.push('\n');
