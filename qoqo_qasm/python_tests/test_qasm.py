@@ -25,5 +25,5 @@ def test_qasm():
     qasm = backend.circuit_to_qasm_str(circuit)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pytest.main(sys.argv)

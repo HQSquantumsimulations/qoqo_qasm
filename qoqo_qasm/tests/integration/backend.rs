@@ -77,7 +77,7 @@ fn test_circuit_to_qasm_str() {
             .unwrap()
             .extract()
             .unwrap();
-        let lines = String::from("OPENQASM 2.0;\ninclude \"qelib1.inc\";\n\nqreg q[2];\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
+        let lines = String::from("OPENQASM 2.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqreg q[2];\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
         assert_eq!(lines, result);
     })
 }
@@ -103,7 +103,7 @@ fn test_circuit_to_qasm_file() {
             )
             .unwrap();
 
-        let lines = String::from("OPENQASM 2.0;\ninclude \"qelib1.inc\";\n\nqreg qr[2];\ncreg ro[2];\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+        let lines = String::from("OPENQASM 2.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqreg qr[2];\ncreg ro[2];\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
         let read_in_path = temp_dir().join(Path::new("fnametest.qasm"));
         let extracted = fs::read_to_string(&read_in_path);
         fs::remove_file(&read_in_path).unwrap();
@@ -112,13 +112,17 @@ fn test_circuit_to_qasm_file() {
 }
 
 /// Test circuit_to_qasm_str and circuit_to_qasm_file errors
-#[test_case(Operation::from(ISwap::new(0, 1)))]
-#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(0.23))))]
-#[test_case(Operation::from(FSwap::new(0, 1)))]
-#[test_case(Operation::from(RotateXY::new(
+#[test_case(Operation::from(Bogoliubov::new(
     0,
-    CalculatorFloat::from(0.23),
-    CalculatorFloat::from(0.23)
+    1,
+    CalculatorFloat::from(0.2),
+    CalculatorFloat::from(0.3)
+)))]
+#[test_case(Operation::from(ComplexPMInteraction::new(
+    0,
+    1,
+    CalculatorFloat::from(0.3),
+    CalculatorFloat::from(0.2)
 )))]
 fn test_circuit_to_qasm_error(operation: Operation) {
     let mut wrong_circuit = Circuit::new();

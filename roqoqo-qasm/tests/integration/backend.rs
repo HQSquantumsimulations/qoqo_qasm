@@ -37,7 +37,7 @@ fn run_simple_circuit() {
         )
         .unwrap();
 
-    let lines = String::from("OPENQASM 2.0;\ninclude \"qelib1.inc\";\n\nqreg qr[2];\ncreg ro[2];\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+    let lines = String::from("OPENQASM 2.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqreg qr[2];\ncreg ro[2];\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
     let read_in_path = temp_dir().join(Path::new("test_simple0.qasm"));
     let extracted = fs::read_to_string(&read_in_path);
     fs::remove_file(&read_in_path).unwrap();
@@ -62,11 +62,26 @@ fn simple_circuit_iterator_to_file() {
         )
         .unwrap();
 
-    let lines = String::from("OPENQASM 2.0;\ninclude \"qelib1.inc\";\n\nqreg q[2];\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
+    let lines = String::from("OPENQASM 2.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqreg q[2];\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
     let read_in_path = temp_dir().join(Path::new("test_simple1.qasm"));
     let extracted = fs::read_to_string(&read_in_path);
     fs::remove_file(&read_in_path).unwrap();
     assert_eq!(lines, extracted.unwrap());
+}
+
+/// Test duplicate gates definitions
+#[test]
+fn test_duplicate_definitions() {
+    let backend = Backend::new(Some("qr".to_string()));
+    let mut circuit = Circuit::new();
+    circuit += DefinitionBit::new("ro".to_string(), 2, true);
+    circuit += PauliX::new(0);
+    circuit += PauliX::new(1);
+    circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
+
+    let output = backend.circuit_to_qasm_str(&circuit).unwrap();
+    let lines = String::from("OPENQASM 2.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqreg qr[2];\ncreg ro[2];\nx qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+    assert_eq!(output, lines);
 }
 
 /// Test that backend returns error when running for a file that exists without overwrite

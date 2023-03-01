@@ -22,6 +22,7 @@ use qoqo::CircuitWrapper;
 use qoqo::QoqoBackendError;
 use qoqo::QoqoError;
 
+use qoqo_qasm::qasm_gate_definition;
 use qoqo_qasm::{qasm_call_circuit, qasm_call_operation};
 
 use qoqo_calculator::CalculatorFloat;
@@ -81,7 +82,7 @@ fn test_qasm_call_circuit() {
 #[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "rx(-3.141592653589793) q[0];"; "RotateX")]
 #[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "ry(-3.141592653589793) q[0];"; "RotateY")]
 #[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "rz(-3.141592653589793) q[0];"; "RotateZ")]
-#[test_case(Operation::from(SqrtPauliX::new(0)), "rx(pi/2) q[0];"; "SqrtPauliX")]
+#[test_case(Operation::from(SqrtPauliX::new(0)), "sx q[0];"; "SqrtPauliX")]
 #[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "rxx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
 #[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];"; "CNOT")]
 #[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1];"; "ControlledPauliY")]
@@ -106,14 +107,18 @@ fn test_qasm_call_operation(operation: Operation, converted: &str) {
     })
 }
 
-/// Test qasm_call_operation and qasm_call_circuit errors
-#[test_case(Operation::from(ISwap::new(0, 1)))]
-#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(0.23))))]
-#[test_case(Operation::from(FSwap::new(0, 1)))]
-#[test_case(Operation::from(RotateXY::new(
+/// Test qasm_call_operation, qasm_call_circuit and qasm_gate_definition errors
+#[test_case(Operation::from(Bogoliubov::new(
     0,
-    CalculatorFloat::from(0.23),
-    CalculatorFloat::from(0.23)
+    1,
+    CalculatorFloat::from(0.2),
+    CalculatorFloat::from(0.3)
+)))]
+#[test_case(Operation::from(ComplexPMInteraction::new(
+    0,
+    1,
+    CalculatorFloat::from(0.3),
+    CalculatorFloat::from(0.2)
 )))]
 fn test_qasm_call_error(operation: Operation) {
     let mut wrong_circuit = Circuit::new();
@@ -123,6 +128,7 @@ fn test_qasm_call_error(operation: Operation) {
     Python::with_gil(|py| {
         let dict = PyDict::new(py);
         let wrongcircuitpy = circuitpy_from_circuitru(py, wrong_circuit.clone());
+        let wrongoperationpy = convert_operation_to_pyobject(operation.clone()).unwrap();
 
         let result = qasm_call_circuit(dict.as_ref(), "qr");
         assert!(result.is_err());
@@ -159,5 +165,59 @@ fn test_qasm_call_error(operation: Operation) {
             ))
             .to_string()
         );
+
+        let result = qasm_call_operation(wrongoperationpy.as_ref(py), "qr");
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            PyValueError::new_err(format!(
+                "Error during QASM translation: {:?}",
+                RoqoqoBackendError::OperationNotInBackend {
+                    backend: "QASM",
+                    hqslang: operation.hqslang()
+                }
+            ))
+            .to_string()
+        );
+
+        let result = qasm_gate_definition(dict.as_ref());
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            PyTypeError::new_err(format!(
+                "Cannot convert python object to Operation: {:?}",
+                QoqoError::ConversionError
+            ))
+            .to_string()
+        );
+
+        let result = qasm_gate_definition(wrongoperationpy.as_ref(py));
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            PyValueError::new_err(format!(
+                "Error during QASM gate definition: {:?}",
+                RoqoqoBackendError::OperationNotInBackend {
+                    backend: "QASM",
+                    hqslang: operation.hqslang()
+                }
+            ))
+            .to_string()
+        );
+    })
+}
+
+/// Test qasm_gate_definition call
+#[test_case(Operation::from(PauliX::new(0)), "gate x a { u3(pi,0,pi) a; }"; "PauliX")]
+#[test_case(Operation::from(PauliY::new(0)), "gate y a { u3(pi,pi/2,pi/2) a; }"; "PauliY")]
+#[test_case(Operation::from(PauliZ::new(0)), "gate z a { u1(pi) a; }"; "PauliZ")]
+fn test_qasm_gate_definition(operation: Operation, converted: &str) {
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
+        assert_eq!(
+            qasm_gate_definition(new_op.as_ref(py)).unwrap(),
+            converted.to_string()
+        )
     })
 }
