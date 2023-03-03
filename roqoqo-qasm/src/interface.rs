@@ -69,7 +69,7 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
 /// let circuit: Vec<String> = call_circuit(&circuit, "q").unwrap();
 ///
 /// let manual_circuit: Vec<String> = vec![
-///     "creg ro[1];".to_string(),
+///     "bits ro[1];".to_string(),
 ///     "x q[0];".to_string(),
 ///     "measure q[0] -> ro[0];".to_string()
 /// ];
@@ -373,10 +373,10 @@ pub fn call_operation(
             op.readout(),
             op.readout_index()
         )),
-        Operation::DefinitionFloat(op) => Ok(format!("creg {}[{}];", op.name(), op.length())),
-        Operation::DefinitionUsize(op) => Ok(format!("creg {}[{}];", op.name(), op.length())),
-        Operation::DefinitionBit(op) => Ok(format!("creg {}[{}];", op.name(), op.length())),
-        Operation::DefinitionComplex(op) => Ok(format!("creg {}[{}];", op.name(), op.length())),
+        Operation::DefinitionFloat(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
+        Operation::DefinitionUsize(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
+        Operation::DefinitionBit(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
+        Operation::DefinitionComplex(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
         _ => {
             if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())

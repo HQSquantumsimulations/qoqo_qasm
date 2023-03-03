@@ -75,7 +75,7 @@ impl Backend {
     ) -> Result<String, RoqoqoBackendError> {
         let mut definitions: String = "".to_string();
         let mut data: String = "".to_string();
-        let mut qasm_string = String::from("OPENQASM 2.0;\n\n");
+        let mut qasm_string = String::from("OPENQASM 3.0;\n\n");
 
         let mut number_qubits_required: usize = 0;
         let mut already_seen_definitions: Vec<String> = vec![
@@ -129,9 +129,9 @@ impl Backend {
 
         qasm_string.push_str(
             format!(
-                "qreg {}[{}];\n",
-                self.qubit_register_name,
-                number_qubits_required + 1
+                "qubits[{}] {};\n",
+                number_qubits_required + 1,
+                self.qubit_register_name
             )
             .as_str(),
         );
