@@ -2,7 +2,19 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
-## Not released
+### 0.5.1
+
+* Added support for most qoqo Operations
+* Removed qelib1.inc import, added gate_definition method
+* Updated dev dependency
+
+### 0.5.0
+
+* Updated to qoqo 1.2, refactored qoqo_qasm codebase as roqoqo_qasm Python interface
+
+### 0.4.6
+
+* Updated to qoqo 1.1.0, qoqo_calculator_pyo3 1.1.0
 
 ### 0.4.5
 

@@ -1,5 +1,4 @@
-"""QASM interface for qoqo operations and circuits."""
-# Copyright © 2019-2021 HQS Quantum Simulations GmbH. All Rights Reserved.
+# Copyright © 2023 HQS Quantum Simulations GmbH. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 # in compliance with the License. You may obtain a copy of the License at
@@ -11,7 +10,20 @@
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
 
-from qoqo_qasm.interface.qasm_interface import (
-    qasm_call_operation,
-    qasm_call_circuit
-)
+import pytest
+import sys
+from qoqo_qasm import QasmBackend  # type:ignore
+from qoqo import Circuit
+from qoqo import operations as ops
+
+
+def test_qasm():
+    circuit = Circuit()
+    circuit += ops.Hadamard(0)
+
+    backend = QasmBackend()
+    qasm = backend.circuit_to_qasm_str(circuit)
+
+
+if __name__ == "__main__":
+    pytest.main(sys.argv)

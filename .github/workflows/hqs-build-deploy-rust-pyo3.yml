@@ -1,0 +1,65 @@
+name: HQS build and deploy for rust pyo3 repos
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+
+  deploy_cratesio:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3.1.0
+    - uses: Swatinem/rust-cache@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        default: true
+    - name: setup cargo
+      run: |
+        # Authentication at crates.io with HQS organizational token
+        cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
+        # publishing a specific package to crates.io
+        cargo publish --manifest-path=roqoqo-qasm/Cargo.toml
+        # Wait to publish next package (e.g. the Python interface)
+        # that depends on previous package so that crates.io is
+        # updated and accepts the upload
+        sleep 60
+        # Publish second package
+        cargo publish --manifest-path=qoqo_qasm/Cargo.toml
+
+# Build linux wheels and upload them to PyPi
+  build_maturin_builds_linux:
+    name: maturin_build-linux
+    needs: deploy_cratesio
+    uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_build_maturin_linux.yml@main
+    with: 
+      py_interface_folder: "qoqo_qasm"
+      deploy: true
+      # Whether to build for aarch64. Can fail if there are C/C++ dependencies
+      build_for_arm: false
+    secrets: inherit
+
+# Build macos wheels and upload them to PyPi
+  build_maturin_builds_macos:
+    name: maturin_build-macos
+    needs: deploy_cratesio
+    uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_build_maturin_macos.yml@main
+    with: 
+      py_interface_folder: "qoqo_qasm"
+      # Try to build python wheels with universal2 for arm and x86
+      universal2: true
+      deploy: true
+    secrets: inherit
+
+# Build windows wheels and upload them to PyPi
+  build_maturin_builds_windows:
+    name: maturin_build-windows
+    needs: deploy_cratesio
+    uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_build_maturin_windows.yml@main
+    with: 
+      py_interface_folder: "qoqo_qasm"
+      deploy: true
+    secrets: inherit

@@ -1,4 +1,4 @@
-// Copyright © 2021 HQS Quantum Simulations GmbH. All Rights Reserved.
+// Copyright © 2021-2023 HQS Quantum Simulations GmbH. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License. You may obtain a copy of the License at
@@ -54,7 +54,7 @@ fn test_acceptance_with_qasmbackend() {
     circuit += DefinitionComplex::new("roc".to_string(), 1, true);
     circuit += InputSymbolic::new("other".to_string(), 0.0);
     circuit += PragmaSetNumberOfMeasurements::new(20, "ro".to_string());
-    let _ = backend
+    backend
         .circuit_to_qasm_file(
             &circuit,
             temp_dir().as_path(),

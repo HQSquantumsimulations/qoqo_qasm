@@ -1,4 +1,3 @@
-Cargo.lock
 target/*
 qoqo_qasm/target/*
 roqoqo-qasm/target/*
