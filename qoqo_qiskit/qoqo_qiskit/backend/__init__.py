@@ -3,5 +3,3 @@
 
 
 from qoqo_qiskit.backend.backend import QoqoQiskitSimulator
-
-print("Copyright © 2023 HQS Quantum Simulations GmbH.")
