@@ -1,3 +1,0 @@
-qoqo>=1.2
-qoqo_qasm>=0.5
-qiskit

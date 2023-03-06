@@ -1,0 +1,45 @@
+[project]
+name = "qoqo_qiskit"
+version = "0.1.0"
+authors = [{name="HQS Quantum Simulation GmbH", email="info@quantumsimulations.de"}]
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "qoqo>=1.2",
+    "qoqo_qasm>=0.5",
+    "qiskit"
+]
+[project.optional-dependencies]
+tests = [
+  'pytest',
+]
+dev = [
+    'flake8',
+    'flake8-bugbear',
+    'flake8-pyproject',
+    'flake8-pydocstyle',
+    'darglint',
+    'bandit',
+    'mypy',
+    'black'
+]
+
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.flake8]
+max-line-length = 100
+ignore = 'D400,D401,W503,ANN101,ANN102,ANN002,ANN003,ANN401,S403,S404,S301'
+exclude = '.git,__pycache__,doc/conf.py,old,build,dist,test_*'
+docstring-convention = "google"
+per-file-ignores = [
+    '__init__.py:F401',
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+pretty = true
+follow_imports = "silent"
+
+[tool.bandit]
