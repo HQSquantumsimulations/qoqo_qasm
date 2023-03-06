@@ -14,7 +14,7 @@ use pyo3::exceptions::PyValueError;
 use pyo3::{exceptions::PyTypeError, prelude::*};
 use qoqo::convert_into_circuit;
 use qoqo::operations::convert_pyany_to_operation;
-use roqoqo_qasm::{call_circuit, call_operation};
+use roqoqo_qasm::{call_circuit, call_operation, gate_definition};
 
 /// Translate the qoqo circuit into QASM ouput
 ///
@@ -26,7 +26,7 @@ use roqoqo_qasm::{call_circuit, call_operation};
 ///     qubit_register_name (str): The name of the quantum register
 ///
 /// Returns:
-///     List[str]: translated circuit
+///     List[str]: The translated circuit
 ///
 /// Raises:
 ///     TypeError: Circuit conversion error
@@ -47,7 +47,7 @@ pub fn qasm_call_circuit(circuit: &PyAny, qubit_register_name: &str) -> PyResult
 ///     qubit_register_name (str): The name of the quantum register
 ///
 /// Returns:
-///     str: translated operation
+///     str: The translated operation
 ///
 /// Raises:
 ///     TypeError: Operation conversion error
@@ -59,4 +59,23 @@ pub fn qasm_call_operation(operation: &PyAny, qubit_register_name: &str) -> PyRe
     })?;
     call_operation(&operation, qubit_register_name)
         .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
+}
+
+/// Outputs the QASM gate definition of many qoqo operations
+///
+/// Args:
+///     operation: The qoqo Operation to be defined
+///
+/// Returns:
+///     str: The gate QASM gate definition.
+///
+/// Raises:
+///     ValueError: Operation-specific error or Operation not in QASM backend
+#[pyfunction]
+pub fn qasm_gate_definition(operation: &PyAny) -> PyResult<String> {
+    let operation = convert_pyany_to_operation(operation).map_err(|x| {
+        PyTypeError::new_err(format!("Cannot convert python object to Operation: {x:?}"))
+    })?;
+    gate_definition(&operation)
+        .map_err(|x| PyValueError::new_err(format!("Error during QASM gate definition: {x:?}")))
 }

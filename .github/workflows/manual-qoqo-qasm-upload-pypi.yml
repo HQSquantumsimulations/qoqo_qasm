@@ -1,0 +1,36 @@
+name: manual qoqo-qasm pypi publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # Build linux wheels and upload them to PyPi
+  build_maturin_builds_linux:
+    name: maturin_build-linux
+    uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_build_maturin_linux.yml@main
+    with: 
+      py_interface_folder: "qoqo_qasm"
+      deploy: true
+      # Whether to build for aarch64. Can fail if there are C/C++ dependencies
+      build_for_arm: false
+    secrets: inherit
+
+  # Build macos wheels and upload them to PyPi
+  build_maturin_builds_macos:
+    name: maturin_build-macos
+    uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_build_maturin_macos.yml@main
+    with: 
+      py_interface_folder: "qoqo_qasm"
+      # Try to build python wheels with universal2 for arm and x86
+      universal2: true
+      deploy: true
+    secrets: inherit
+
+  # Build windows wheels and upload them to PyPi
+  build_maturin_builds_windows:
+    name: maturin_build-windows
+    uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_build_maturin_windows.yml@main
+    with: 
+      py_interface_folder: "qoqo_qasm"
+      deploy: true
+    secrets: inherit
