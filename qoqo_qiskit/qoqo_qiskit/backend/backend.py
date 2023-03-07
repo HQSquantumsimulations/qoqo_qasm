@@ -5,7 +5,7 @@ from qoqo import Circuit
 from qiskit_aer import AerSimulator
 from qiskit.providers import Backend
 
-from qoqo_qiskit.interface import to_qiskit_circuit  # type:ignore
+from qoqo_qiskit.interface import to_qiskit_circuit
 
 from typing import Tuple, Union, Dict, List, cast, Any, Optional
 
@@ -85,6 +85,7 @@ class QoqoQiskitSimulator:
 
         # Handle simulation Options
         # TODO
+        # TODO warning with multiple measurements
 
         # Simulation
         result = self.simulator.run(

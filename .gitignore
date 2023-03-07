@@ -2,8 +2,8 @@ target/*
 qoqo_qasm/target/*
 roqoqo-qasm/target/*
 *__pycache__*
-*docs/_build*
-*docs/generated*
+*/docs/_build*
+*/docs/generated*
 */dist/*
 .mypy_cache*
 *.egg-info*
