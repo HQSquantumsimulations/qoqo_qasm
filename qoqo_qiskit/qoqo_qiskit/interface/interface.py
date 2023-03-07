@@ -10,8 +10,7 @@ from typing import Tuple, Optional
 
 
 def to_qiskit_circuit(
-    circuit: Circuit,
-    qubit_register_name: Optional[str] = None
+    circuit: Circuit, qubit_register_name: Optional[str] = None
 ) -> Tuple[QuantumCircuit, dict[str, int]]:
     """Applies the qoqo Circuit -> Qiskit QuantumCircuit conversion.
 
@@ -39,12 +38,14 @@ def to_qiskit_circuit(
             if "PragmaSetNumberOfMeasurements" not in sim_dict["MeasurementInfo"]:
                 sim_dict["MeasurementInfo"]["PragmaSetNumberOfMeasurements"] = []
             sim_dict["MeasurementInfo"]["PragmaSetNumberOfMeasurements"].append(
-                (op.readout(), op.number_measurements()))
+                (op.readout(), op.number_measurements())
+            )
         elif "PragmaRepeatedMeasurement" in op.tags():
             if "PragmaRepeatedMeasurement" not in sim_dict["MeasurementInfo"]:
                 sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"] = []
             sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"].append(
-                (op.readout(), op.number_measurements(), op.qubit_mapping()))
+                (op.readout(), op.number_measurements(), op.qubit_mapping())
+            )
             filtered_circuit += op
         elif "MeasureQubit" in op.tags():
             if "MeasureQubit" not in sim_dict["MeasurementInfo"]:

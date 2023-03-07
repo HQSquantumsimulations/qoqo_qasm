@@ -31,11 +31,16 @@ class QoqoQiskitSimulator:
             raise TypeError("The input is not a valid Qiskit Backend instance.")
         elif simulator.name() not in ALLOWED_PROVIDERS:
             raise ValueError(
-                f"Input a simulator from the following allowed list: {ALLOWED_PROVIDERS}")
+                f"Input a simulator from the following allowed list: {ALLOWED_PROVIDERS}"
+            )
 
-    def run_circuit(self, circuit: Circuit) -> Tuple[Dict[str, List[List[bool]]],
-                                                     Dict[str, List[List[float]]],
-                                                     Dict[str, List[List[complex]]]]:
+    def run_circuit(
+        self, circuit: Circuit
+    ) -> Tuple[
+        Dict[str, List[List[bool]]],
+        Dict[str, List[List[float]]],
+        Dict[str, List[List[complex]]],
+    ]:
         """Simulate a Circuit on a Qiskit simulator.
 
         Args:
@@ -59,21 +64,29 @@ class QoqoQiskitSimulator:
         output_complex_register_dict: Dict[str, List[List[complex]]] = dict()
 
         for bit_def in circuit.filter_by_tag("DefinitionBit"):
-            internal_bit_register_dict[bit_def.name()] = [False for _ in range(bit_def.length())]
+            internal_bit_register_dict[bit_def.name()] = [
+                False for _ in range(bit_def.length())
+            ]
             if bit_def.is_output():
                 output_bit_register_dict[bit_def.name()] = list()
 
         for float_def in circuit.filter_by_tag("DefinitionFloat"):
             internal_float_register_dict[float_def.name()] = [
-                0.0 for _ in range(float_def.length())]
+                0.0 for _ in range(float_def.length())
+            ]
             if float_def.is_output():
-                output_float_register_dict[float_def.name()] = cast(List[List[float]], list())
+                output_float_register_dict[float_def.name()] = cast(
+                    List[List[float]], list()
+                )
 
         for complex_def in circuit.filter_by_tag("DefinitionComplex"):
             internal_complex_register_dict[complex_def.name()] = [
-                complex(0.0) for _ in range(complex_def.length())]
+                complex(0.0) for _ in range(complex_def.length())
+            ]
             if complex_def.is_output():
-                output_complex_register_dict[complex_def.name()] = cast(List[List[complex]], list())
+                output_complex_register_dict[complex_def.name()] = cast(
+                    List[List[complex]], list()
+                )
 
         # Qiskit conversion
         compiled_circuit, run_options = to_qiskit_circuit(circuit)
@@ -81,29 +94,34 @@ class QoqoQiskitSimulator:
         # Raise ValueError if no measurement is performed
         if not run_options["MeasurementInfo"]:
             raise ValueError(
-                "The Circuit does not contain Measurement operations. Simulation not possible.")
+                "The Circuit does not contain Measurement operations. Simulation not possible."
+            )
 
         # Handle simulation Options
         # TODO
         # TODO warning with multiple measurements
 
         # Simulation
-        result = self.simulator.run(
-            compiled_circuit,
-            shots=1,
-            memory=True
-        ).result()
+        result = self.simulator.run(compiled_circuit, shots=1, memory=True).result()
 
         # Result transformation
         transformed_counts = self._counts_to_registers(result.get_memory())
         for reg in output_bit_register_dict:
             output_bit_register_dict[reg] = transformed_counts.pop()
 
-        return output_bit_register_dict, output_float_register_dict, output_complex_register_dict
+        return (
+            output_bit_register_dict,
+            output_float_register_dict,
+            output_complex_register_dict,
+        )
 
-    def run_measurement_registers(self, measurement: Any) -> Tuple[Dict[str, List[List[bool]]],
-                                                                   Dict[str, List[List[float]]],
-                                                                   Dict[str, List[List[complex]]]]:
+    def run_measurement_registers(
+        self, measurement: Any
+    ) -> Tuple[
+        Dict[str, List[List[bool]]],
+        Dict[str, List[List[float]]],
+        Dict[str, List[List[complex]]],
+    ]:
         """Run all circuits of a measurement with the PyQuEST backend.
 
         Args:
@@ -125,11 +143,11 @@ class QoqoQiskitSimulator:
             else:
                 run_circuit = constant_circuit + circuit
 
-            (tmp_bit_register_dict,
-             tmp_float_register_dict,
-             tmp_complex_register_dict) = self.run_circuit(
-                run_circuit
-            )
+            (
+                tmp_bit_register_dict,
+                tmp_float_register_dict,
+                tmp_complex_register_dict,
+            ) = self.run_circuit(run_circuit)
 
             output_bit_register_dict.update(tmp_bit_register_dict)
             output_float_register_dict.update(tmp_float_register_dict)
@@ -138,7 +156,8 @@ class QoqoQiskitSimulator:
         return (
             output_bit_register_dict,
             output_float_register_dict,
-            output_complex_register_dict)
+            output_complex_register_dict,
+        )
 
     def run_measurement(self, measurement: Any) -> Optional[Dict[str, float]]:
         """Run a circuit with the PyQuEST backend.
@@ -149,18 +168,20 @@ class QoqoQiskitSimulator:
         Returns:
             Optional[Dict[str, float]]
         """
-        (output_bit_register_dict,
+        (
+            output_bit_register_dict,
             output_float_register_dict,
-            output_complex_register_dict) = self.run_measurement_registers(measurement)
+            output_complex_register_dict,
+        ) = self.run_measurement_registers(measurement)
 
         return measurement.evaluate(
             output_bit_register_dict,
             output_float_register_dict,
-            output_complex_register_dict)
+            output_complex_register_dict,
+        )
 
     def _counts_to_registers(
-        self,
-        counts: List[str]  # result.get_memory() style
+        self, counts: List[str]  # result.get_memory() style
     ) -> Union[List[bool], List[List[bool]]]:
         bit_map = []
         reg_num = counts[0].count(" ")
