@@ -79,10 +79,15 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
 pub fn call_circuit(
     circuit: &Circuit,
     qubit_register_name: &str,
+    qasm_version: String,
 ) -> Result<Vec<String>, RoqoqoBackendError> {
     let mut str_circuit: Vec<String> = Vec::new();
     for op in circuit.iter() {
-        str_circuit.push(call_operation(op, qubit_register_name)?);
+        str_circuit.push(call_operation(
+            op,
+            qubit_register_name,
+            qasm_version.clone(),
+        )?);
     }
     Ok(str_circuit)
 }
@@ -100,7 +105,21 @@ pub fn call_circuit(
 pub fn call_operation(
     operation: &Operation,
     qubit_register_name: &str,
+    qasm_version: String,
 ) -> Result<String, RoqoqoBackendError> {
+    let (_qubits, bits) = if qasm_version == "2.0" {
+        ("qreg", "creg")
+    } else if qasm_version == "3.0" {
+        ("qubit", "bits")
+    } else {
+        return Err(RoqoqoBackendError::GenericError {
+            msg: format!(
+                "Version for OpenQASM used is neither 2.0 nor 3.0: {}",
+                qasm_version
+            ),
+        });
+    };
+
     match operation {
         Operation::RotateZ(op) => Ok(format!(
             "rz({}) {}[{}];",
@@ -332,14 +351,14 @@ pub fn call_operation(
                         "if({}[{}]==1) {}",
                         op.condition_register(),
                         op.condition_index(),
-                        call_operation(int_op, qubit_register_name).unwrap()
+                        call_operation(int_op, qubit_register_name, qasm_version.clone()).unwrap()
                     ));
                 } else {
                     data.push_str(&format!(
                         "if({}[{}]==1) {}\n",
                         op.condition_register(),
                         op.condition_index(),
-                        call_operation(int_op, qubit_register_name).unwrap()
+                        call_operation(int_op, qubit_register_name, qasm_version.clone()).unwrap()
                     ));
                 }
             }
@@ -373,10 +392,10 @@ pub fn call_operation(
             op.readout(),
             op.readout_index()
         )),
-        Operation::DefinitionFloat(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
-        Operation::DefinitionUsize(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
-        Operation::DefinitionBit(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
-        Operation::DefinitionComplex(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
+        Operation::DefinitionFloat(op) => Ok(format!("{}[{}] {};", bits, op.length(), op.name())),
+        Operation::DefinitionUsize(op) => Ok(format!("{}[{}] {};", bits, op.length(), op.name())),
+        Operation::DefinitionBit(op) => Ok(format!("{}[{}] {};", bits, op.length(), op.name())),
+        Operation::DefinitionComplex(op) => Ok(format!("{}[{}] {};", bits, op.length(), op.name())),
         _ => {
             if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())

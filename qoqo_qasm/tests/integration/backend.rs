@@ -49,18 +49,23 @@ fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrap
     circuitpy
 }
 
-fn new_qasmbackend(py: Python, qubit_register_name: Option<String>) -> &PyCell<QasmBackendWrapper> {
-    let circuit_type = py.get_type::<QasmBackendWrapper>();
-    circuit_type
-        .call1((qubit_register_name,))
+fn new_qasmbackend(
+    py: Python,
+    qubit_register_name: Option<String>,
+    qasm_version: Option<String>,
+) -> &PyCell<QasmBackendWrapper> {
+    let backend_type = py.get_type::<QasmBackendWrapper>();
+    backend_type
+        .call1((qubit_register_name, qasm_version))
         .unwrap()
         .downcast::<PyCell<QasmBackendWrapper>>()
         .unwrap()
 }
 
 /// Test circuit_to_qasm_str on a simple Circuit
-#[test]
-fn test_circuit_to_qasm_str() {
+#[test_case("2.0", "qreg", "creg"; "2.0")]
+#[test_case("3.0", "qubit", "bits"; "3.0")]
+fn test_circuit_to_qasm_str(qasm_version: &str, qubits: &str, bits: &str) {
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
@@ -69,7 +74,7 @@ fn test_circuit_to_qasm_str() {
 
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
-        let backendpy = new_qasmbackend(py, None);
+        let backendpy = new_qasmbackend(py, None, Some(qasm_version.to_string()));
         let circuitpy = circuitpy_from_circuitru(py, circuit);
 
         let result: String = backendpy
@@ -77,14 +82,15 @@ fn test_circuit_to_qasm_str() {
             .unwrap()
             .extract()
             .unwrap();
-        let lines = String::from("OPENQASM 3.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqubits[2] q;\nbits[2] ro;\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
+        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ CX c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits}[2] q;\n{bits}[2] ro;\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
         assert_eq!(lines, result);
     })
 }
 
 /// Test circuit_to_qasm_file on a simple Circuit
-#[test]
-fn test_circuit_to_qasm_file() {
+#[test_case("2.0", "qreg", "creg"; "2.0")]
+#[test_case("3.0", "qubit", "bits"; "3.0")]
+fn test_circuit_to_qasm_file(qasm_version: &str, qubits: &str, bits: &str) {
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
@@ -93,7 +99,7 @@ fn test_circuit_to_qasm_file() {
 
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
-        let backendpy = new_qasmbackend(py, Some("qr".to_string()));
+        let backendpy = new_qasmbackend(py, Some("qr".to_string()), Some(qasm_version.to_string()));
         let circuitpy = circuitpy_from_circuitru(py, circuit);
 
         backendpy
@@ -103,7 +109,7 @@ fn test_circuit_to_qasm_file() {
             )
             .unwrap();
 
-        let lines = String::from("OPENQASM 3.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqubits[2] qr;\nbits[2] ro;\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ CX c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits}[2] qr;\n{bits}[2] ro;\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
         let read_in_path = temp_dir().join(Path::new("fnametest.qasm"));
         let extracted = fs::read_to_string(&read_in_path);
         fs::remove_file(&read_in_path).unwrap();
@@ -117,14 +123,26 @@ fn test_circuit_to_qasm_file() {
     1,
     CalculatorFloat::from(0.2),
     CalculatorFloat::from(0.3)
-)))]
+)), "2.0"; "bog, 2.0")]
+#[test_case(Operation::from(Bogoliubov::new(
+    0,
+    1,
+    CalculatorFloat::from(0.2),
+    CalculatorFloat::from(0.3)
+)), "3.0"; "bog, 3.0")]
 #[test_case(Operation::from(ComplexPMInteraction::new(
     0,
     1,
     CalculatorFloat::from(0.3),
     CalculatorFloat::from(0.2)
-)))]
-fn test_circuit_to_qasm_error(operation: Operation) {
+)), "2.0"; "complexpm, 2.0")]
+#[test_case(Operation::from(ComplexPMInteraction::new(
+    0,
+    1,
+    CalculatorFloat::from(0.3),
+    CalculatorFloat::from(0.2)
+)), "3.0"; "complexpm, 3.0")]
+fn test_circuit_to_qasm_error(operation: Operation, qasm_version: &str) {
     let mut wrong_circuit = Circuit::new();
     wrong_circuit += operation.clone();
 
@@ -132,7 +150,7 @@ fn test_circuit_to_qasm_error(operation: Operation) {
     Python::with_gil(|py| {
         let wrongcircuitpy = circuitpy_from_circuitru(py, wrong_circuit.clone());
 
-        let backendpy = new_qasmbackend(py, None);
+        let backendpy = new_qasmbackend(py, None, Some(qasm_version.to_string()));
         let result = backendpy.call_method1("circuit_to_qasm_str", (3,));
         assert!(result.is_err());
         assert_eq!(
@@ -158,7 +176,7 @@ fn test_circuit_to_qasm_error(operation: Operation) {
             .to_string()
         );
 
-        let backendpy = new_qasmbackend(py, None);
+        let backendpy = new_qasmbackend(py, None, Some(qasm_version.to_string()));
         let result = backendpy.call_method1(
             "circuit_to_qasm_file",
             (3, temp_dir().to_str().unwrap(), "fnametest", true),

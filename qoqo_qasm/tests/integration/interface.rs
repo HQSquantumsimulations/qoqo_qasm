@@ -50,8 +50,9 @@ fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrap
 }
 
 /// Test qasm_call_circuit with correct Circuit
-#[test]
-fn test_qasm_call_circuit() {
+#[test_case("2.0", "qreg", "creg"; "2.0")]
+#[test_case("3.0", "qubit", "bits"; "3.0")]
+fn test_qasm_call_circuit(qasm_version: &str, _qubits: &str, bits: &str) {
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 1, true);
     circuit += PauliX::new(0);
@@ -62,12 +63,15 @@ fn test_qasm_call_circuit() {
         let circuitpy = circuitpy_from_circuitru(py, circuit);
 
         let qasm_circ: Vec<String> = vec![
-            "bits[1] ro;".to_string(),
+            format!("{bits}[1] ro;"),
             "x qr[0];".to_string(),
             "measure qr[0] -> ro[0];".to_string(),
         ];
 
-        assert_eq!(qasm_call_circuit(circuitpy, "qr").unwrap(), qasm_circ)
+        assert_eq!(
+            qasm_call_circuit(circuitpy, "qr", qasm_version).unwrap(),
+            qasm_circ
+        )
     })
 }
 
@@ -90,20 +94,43 @@ fn test_qasm_call_circuit() {
 // #[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,0.000000000000000) q[0];"; "SingleQubitGate")]
 #[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
-#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "bits[1] ro;"; "DefinitionFloat")]
-#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "bits[1] ro;"; "DefinitionUsize")]
-#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "bits[1] ro;"; "DefinitionBit")]
-#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "bits[1] ro;"; "DefinitionComplex")]
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), ""; "InputSymbolic")]
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
-fn test_qasm_call_operation(operation: Operation, converted: &str) {
+fn test_qasm_call_operation_identical_2_3(operation: Operation, converted: &str) {
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q").unwrap(),
+            qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
             converted.to_string()
-        )
+        );
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            converted.to_string()
+        );
+    })
+}
+
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionComplex")]
+fn test_qasm_call_operation_different_2_3(
+    operation: Operation,
+    converted_2: &str,
+    converted_3: &str,
+) {
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
+            converted_2.to_string()
+        );
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            converted_3.to_string()
+        );
     })
 }
 
@@ -113,14 +140,26 @@ fn test_qasm_call_operation(operation: Operation, converted: &str) {
     1,
     CalculatorFloat::from(0.2),
     CalculatorFloat::from(0.3)
-)))]
+)), "2.0"; "bog, 2.0")]
+#[test_case(Operation::from(Bogoliubov::new(
+    0,
+    1,
+    CalculatorFloat::from(0.2),
+    CalculatorFloat::from(0.3)
+)), "3.0"; "bog, 3.0")]
 #[test_case(Operation::from(ComplexPMInteraction::new(
     0,
     1,
     CalculatorFloat::from(0.3),
     CalculatorFloat::from(0.2)
-)))]
-fn test_qasm_call_error(operation: Operation) {
+)), "2.0"; "complexpm, 2.0")]
+#[test_case(Operation::from(ComplexPMInteraction::new(
+    0,
+    1,
+    CalculatorFloat::from(0.3),
+    CalculatorFloat::from(0.2)
+)), "3.0"; "complexpm, 3.0")]
+fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
     let mut wrong_circuit = Circuit::new();
     wrong_circuit += operation.clone();
 
@@ -130,7 +169,7 @@ fn test_qasm_call_error(operation: Operation) {
         let wrongcircuitpy = circuitpy_from_circuitru(py, wrong_circuit.clone());
         let wrongoperationpy = convert_operation_to_pyobject(operation.clone()).unwrap();
 
-        let result = qasm_call_circuit(dict.as_ref(), "qr");
+        let result = qasm_call_circuit(dict.as_ref(), "qr", qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -141,7 +180,7 @@ fn test_qasm_call_error(operation: Operation) {
             .to_string()
         );
 
-        let result = qasm_call_circuit(wrongcircuitpy, "qr");
+        let result = qasm_call_circuit(wrongcircuitpy, "qr", qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -155,7 +194,7 @@ fn test_qasm_call_error(operation: Operation) {
             .to_string()
         );
 
-        let result = qasm_call_operation(dict.as_ref(), "qr");
+        let result = qasm_call_operation(dict.as_ref(), "qr", qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -166,7 +205,7 @@ fn test_qasm_call_error(operation: Operation) {
             .to_string()
         );
 
-        let result = qasm_call_operation(wrongoperationpy.as_ref(py), "qr");
+        let result = qasm_call_operation(wrongoperationpy.as_ref(py), "qr", qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),

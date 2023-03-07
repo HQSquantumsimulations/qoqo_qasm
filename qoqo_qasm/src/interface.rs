@@ -32,11 +32,15 @@ use roqoqo_qasm::{call_circuit, call_operation, gate_definition};
 ///     TypeError: Circuit conversion error
 ///     ValueError: Operation not in QASM backend
 #[pyfunction]
-pub fn qasm_call_circuit(circuit: &PyAny, qubit_register_name: &str) -> PyResult<Vec<String>> {
+pub fn qasm_call_circuit(
+    circuit: &PyAny,
+    qubit_register_name: &str,
+    qasm_version: &str,
+) -> PyResult<Vec<String>> {
     let circuit = convert_into_circuit(circuit).map_err(|x| {
         PyTypeError::new_err(format!("Cannot convert python object to Circuit: {x:?}"))
     })?;
-    call_circuit(&circuit, qubit_register_name)
+    call_circuit(&circuit, qubit_register_name, qasm_version.to_string())
         .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
 }
 
@@ -53,11 +57,15 @@ pub fn qasm_call_circuit(circuit: &PyAny, qubit_register_name: &str) -> PyResult
 ///     TypeError: Operation conversion error
 ///     ValueError: Operation not in QASM backend
 #[pyfunction]
-pub fn qasm_call_operation(operation: &PyAny, qubit_register_name: &str) -> PyResult<String> {
+pub fn qasm_call_operation(
+    operation: &PyAny,
+    qubit_register_name: &str,
+    qasm_version: &str,
+) -> PyResult<String> {
     let operation = convert_pyany_to_operation(operation).map_err(|x| {
         PyTypeError::new_err(format!("Cannot convert python object to Operation: {x:?}"))
     })?;
-    call_operation(&operation, qubit_register_name)
+    call_operation(&operation, qubit_register_name, qasm_version.to_string())
         .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
 }
 

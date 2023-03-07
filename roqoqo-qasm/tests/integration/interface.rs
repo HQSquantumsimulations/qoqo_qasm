@@ -67,10 +67,6 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(PragmaActiveReset::new(0)), "reset q[0];"; "PragmaActiveReset")]
 #[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
-#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "bits[1] ro;"; "DefinitionFloat")]
-#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "bits[1] ro;"; "DefinitionUsize")]
-#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "bits[1] ro;"; "DefinitionBit")]
-#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "bits[1] ro;"; "DefinitionComplex")]
 #[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), ""; "PragmaSleep")]
 #[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(0.3))), ""; "PragmaGlobalPhase")]
 #[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), ""; "PragmaStopDecompositionBlock")]
@@ -78,11 +74,30 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
 #[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), ""; "PragmaStartDecompositionBlock")]
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), ""; "InputSymbolic")]
-fn test_call_operation(operation: Operation, converted: &str) {
+fn test_call_operation_identical_2_3(operation: Operation, converted: &str) {
     assert_eq!(
-        call_operation(&operation, "q").unwrap(),
+        call_operation(&operation, "q", "2.0".to_string()).unwrap(),
         converted.to_string()
-    )
+    );
+    assert_eq!(
+        call_operation(&operation, "q", "3.0".to_string()).unwrap(),
+        converted.to_string()
+    );
+}
+
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionComplex")]
+fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
+    assert_eq!(
+        call_operation(&operation, "q", "2.0".to_string()).unwrap(),
+        converted_2.to_string()
+    );
+    assert_eq!(
+        call_operation(&operation, "q", "3.0".to_string()).unwrap(),
+        converted_3.to_string()
+    );
 }
 
 #[test_case(Operation::from(PauliX::new(0)), "gate x a { u3(pi,0,pi) a; }"; "PauliX")]
@@ -138,7 +153,14 @@ fn test_pragma_conditional() {
     let pcond = PragmaConditional::new("c".to_string(), 0, circuit);
 
     let data = "if(c[0]==1) h q[0];\nif(c[0]==1) x q[0];";
-    assert_eq!(call_operation(&Operation::from(pcond), "q").unwrap(), data);
+    assert_eq!(
+        call_operation(&Operation::from(pcond.clone()), "q", "2.0".to_string()).unwrap(),
+        data
+    );
+    assert_eq!(
+        call_operation(&Operation::from(pcond), "q", "3.0".to_string()).unwrap(),
+        data
+    );
 }
 
 #[test]
@@ -148,7 +170,10 @@ fn test_pragma_repeated_operation_mapping() {
         1,
         Some(tmp_create_map()),
     ));
-    let qasm_string = call_operation(&operation, "q").unwrap();
+    let qasm_string = call_operation(&operation, "q", "2.0".to_string()).unwrap();
+    assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
+    assert!(qasm_string.contains("measure q[1] -> ro[0];\n"));
+    let qasm_string = call_operation(&operation, "q", "3.0".to_string()).unwrap();
     assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
     assert!(qasm_string.contains("measure q[1] -> ro[0];\n"));
 }
@@ -163,7 +188,14 @@ fn test_call_operation_error() {
         CalculatorFloat::from(0.2),
     ));
     assert_eq!(
-        call_operation(&operation, "q"),
+        call_operation(&operation, "q", "2.0".to_string()),
+        Err(RoqoqoBackendError::OperationNotInBackend {
+            backend: "QASM",
+            hqslang: "Bogoliubov"
+        })
+    );
+    assert_eq!(
+        call_operation(&operation, "q", "3.0".to_string()),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
             hqslang: "Bogoliubov"
@@ -180,10 +212,22 @@ fn test_call_circuit() {
     circuit += MeasureQubit::new(0, "ro".to_string(), 0);
 
     let qasm_circ: Vec<String> = vec![
+        "creg[1] ro;".to_string(),
+        "x qr[0];".to_string(),
+        "measure qr[0] -> ro[0];".to_string(),
+    ];
+    assert_eq!(
+        call_circuit(&circuit, "qr", "2.0".to_string()).unwrap(),
+        qasm_circ
+    );
+
+    let qasm_circ: Vec<String> = vec![
         "bits[1] ro;".to_string(),
         "x qr[0];".to_string(),
         "measure qr[0] -> ro[0];".to_string(),
     ];
-
-    assert_eq!(call_circuit(&circuit, "qr").unwrap(), qasm_circ);
+    assert_eq!(
+        call_circuit(&circuit, "qr", "3.0".to_string()).unwrap(),
+        qasm_circ
+    );
 }

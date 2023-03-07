@@ -43,9 +43,9 @@ impl QasmBackendWrapper {
     /// Returns:
     ///     Self: The new QasmBackend intance.
     #[new]
-    pub fn new(qubit_register_name: Option<String>) -> Self {
+    pub fn new(qubit_register_name: Option<String>, qasm_version: Option<String>) -> Self {
         Self {
-            internal: Backend::new(qubit_register_name),
+            internal: Backend::new(qubit_register_name, qasm_version),
         }
     }
 
