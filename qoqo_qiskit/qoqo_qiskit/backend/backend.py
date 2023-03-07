@@ -12,7 +12,7 @@ from typing import Tuple, Union, Dict, List, cast, Any, Optional
 ALLOWED_PROVIDERS = ["aer_simulator"]
 
 
-class QoqoQiskitSimulator:
+class QoqoQiskitBackend:
     """Simulate a Qoqo QuantumProgram on a Qiskit simulator."""
 
     def __init__(self, simulator: Backend = None) -> None:

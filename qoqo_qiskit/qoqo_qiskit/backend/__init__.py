@@ -2,4 +2,4 @@
 """Qoqo-qiskit backend package for compatibility and simulation purposes."""
 
 
-from qoqo_qiskit.backend.backend import QoqoQiskitSimulator
+from qoqo_qiskit.backend.backend import QoqoQiskitBackend

@@ -11,7 +11,7 @@ from qiskit.providers.fake_provider import FakeAthens
 
 from qiskit_aer import AerSimulator
 
-from qoqo_qiskit.backend import QoqoQiskitSimulator
+from qoqo_qiskit.backend import QoqoQiskitBackend
 
 from typing import List, Any
 
@@ -20,17 +20,17 @@ def test_constructor():
     simulator = AerSimulator()
     wrong_simulator = AerSimulator.from_backend(FakeAthens())
     try:
-        _ = QoqoQiskitSimulator()
-        _ = QoqoQiskitSimulator(simulator)
+        _ = QoqoQiskitBackend()
+        _ = QoqoQiskitBackend(simulator)
     except:
         assert False
 
     with pytest.raises(TypeError) as exc:
-        _ = QoqoQiskitSimulator("wrong_name")
+        _ = QoqoQiskitBackend("wrong_name")
         assert "The input is not a valid Qiskit Backend instance." in str(exc.value)
 
     with pytest.raises(ValueError) as exc:
-        _ = QoqoQiskitSimulator(wrong_simulator)
+        _ = QoqoQiskitBackend(wrong_simulator)
         assert "Input a simulator from the following allowed list: {ALLOWED_PROVIDERS}" in str(
             exc.value)
 
@@ -41,7 +41,7 @@ def test_constructor():
     [ops.RotateX(0, 0.23), ops.RotateY(1, 0.12), ops.RotateZ(2, 0.34)]
 ])
 def test_run_circuit(operations: List[Any]):
-    backend = QoqoQiskitSimulator()
+    backend = QoqoQiskitBackend()
 
     circuit = Circuit()
     involved_qubits = set()
@@ -69,7 +69,7 @@ def test_run_circuit(operations: List[Any]):
     [ops.RotateX(0, 0.23), ops.RotateY(1, 0.12), ops.RotateZ(2, 0.34)]
 ])
 def test_measurement_register_classicalregister(operations: List[Any]):
-    backend = QoqoQiskitSimulator()
+    backend = QoqoQiskitBackend()
 
     circuit = Circuit()
     involved_qubits = set()
@@ -99,7 +99,7 @@ def test_measurement_register_classicalregister(operations: List[Any]):
     [ops.RotateX(0, 0.23), ops.RotateY(1, 0.12), ops.RotateZ(2, 0.34)]
 ])
 def test_measurement(operations: List[Any]):
-    backend = QoqoQiskitSimulator()
+    backend = QoqoQiskitBackend()
 
     circuit = Circuit()
     involved_qubits = set()
