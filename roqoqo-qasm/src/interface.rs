@@ -66,10 +66,10 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
 /// circuit += DefinitionBit::new("ro".to_string(), 1, true);
 /// circuit += PauliX::new(0);
 /// circuit += MeasureQubit::new(0, "ro".to_string(), 0);
-/// let circuit: Vec<String> = call_circuit(&circuit, "q").unwrap();
+/// let circuit: Vec<String> = call_circuit(&circuit, "q", "3.0".to_string()).unwrap();
 ///
 /// let manual_circuit: Vec<String> = vec![
-///     "bits ro[1];".to_string(),
+///     "bits[1] ro;".to_string(),
 ///     "x q[0];".to_string(),
 ///     "measure q[0] -> ro[0];".to_string()
 /// ];
