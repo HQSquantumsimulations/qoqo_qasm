@@ -25,7 +25,7 @@ use test_case::test_case;
 #[test_case("2.0", "qreg", "creg"; "2.0")]
 #[test_case("3.0", "qubit", "bits"; "3.0")]
 fn run_simple_circuit(qasm_version: &str, qubits: &str, bits: &str) {
-    let backend = Backend::new(Some("qr".to_string()), Some(qasm_version.to_string()));
+    let backend = Backend::new(Some("qr".to_string()), Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
@@ -53,7 +53,7 @@ fn run_simple_circuit(qasm_version: &str, qubits: &str, bits: &str) {
 #[test_case("2.0", "qreg", "creg"; "2.0")]
 #[test_case("3.0", "qubit", "bits"; "3.0")]
 fn simple_circuit_iterator_to_file(qasm_version: &str, qubits: &str, bits: &str) {
-    let backend = Backend::new(None, Some(qasm_version.to_string()));
+    let backend = Backend::new(None, Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
@@ -81,7 +81,7 @@ fn simple_circuit_iterator_to_file(qasm_version: &str, qubits: &str, bits: &str)
 #[test_case("2.0", "qreg", "creg"; "2.0")]
 #[test_case("3.0", "qubit", "bits"; "3.0")]
 fn test_duplicate_definitions(qasm_version: &str, qubits: &str, bits: &str) {
-    let backend = Backend::new(Some("qr".to_string()), Some(qasm_version.to_string()));
+    let backend = Backend::new(Some("qr".to_string()), Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += PauliX::new(0);
@@ -96,7 +96,7 @@ fn test_duplicate_definitions(qasm_version: &str, qubits: &str, bits: &str) {
 /// Test that backend returns error when running for a file that exists without overwrite
 #[test]
 fn run_error() {
-    let backend = Backend::new(None, None);
+    let backend = Backend::new(None, None).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     let _ = backend.circuit_to_qasm_file(
@@ -123,20 +123,20 @@ fn run_error() {
 /// Test Debug, Clone and PartialEq for Backend
 #[test]
 fn test_debug_clone_partialeq() {
-    let backend = Backend::new(Some("qtest".to_string()), None);
+    let backend = Backend::new(Some("qtest".to_string()), None).unwrap();
 
     // Test Debug trait
     assert_eq!(
         format!("{backend:?}"),
-        "Backend { qubit_register_name: \"qtest\", qasm_version: \"2.0\" }"
+        "Backend { qubit_register_name: \"qtest\", qasm_version: V2point0 }"
     );
 
     // Test Clone trait
     assert_eq!(backend.clone(), backend);
 
     // PartialEq
-    let backend_0 = Backend::new(Some("qtest".to_string()), None);
-    let backend_2 = Backend::new(Some("q".to_string()), None);
+    let backend_0 = Backend::new(Some("qtest".to_string()), None).unwrap();
+    let backend_2 = Backend::new(Some("q".to_string()), None).unwrap();
 
     assert!(backend_0 == backend);
     assert!(backend == backend_0);

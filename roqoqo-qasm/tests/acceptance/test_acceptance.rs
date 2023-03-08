@@ -22,7 +22,7 @@ use std::path::Path;
 /// Test generating a file for gate operations with QASM interface
 #[test]
 fn test_acceptance_with_qasmbackend() {
-    let backend = Backend::new(Some("qr".to_string()), None);
+    let backend = Backend::new(Some("qr".to_string()), None).unwrap();
 
     let mut circuit = Circuit::new();
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());

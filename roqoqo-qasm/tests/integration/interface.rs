@@ -16,6 +16,7 @@ use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::prelude::*;
 use roqoqo::Circuit;
+use roqoqo_qasm::QasmVersion;
 use roqoqo_qasm::{call_circuit, call_operation, gate_definition};
 use std::collections::HashMap;
 use std::f64::consts::PI;
@@ -76,11 +77,11 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), ""; "InputSymbolic")]
 fn test_call_operation_identical_2_3(operation: Operation, converted: &str) {
     assert_eq!(
-        call_operation(&operation, "q", "2.0".to_string()).unwrap(),
+        call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
         converted.to_string()
     );
     assert_eq!(
-        call_operation(&operation, "q", "3.0".to_string()).unwrap(),
+        call_operation(&operation, "q", QasmVersion::V3point0).unwrap(),
         converted.to_string()
     );
 }
@@ -91,11 +92,11 @@ fn test_call_operation_identical_2_3(operation: Operation, converted: &str) {
 #[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionComplex")]
 fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
     assert_eq!(
-        call_operation(&operation, "q", "2.0".to_string()).unwrap(),
+        call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
         converted_2.to_string()
     );
     assert_eq!(
-        call_operation(&operation, "q", "3.0".to_string()).unwrap(),
+        call_operation(&operation, "q", QasmVersion::V3point0).unwrap(),
         converted_3.to_string()
     );
 }
@@ -154,11 +155,11 @@ fn test_pragma_conditional() {
 
     let data = "if(c[0]==1) h q[0];\nif(c[0]==1) x q[0];";
     assert_eq!(
-        call_operation(&Operation::from(pcond.clone()), "q", "2.0".to_string()).unwrap(),
+        call_operation(&Operation::from(pcond.clone()), "q", QasmVersion::V2point0).unwrap(),
         data
     );
     assert_eq!(
-        call_operation(&Operation::from(pcond), "q", "3.0".to_string()).unwrap(),
+        call_operation(&Operation::from(pcond), "q", QasmVersion::V3point0).unwrap(),
         data
     );
 }
@@ -170,10 +171,10 @@ fn test_pragma_repeated_operation_mapping() {
         1,
         Some(tmp_create_map()),
     ));
-    let qasm_string = call_operation(&operation, "q", "2.0".to_string()).unwrap();
+    let qasm_string = call_operation(&operation, "q", QasmVersion::V2point0).unwrap();
     assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
     assert!(qasm_string.contains("measure q[1] -> ro[0];\n"));
-    let qasm_string = call_operation(&operation, "q", "3.0".to_string()).unwrap();
+    let qasm_string = call_operation(&operation, "q", QasmVersion::V3point0).unwrap();
     assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
     assert!(qasm_string.contains("measure q[1] -> ro[0];\n"));
 }
@@ -188,14 +189,14 @@ fn test_call_operation_error() {
         CalculatorFloat::from(0.2),
     ));
     assert_eq!(
-        call_operation(&operation, "q", "2.0".to_string()),
+        call_operation(&operation, "q", QasmVersion::V2point0),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
             hqslang: "Bogoliubov"
         })
     );
     assert_eq!(
-        call_operation(&operation, "q", "3.0".to_string()),
+        call_operation(&operation, "q", QasmVersion::V3point0),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
             hqslang: "Bogoliubov"
@@ -217,7 +218,7 @@ fn test_call_circuit() {
         "measure qr[0] -> ro[0];".to_string(),
     ];
     assert_eq!(
-        call_circuit(&circuit, "qr", "2.0".to_string()).unwrap(),
+        call_circuit(&circuit, "qr", QasmVersion::V2point0).unwrap(),
         qasm_circ
     );
 
@@ -227,7 +228,7 @@ fn test_call_circuit() {
         "measure qr[0] -> ro[0];".to_string(),
     ];
     assert_eq!(
-        call_circuit(&circuit, "qr", "3.0".to_string()).unwrap(),
+        call_circuit(&circuit, "qr", QasmVersion::V3point0).unwrap(),
         qasm_circ
     );
 }

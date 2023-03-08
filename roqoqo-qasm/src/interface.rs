@@ -17,6 +17,8 @@ use roqoqo::operations::*;
 use roqoqo::Circuit;
 use roqoqo::RoqoqoBackendError;
 
+use crate::QasmVersion;
+
 // Operations that are ignored by backend and do not throw an error
 const ALLOWED_OPERATIONS: &[&str; 7] = &[
     "PragmaSleep",
@@ -79,14 +81,14 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
 pub fn call_circuit(
     circuit: &Circuit,
     qubit_register_name: &str,
-    qasm_version: String,
+    qasm_version: QasmVersion,
 ) -> Result<Vec<String>, RoqoqoBackendError> {
     let mut str_circuit: Vec<String> = Vec::new();
     for op in circuit.iter() {
         str_circuit.push(call_operation(
             op,
             qubit_register_name,
-            qasm_version.clone(),
+            qasm_version,
         )?);
     }
     Ok(str_circuit)
@@ -105,19 +107,11 @@ pub fn call_circuit(
 pub fn call_operation(
     operation: &Operation,
     qubit_register_name: &str,
-    qasm_version: String,
+    qasm_version: QasmVersion,
 ) -> Result<String, RoqoqoBackendError> {
-    let (_qubits, bits) = if qasm_version == "2.0" {
-        ("qreg", "creg")
-    } else if qasm_version == "3.0" {
-        ("qubit", "bits")
-    } else {
-        return Err(RoqoqoBackendError::GenericError {
-            msg: format!(
-                "Version for OpenQASM used is neither 2.0 nor 3.0: {}",
-                qasm_version
-            ),
-        });
+    let (_qubits, bits) = match qasm_version {
+        QasmVersion::V2point0 => ("qreg", "creg"),
+        QasmVersion::V3point0 => ("qubit", "bits"),
     };
 
     match operation {
@@ -351,14 +345,14 @@ pub fn call_operation(
                         "if({}[{}]==1) {}",
                         op.condition_register(),
                         op.condition_index(),
-                        call_operation(int_op, qubit_register_name, qasm_version.clone()).unwrap()
+                        call_operation(int_op, qubit_register_name, qasm_version).unwrap()
                     ));
                 } else {
                     data.push_str(&format!(
                         "if({}[{}]==1) {}\n",
                         op.condition_register(),
                         op.condition_index(),
-                        call_operation(int_op, qubit_register_name, qasm_version.clone()).unwrap()
+                        call_operation(int_op, qubit_register_name, qasm_version).unwrap()
                     ));
                 }
             }
