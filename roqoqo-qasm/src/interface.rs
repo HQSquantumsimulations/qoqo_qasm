@@ -105,11 +105,6 @@ pub fn call_operation(
     qubit_register_name: &str,
     qasm_version: QasmVersion,
 ) -> Result<String, RoqoqoBackendError> {
-    let (_qubits, bits) = match qasm_version {
-        QasmVersion::V2point0 => ("qreg", "creg"),
-        QasmVersion::V3point0 => ("qubit", "bits"),
-    };
-
     match operation {
         Operation::RotateZ(op) => Ok(format!(
             "rz({}) {}[{}];",
@@ -382,10 +377,22 @@ pub fn call_operation(
             op.readout(),
             op.readout_index()
         )),
-        Operation::DefinitionFloat(op) => Ok(format!("{}[{}] {};", bits, op.length(), op.name())),
-        Operation::DefinitionUsize(op) => Ok(format!("{}[{}] {};", bits, op.length(), op.name())),
-        Operation::DefinitionBit(op) => Ok(format!("{}[{}] {};", bits, op.length(), op.name())),
-        Operation::DefinitionComplex(op) => Ok(format!("{}[{}] {};", bits, op.length(), op.name())),
+        Operation::DefinitionFloat(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];\n", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};\n", op.length(), op.name(),)),
+        },
+        Operation::DefinitionUsize(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];\n", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};\n", op.length(), op.name(),)),
+        },
+        Operation::DefinitionBit(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];\n", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};\n", op.length(), op.name(),)),
+        },
+        Operation::DefinitionComplex(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];\n", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};\n", op.length(), op.name(),)),
+        },
         _ => {
             if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())

@@ -12,17 +12,18 @@
 
 import pytest
 import sys
-from qoqo_qasm import QasmBackend  # type:ignore
+from qoqo_qasm import QasmBackend
 from qoqo import Circuit
 from qoqo import operations as ops
 
 
-def test_qasm():
+def test_qasm() -> None:
     circuit = Circuit()
     circuit += ops.Hadamard(0)
 
-    backend = QasmBackend()
+    backend = QasmBackend(None, "3.0")
     qasm = backend.circuit_to_qasm_str(circuit)
+    assert qasm
 
 
 if __name__ == "__main__":

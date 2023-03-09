@@ -89,17 +89,11 @@ impl Backend {
         let mut definitions: String = "".to_string();
         let mut data: String = "".to_string();
         let mut qasm_string = String::from("OPENQASM ");
-        let (qubits, _bits) = match self.qasm_version {
-            QasmVersion::V2point0 => {
-                qasm_string.push_str("2.0;\n\n");
-                ("qreg", "creg")
-            }
-            QasmVersion::V3point0 => {
-                qasm_string.push_str("3.0;\n\n");
-                ("qubit", "bits")
-            }
-        };
-
+        match self.qasm_version {
+            QasmVersion::V2point0 => qasm_string.push_str("2.0;\n\n"),
+            QasmVersion::V3point0 => qasm_string.push_str("3.0;\n\n"),
+        }
+        
         let mut number_qubits_required: usize = 0;
         let mut already_seen_definitions: Vec<String> = vec![
             "RotateX".to_string(),
@@ -154,15 +148,24 @@ impl Backend {
         }
         qasm_string.push_str(definitions.as_str());
 
-        qasm_string.push_str(
-            format!(
-                "{}[{}] {};\n",
-                qubits,
-                number_qubits_required + 1,
-                self.qubit_register_name
-            )
-            .as_str(),
-        );
+        match self.qasm_version {
+            QasmVersion::V2point0 => qasm_string.push_str(
+                format!(
+                    "qreg {}[{}];\n",
+                    self.qubit_register_name,
+                    number_qubits_required + 1,
+                )
+                .as_str(),
+            ),
+            QasmVersion::V3point0 => qasm_string.push_str(
+                format!(
+                    "qubits[{}] {};\n",
+                    number_qubits_required + 1,
+                    self.qubit_register_name,
+                )
+                .as_str(),
+            ),
+        }
         qasm_string.push_str(data.as_str());
 
         Ok(qasm_string)
