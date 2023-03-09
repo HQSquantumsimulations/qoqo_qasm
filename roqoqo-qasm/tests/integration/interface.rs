@@ -86,10 +86,10 @@ fn test_call_operation_identical_2_3(operation: Operation, converted: &str) {
     );
 }
 
-#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionFloat")]
-#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionUsize")]
-#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionBit")]
-#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionComplex")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionComplex")]
 fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
@@ -213,7 +213,7 @@ fn test_call_circuit() {
     circuit += MeasureQubit::new(0, "ro".to_string(), 0);
 
     let qasm_circ: Vec<String> = vec![
-        "creg[1] ro;".to_string(),
+        "creg ro[1];".to_string(),
         "x qr[0];".to_string(),
         "measure qr[0] -> ro[0];".to_string(),
     ];

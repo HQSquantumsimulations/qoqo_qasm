@@ -378,20 +378,20 @@ pub fn call_operation(
             op.readout_index()
         )),
         Operation::DefinitionFloat(op) => match qasm_version {
-            QasmVersion::V2point0 => Ok(format!("creg {}[{}];\n", op.name(), op.length())),
-            QasmVersion::V3point0 => Ok(format!("bits[{}] {};\n", op.length(), op.name(),)),
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
         },
         Operation::DefinitionUsize(op) => match qasm_version {
-            QasmVersion::V2point0 => Ok(format!("creg {}[{}];\n", op.name(), op.length())),
-            QasmVersion::V3point0 => Ok(format!("bits[{}] {};\n", op.length(), op.name(),)),
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
         },
         Operation::DefinitionBit(op) => match qasm_version {
-            QasmVersion::V2point0 => Ok(format!("creg {}[{}];\n", op.name(), op.length())),
-            QasmVersion::V3point0 => Ok(format!("bits[{}] {};\n", op.length(), op.name(),)),
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
         },
         Operation::DefinitionComplex(op) => match qasm_version {
-            QasmVersion::V2point0 => Ok(format!("creg {}[{}];\n", op.name(), op.length())),
-            QasmVersion::V3point0 => Ok(format!("bits[{}] {};\n", op.length(), op.name(),)),
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
         },
         _ => {
             if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {

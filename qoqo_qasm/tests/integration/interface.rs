@@ -50,8 +50,8 @@ fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrap
 }
 
 /// Test qasm_call_circuit with correct Circuit
-#[test_case("2.0", "qreg", "creg"; "2.0")]
-#[test_case("3.0", "qubit", "bits"; "3.0")]
+#[test_case("2.0", "qreg qr[2]", "creg ro[1]"; "2.0")]
+#[test_case("3.0", "qubit[2] qr", "bits[1] ro"; "3.0")]
 fn test_qasm_call_circuit(qasm_version: &str, _qubits: &str, bits: &str) {
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 1, true);
@@ -63,7 +63,7 @@ fn test_qasm_call_circuit(qasm_version: &str, _qubits: &str, bits: &str) {
         let circuitpy = circuitpy_from_circuitru(py, circuit);
 
         let qasm_circ: Vec<String> = vec![
-            format!("{bits}[1] ro;"),
+            format!("{bits};"),
             "x qr[0];".to_string(),
             "measure qr[0] -> ro[0];".to_string(),
         ];
@@ -111,10 +111,10 @@ fn test_qasm_call_operation_identical_2_3(operation: Operation, converted: &str)
     })
 }
 
-#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionFloat")]
-#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionUsize")]
-#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionBit")]
-#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg[1] ro;", "bits[1] ro;"; "DefinitionComplex")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionComplex")]
 fn test_qasm_call_operation_different_2_3(
     operation: Operation,
     converted_2: &str,

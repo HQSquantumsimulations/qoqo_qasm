@@ -63,8 +63,8 @@ fn new_qasmbackend(
 }
 
 /// Test circuit_to_qasm_str on a simple Circuit
-#[test_case("2.0", "qreg", "creg"; "2.0")]
-#[test_case("3.0", "qubit", "bits"; "3.0")]
+#[test_case("2.0", "qreg q[2]", "creg ro[2]"; "2.0")]
+#[test_case("3.0", "qubit[2] q", "bits[2] ro"; "3.0")]
 fn test_circuit_to_qasm_str(qasm_version: &str, qubits: &str, bits: &str) {
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
@@ -82,14 +82,14 @@ fn test_circuit_to_qasm_str(qasm_version: &str, qubits: &str, bits: &str) {
             .unwrap()
             .extract()
             .unwrap();
-        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ CX c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits}[2] q;\n{bits}[2] ro;\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
+        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ CX c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits};\n{bits};\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
         assert_eq!(lines, result);
     })
 }
 
 /// Test circuit_to_qasm_file on a simple Circuit
-#[test_case("2.0", "qreg", "creg"; "2.0")]
-#[test_case("3.0", "qubit", "bits"; "3.0")]
+#[test_case("2.0", "qreg qr[2]", "creg ro[2]"; "2.0")]
+#[test_case("3.0", "qubit[2] qr", "bits[2] ro"; "3.0")]
 fn test_circuit_to_qasm_file(qasm_version: &str, qubits: &str, bits: &str) {
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
@@ -109,7 +109,7 @@ fn test_circuit_to_qasm_file(qasm_version: &str, qubits: &str, bits: &str) {
             )
             .unwrap();
 
-        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ CX c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits}[2] qr;\n{bits}[2] ro;\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ CX c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits};\n{bits};\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
         let read_in_path = temp_dir().join(Path::new("fnametest.qasm"));
         let extracted = fs::read_to_string(&read_in_path);
         fs::remove_file(&read_in_path).unwrap();
