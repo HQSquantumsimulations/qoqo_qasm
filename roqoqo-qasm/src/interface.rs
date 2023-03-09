@@ -85,11 +85,7 @@ pub fn call_circuit(
 ) -> Result<Vec<String>, RoqoqoBackendError> {
     let mut str_circuit: Vec<String> = Vec::new();
     for op in circuit.iter() {
-        str_circuit.push(call_operation(
-            op,
-            qubit_register_name,
-            qasm_version,
-        )?);
+        str_circuit.push(call_operation(op, qubit_register_name, qasm_version)?);
     }
     Ok(str_circuit)
 }

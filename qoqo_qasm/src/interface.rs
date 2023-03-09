@@ -42,8 +42,12 @@ pub fn qasm_call_circuit(
     let circuit = convert_into_circuit(circuit).map_err(|x| {
         PyTypeError::new_err(format!("Cannot convert python object to Circuit: {x:?}"))
     })?;
-    call_circuit(&circuit, qubit_register_name, QasmVersion::from_str(qasm_version).map_err(|x| PyValueError::new_err(format!("{x}")))?)
-        .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
+    call_circuit(
+        &circuit,
+        qubit_register_name,
+        QasmVersion::from_str(qasm_version).map_err(|x| PyValueError::new_err(format!("{x}")))?,
+    )
+    .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
 }
 
 /// Translate a qoqo operation to QASM text
@@ -67,8 +71,12 @@ pub fn qasm_call_operation(
     let operation = convert_pyany_to_operation(operation).map_err(|x| {
         PyTypeError::new_err(format!("Cannot convert python object to Operation: {x:?}"))
     })?;
-    call_operation(&operation, qubit_register_name, QasmVersion::from_str(qasm_version).map_err(|x| PyValueError::new_err(format!("{x}")))?)
-        .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
+    call_operation(
+        &operation,
+        qubit_register_name,
+        QasmVersion::from_str(qasm_version).map_err(|x| PyValueError::new_err(format!("{x}")))?,
+    )
+    .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
 }
 
 /// Outputs the QASM gate definition of many qoqo operations

@@ -18,8 +18,8 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::path::PathBuf;
-use std::usize;
 use std::str::FromStr;
+use std::usize;
 
 /// QASM backend to qoqo
 ///
@@ -53,7 +53,10 @@ impl Backend {
     ///
     /// * `qubit_register_name` - The number of qubits in the backend.
     /// * `qasm_version` - The version of OpenQASM (2.0 or 3.0) to use.
-    pub fn new(qubit_register_name: Option<String>, qasm_version: Option<String>) -> Result<Self, RoqoqoBackendError> {
+    pub fn new(
+        qubit_register_name: Option<String>,
+        qasm_version: Option<String>,
+    ) -> Result<Self, RoqoqoBackendError> {
         let qubit_reg = match qubit_register_name {
             None => "q".to_string(),
             Some(s) => s,
@@ -89,12 +92,12 @@ impl Backend {
         let (qubits, _bits) = match self.qasm_version {
             QasmVersion::V2point0 => {
                 qasm_string.push_str("2.0;\n\n");
-                ("qreg", "creg")    
-            },
+                ("qreg", "creg")
+            }
             QasmVersion::V3point0 => {
                 qasm_string.push_str("3.0;\n\n");
                 ("qubit", "bits")
-                },            
+            }
         };
 
         let mut number_qubits_required: usize = 0;
@@ -258,10 +261,7 @@ impl FromStr for QasmVersion {
             "2.0" => Ok(QasmVersion::V2point0),
             "3.0" => Ok(QasmVersion::V3point0),
             _ => Err(RoqoqoBackendError::GenericError {
-                msg: format!(
-                    "Version for OpenQASM used is neither 2.0 nor 3.0: {}",
-                    s
-                ),
+                msg: format!("Version for OpenQASM used is neither 2.0 nor 3.0: {}", s),
             }),
         }
     }

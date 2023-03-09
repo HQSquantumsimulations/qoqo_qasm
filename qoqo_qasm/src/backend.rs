@@ -43,9 +43,13 @@ impl QasmBackendWrapper {
     /// Returns:
     ///     Self: The new QasmBackend intance.
     #[new]
-    pub fn new(qubit_register_name: Option<String>, qasm_version: Option<String>) -> PyResult<Self> {
+    pub fn new(
+        qubit_register_name: Option<String>,
+        qasm_version: Option<String>,
+    ) -> PyResult<Self> {
         Ok(Self {
-            internal: Backend::new(qubit_register_name, qasm_version).map_err(|x| {PyValueError::new_err(format!("{x}"))})?,
+            internal: Backend::new(qubit_register_name, qasm_version)
+                .map_err(|x| PyValueError::new_err(format!("{x}")))?,
         })
     }
 
