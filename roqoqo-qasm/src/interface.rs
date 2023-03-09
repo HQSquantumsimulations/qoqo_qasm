@@ -61,14 +61,14 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
 /// # Example
 /// ```
 /// use roqoqo::{Circuit, operations::{DefinitionBit, PauliX, MeasureQubit}};
-/// use roqoqo_qasm::call_circuit;
+/// use roqoqo_qasm::{call_circuit, QasmVersion};
 /// use std::collections::HashMap;
 ///
 /// let mut circuit = Circuit::new();
 /// circuit += DefinitionBit::new("ro".to_string(), 1, true);
 /// circuit += PauliX::new(0);
 /// circuit += MeasureQubit::new(0, "ro".to_string(), 0);
-/// let circuit: Vec<String> = call_circuit(&circuit, "q", "3.0".to_string()).unwrap();
+/// let circuit: Vec<String> = call_circuit(&circuit, "q", QasmVersion::V3point0).unwrap();
 ///
 /// let manual_circuit: Vec<String> = vec![
 ///     "bits[1] ro;".to_string(),
