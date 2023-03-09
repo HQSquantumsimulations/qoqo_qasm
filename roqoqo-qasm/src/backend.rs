@@ -18,7 +18,9 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::usize;
+
 /// QASM backend to qoqo
 ///
 /// This backend to roqoqo produces QASM output which can be exported.
@@ -40,6 +42,8 @@ pub struct Backend {
     /// When translating to QASM which uses explicitely declared qubit registers a name for the qubit
     /// register needs to be chosen.
     qubit_register_name: String,
+    /// Which version of OpenQASM (2.0 or 3.0) to use
+    qasm_version: QasmVersion,
 }
 
 impl Backend {
@@ -48,15 +52,24 @@ impl Backend {
     /// # Arguments
     ///
     /// * `qubit_register_name` - The number of qubits in the backend.
-    pub fn new(qubit_register_name: Option<String>) -> Self {
-        match qubit_register_name {
-            None => Self {
-                qubit_register_name: "q".to_string(),
-            },
-            Some(s) => Self {
-                qubit_register_name: s,
-            },
-        }
+    /// * `qasm_version` - The version of OpenQASM (2.0 or 3.0) to use.
+    pub fn new(
+        qubit_register_name: Option<String>,
+        qasm_version: Option<String>,
+    ) -> Result<Self, RoqoqoBackendError> {
+        let qubit_reg = match qubit_register_name {
+            None => "q".to_string(),
+            Some(s) => s,
+        };
+        let qasm_v = match qasm_version {
+            None => QasmVersion::V2point0,
+            Some(v) => QasmVersion::from_str(v.as_str())?,
+        };
+
+        Ok(Self {
+            qubit_register_name: qubit_reg,
+            qasm_version: qasm_v,
+        })
     }
     /// Translates an iterator over operations to a valid QASM string.
     ///
@@ -75,7 +88,11 @@ impl Backend {
     ) -> Result<String, RoqoqoBackendError> {
         let mut definitions: String = "".to_string();
         let mut data: String = "".to_string();
-        let mut qasm_string = String::from("OPENQASM 3.0;\n\n");
+        let mut qasm_string = String::from("OPENQASM ");
+        match self.qasm_version {
+            QasmVersion::V2point0 => qasm_string.push_str("2.0;\n\n"),
+            QasmVersion::V3point0 => qasm_string.push_str("3.0;\n\n"),
+        }
 
         let mut number_qubits_required: usize = 0;
         let mut already_seen_definitions: Vec<String> = vec![
@@ -120,21 +137,35 @@ impl Backend {
                     definitions.push('\n');
                 }
             }
-            data.push_str(&call_operation(op, &self.qubit_register_name)?);
+            data.push_str(&call_operation(
+                op,
+                &self.qubit_register_name,
+                self.qasm_version,
+            )?);
             if !data.is_empty() {
                 data.push('\n');
             }
         }
         qasm_string.push_str(definitions.as_str());
 
-        qasm_string.push_str(
-            format!(
-                "qubits[{}] {};\n",
-                number_qubits_required + 1,
-                self.qubit_register_name
-            )
-            .as_str(),
-        );
+        match self.qasm_version {
+            QasmVersion::V2point0 => qasm_string.push_str(
+                format!(
+                    "qreg {}[{}];\n",
+                    self.qubit_register_name,
+                    number_qubits_required + 1,
+                )
+                .as_str(),
+            ),
+            QasmVersion::V3point0 => qasm_string.push_str(
+                format!(
+                    "qubit[{}] {};\n",
+                    number_qubits_required + 1,
+                    self.qubit_register_name,
+                )
+                .as_str(),
+            ),
+        }
         qasm_string.push_str(data.as_str());
 
         Ok(qasm_string)
@@ -213,5 +244,28 @@ impl Backend {
         overwrite: bool,
     ) -> Result<(), RoqoqoBackendError> {
         self.circuit_iterator_to_qasm_file(circuit.iter(), folder_name, filename, overwrite)
+    }
+}
+
+/// Enum for setting the version of OpenQASM used
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum QasmVersion {
+    /// OpenQASM 2.0
+    V2point0,
+    /// OpenQASM 3.0
+    V3point0,
+}
+
+impl FromStr for QasmVersion {
+    type Err = RoqoqoBackendError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "2.0" => Ok(QasmVersion::V2point0),
+            "3.0" => Ok(QasmVersion::V3point0),
+            _ => Err(RoqoqoBackendError::GenericError {
+                msg: format!("Version for OpenQASM used is neither 2.0 nor 3.0: {}", s),
+            }),
+        }
     }
 }

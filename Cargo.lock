@@ -435,7 +435,7 @@ dependencies = [
 
 [[package]]
 name = "qoqo_qasm"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
  "pyo3",
  "pyo3-build-config",
@@ -545,7 +545,7 @@ dependencies = [
 
 [[package]]
 name = "roqoqo-qasm"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
  "qoqo_calculator",
  "roqoqo",

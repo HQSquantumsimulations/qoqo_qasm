@@ -1,6 +1,6 @@
 qoqo>=1.2
 qoqo_calculator_pyo3>=1.1
-qoqo_qasm>=0.5
+qoqo_qasm>=0.6
 numpy
 sphinx >= 2.1
 nbsphinx

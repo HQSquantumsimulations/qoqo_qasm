@@ -17,6 +17,8 @@ use roqoqo::operations::*;
 use roqoqo::Circuit;
 use roqoqo::RoqoqoBackendError;
 
+use crate::QasmVersion;
+
 // Operations that are ignored by backend and do not throw an error
 const ALLOWED_OPERATIONS: &[&str; 7] = &[
     "PragmaSleep",
@@ -59,17 +61,17 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
 /// # Example
 /// ```
 /// use roqoqo::{Circuit, operations::{DefinitionBit, PauliX, MeasureQubit}};
-/// use roqoqo_qasm::call_circuit;
+/// use roqoqo_qasm::{call_circuit, QasmVersion};
 /// use std::collections::HashMap;
 ///
 /// let mut circuit = Circuit::new();
 /// circuit += DefinitionBit::new("ro".to_string(), 1, true);
 /// circuit += PauliX::new(0);
 /// circuit += MeasureQubit::new(0, "ro".to_string(), 0);
-/// let circuit: Vec<String> = call_circuit(&circuit, "q").unwrap();
+/// let circuit: Vec<String> = call_circuit(&circuit, "q", QasmVersion::V3point0).unwrap();
 ///
 /// let manual_circuit: Vec<String> = vec![
-///     "bits ro[1];".to_string(),
+///     "bits[1] ro;".to_string(),
 ///     "x q[0];".to_string(),
 ///     "measure q[0] -> ro[0];".to_string()
 /// ];
@@ -79,10 +81,11 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
 pub fn call_circuit(
     circuit: &Circuit,
     qubit_register_name: &str,
+    qasm_version: QasmVersion,
 ) -> Result<Vec<String>, RoqoqoBackendError> {
     let mut str_circuit: Vec<String> = Vec::new();
     for op in circuit.iter() {
-        str_circuit.push(call_operation(op, qubit_register_name)?);
+        str_circuit.push(call_operation(op, qubit_register_name, qasm_version)?);
     }
     Ok(str_circuit)
 }
@@ -100,6 +103,7 @@ pub fn call_circuit(
 pub fn call_operation(
     operation: &Operation,
     qubit_register_name: &str,
+    qasm_version: QasmVersion,
 ) -> Result<String, RoqoqoBackendError> {
     match operation {
         Operation::RotateZ(op) => Ok(format!(
@@ -332,14 +336,14 @@ pub fn call_operation(
                         "if({}[{}]==1) {}",
                         op.condition_register(),
                         op.condition_index(),
-                        call_operation(int_op, qubit_register_name).unwrap()
+                        call_operation(int_op, qubit_register_name, qasm_version).unwrap()
                     ));
                 } else {
                     data.push_str(&format!(
                         "if({}[{}]==1) {}\n",
                         op.condition_register(),
                         op.condition_index(),
-                        call_operation(int_op, qubit_register_name).unwrap()
+                        call_operation(int_op, qubit_register_name, qasm_version).unwrap()
                     ));
                 }
             }
@@ -373,10 +377,22 @@ pub fn call_operation(
             op.readout(),
             op.readout_index()
         )),
-        Operation::DefinitionFloat(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
-        Operation::DefinitionUsize(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
-        Operation::DefinitionBit(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
-        Operation::DefinitionComplex(op) => Ok(format!("bits[{}] {};", op.length(), op.name())),
+        Operation::DefinitionFloat(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
+        },
+        Operation::DefinitionUsize(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
+        },
+        Operation::DefinitionBit(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
+        },
+        Operation::DefinitionComplex(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
+        },
         _ => {
             if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())
