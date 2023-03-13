@@ -120,6 +120,23 @@ def test_measurement(operations: List[Any]):
         assert False
 
 
+def test_run_options():
+    backend = QoqoQiskitBackend()
+
+    circuit = Circuit()
+    circuit += ops.Hadamard(0)
+    circuit += ops.CNOT(0, 1)
+
+    circuit += ops.DefinitionBit("ri", 2, True)
+    circuit += ops.MeasureQubit(0, "ri", 0)
+    circuit += ops.MeasureQubit(1, "ri", 1)
+    circuit += ops.PragmaRepeatedMeasurement("ri", 10)
+
+    with pytest.raises(ValueError) as exc:
+        _ = backend.run_circuit(circuit)
+        assert "Only input Circuits containing one type of measurement." in str(
+            exc.value)
+
 # For pytest
 if __name__ == '__main__':
     pytest.main(sys.argv)

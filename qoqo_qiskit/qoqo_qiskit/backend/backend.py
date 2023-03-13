@@ -9,7 +9,7 @@ from qoqo_qiskit.interface import to_qiskit_circuit
 
 from typing import Tuple, Union, Dict, List, cast, Any, Optional
 
-ALLOWED_PROVIDERS = ["aer_simulator"]
+ALLOWED_PROVIDERS = ["aer_simulator", "aer_simulator_statevector"]
 
 
 class QoqoQiskitBackend:
@@ -33,6 +33,8 @@ class QoqoQiskitBackend:
             raise ValueError(
                 f"Input a simulator from the following allowed list: {ALLOWED_PROVIDERS}"
             )
+        else:
+            self.simulator = simulator
 
     def run_circuit(
         self, circuit: Circuit
@@ -42,6 +44,8 @@ class QoqoQiskitBackend:
         Dict[str, List[List[complex]]],
     ]:
         """Simulate a Circuit on a Qiskit simulator.
+
+        The default number of shots for the simulation is 200.
 
         Args:
             circuit (Circuit): the Circuit to simulate.
@@ -98,11 +102,14 @@ class QoqoQiskitBackend:
             )
 
         # Handle simulation Options
-        # TODO
-        # TODO warning with multiple measurements
+        shots = 200
+        if len(run_options["MeasurementInfo"]) >= 2:
+            raise ValueError(
+                "Only input Circuits containing one type of measurement."
+            )
 
         # Simulation
-        result = self.simulator.run(compiled_circuit, shots=1, memory=True).result()
+        result = self.simulator.run(compiled_circuit, shots=shots, memory=True).result()
 
         # Result transformation
         transformed_counts = self._counts_to_registers(result.get_memory())

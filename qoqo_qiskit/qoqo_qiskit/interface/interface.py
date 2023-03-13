@@ -30,6 +30,9 @@ def to_qiskit_circuit(
     filtered_circuit = Circuit()
     sim_dict = {}
     sim_dict["MeasurementInfo"] = {}
+    sim_dict["SimulationInfo"] = {}
+    sim_dict["SimulationInfo"]["PragmaGetStateVector"] = False
+    sim_dict["SimulationInfo"]["PragmaGetDensityMatrix"] = False
     initial_statevector = []
     for op in circuit:
         if "PragmaSetStateVector" in op.tags():
@@ -54,6 +57,10 @@ def to_qiskit_circuit(
                 (op.qubit(), op.readout(), op.readout_index())
             )
             filtered_circuit += op
+        elif "PragmaGetStateVector" in op.tags():
+            sim_dict["SimulationInfo"]["PragmaGetStateVector"] = True
+        elif "PragmaGetDensityMatrix" in op.tags():
+            sim_dict["SimulationInfo"]["PragmaGetDensityMatrix"] = True
         else:
             filtered_circuit += op
 

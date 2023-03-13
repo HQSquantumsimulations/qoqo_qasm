@@ -104,6 +104,20 @@ def test_measure_qubit():
     assert ((0, "crg", 0) in sim_dict["MeasurementInfo"]["MeasureQubit"])
 
 
+def test_simulation_info():
+    circuit = Circuit()
+    circuit += ops.Hadamard(0)
+    circuit += ops.CNOT(0, 1)
+    circuit += ops.DefinitionBit("ro", 2, True)
+    circuit += ops.PragmaGetStateVector("ro", None)
+    circuit += ops.PragmaGetDensityMatrix("ro", None)
+
+    _, sim_dict = to_qiskit_circuit(circuit)
+
+    assert ("SimulationInfo" in sim_dict)
+    assert (sim_dict["SimulationInfo"]["PragmaGetStateVector"] == True)
+    assert (sim_dict["SimulationInfo"]["PragmaGetDensityMatrix"] == True)
+
 # For pytest
 if __name__ == '__main__':
     pytest.main(sys.argv)
