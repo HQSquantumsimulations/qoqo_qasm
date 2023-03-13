@@ -69,12 +69,10 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
 #[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), ""; "PragmaSleep")]
-#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(0.3))), ""; "PragmaGlobalPhase")]
 #[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), ""; "PragmaStopDecompositionBlock")]
 #[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), ""; "PragmaStopParallelBlock")]
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
 #[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), ""; "PragmaStartDecompositionBlock")]
-#[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), ""; "InputSymbolic")]
 fn test_call_operation_identical_2_3(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
@@ -86,10 +84,17 @@ fn test_call_operation_identical_2_3(operation: Operation, converted: &str) {
     );
 }
 
-#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionFloat")]
-#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionUsize")]
-#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionBit")]
-#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "bits[1] ro;"; "DefinitionComplex")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro;"; "DefinitionFloat output")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro;"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];", "output uint[1] ro;"; "DefinitionUsize ouput")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, false)), "creg ro[1];", "uint[1] ro;"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg ro[1];", "output bit[1] ro;"; "DefinitionBit output")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, false)), "creg ro[1];", "bit[1] ro;"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro_re;\noutput float[1] ro_im;"; "DefinitionComplex output")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
+#[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "", "input float other;"; "InputSymbolic")]
+#[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "", "other[0] = false;"; "InputBit")]
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;"; "PragmaGlobalPhase")]
 fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
@@ -153,14 +158,15 @@ fn test_pragma_conditional() {
 
     let pcond = PragmaConditional::new("c".to_string(), 0, circuit);
 
-    let data = "if(c[0]==1) h q[0];\nif(c[0]==1) x q[0];";
+    let data_2 = "if(c[0]==1) h q[0];\nif(c[0]==1) x q[0];";
     assert_eq!(
         call_operation(&Operation::from(pcond.clone()), "q", QasmVersion::V2point0).unwrap(),
-        data
+        data_2
     );
+    let data_3 = "if(c[0]==1) {\nh q[0];x q[0];}";
     assert_eq!(
         call_operation(&Operation::from(pcond), "q", QasmVersion::V3point0).unwrap(),
-        data
+        data_3
     );
 }
 
@@ -208,7 +214,7 @@ fn test_call_operation_error() {
 #[test]
 fn test_call_circuit() {
     let mut circuit = Circuit::new();
-    circuit += DefinitionBit::new("ro".to_string(), 1, true);
+    circuit += DefinitionBit::new("ro".to_string(), 1, false);
     circuit += PauliX::new(0);
     circuit += MeasureQubit::new(0, "ro".to_string(), 0);
 
@@ -223,7 +229,7 @@ fn test_call_circuit() {
     );
 
     let qasm_circ: Vec<String> = vec![
-        "bits[1] ro;".to_string(),
+        "bit[1] ro;".to_string(),
         "x qr[0];".to_string(),
         "measure qr[0] -> ro[0];".to_string(),
     ];

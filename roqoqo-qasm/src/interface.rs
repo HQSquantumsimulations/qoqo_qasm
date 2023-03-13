@@ -71,7 +71,7 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
 /// let circuit: Vec<String> = call_circuit(&circuit, "q", QasmVersion::V3point0).unwrap();
 ///
 /// let manual_circuit: Vec<String> = vec![
-///     "bits[1] ro;".to_string(),
+///     "bit[1] ro;".to_string(),
 ///     "x q[0];".to_string(),
 ///     "measure q[0] -> ro[0];".to_string()
 /// ];
@@ -323,31 +323,56 @@ pub fn call_operation(
                 op.qubit()
             ))
         }
+        Operation::PragmaGlobalPhase(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok("".to_string()),
+            QasmVersion::V3point0 => Ok(format!("gphase {};", op.phase(),))
+        }
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
         }
-        Operation::PragmaConditional(op) => {
-            // does not work if the internal circuit has another PragmaConditional
-            let mut ite = op.circuit().iter().peekable();
-            let mut data = "".to_string();
-            while let Some(int_op) = ite.next() {
-                if ite.peek().is_none() {
-                    data.push_str(&format!(
-                        "if({}[{}]==1) {}",
-                        op.condition_register(),
-                        op.condition_index(),
-                        call_operation(int_op, qubit_register_name, qasm_version).unwrap()
-                    ));
-                } else {
-                    data.push_str(&format!(
-                        "if({}[{}]==1) {}\n",
-                        op.condition_register(),
-                        op.condition_index(),
-                        call_operation(int_op, qubit_register_name, qasm_version).unwrap()
-                    ));
+        Operation::PragmaConditional(op) => match qasm_version {
+            QasmVersion::V2point0 => {
+                let mut ite = op.circuit().iter().peekable();
+                let mut data = "".to_string();
+                while let Some(int_op) = ite.next() {
+                    if int_op.tags().contains(&"PragmaConditional") {
+                        return Err(RoqoqoBackendError::GenericError { msg: "For OpenQASM 2.0 we cannot have nested PragmaConditional operations".to_string() })
+                    }
+                    if ite.peek().is_none() {
+                        data.push_str(&format!(
+                            "if({}[{}]==1) {}",
+                            op.condition_register(),
+                            op.condition_index(),
+                            call_operation(int_op, qubit_register_name, qasm_version).unwrap()
+                        ));
+                    } else {
+                        data.push_str(&format!(
+                            "if({}[{}]==1) {}\n",
+                            op.condition_register(),
+                            op.condition_index(),
+                            call_operation(int_op, qubit_register_name, qasm_version).unwrap()
+                        ));
+                    }
                 }
+                Ok(data)
+            },
+            QasmVersion::V3point0 => {
+                let mut data = "".to_string();
+                let circuit_vec = match call_circuit(op.circuit(), qubit_register_name, qasm_version) {
+                    Ok(vec_str) => vec_str,
+                    Err(x) => return Err(x)
+                };
+                data.push_str(&format!(
+                    "if({}[{}]==1) {{\n",
+                    op.condition_register(),
+                    op.condition_index(),
+                ));
+                for string in circuit_vec {
+                    data.push_str(string.as_str());
+                }
+                data.push('}');
+                Ok(data)
             }
-            Ok(data)
         }
         Operation::PragmaRepeatedMeasurement(op) => match op.qubit_mapping() {
             None => Ok(format!(
@@ -379,19 +404,80 @@ pub fn call_operation(
         )),
         Operation::DefinitionFloat(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
-            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
+            QasmVersion::V3point0 => {
+                if *op.is_output() {
+                    Ok(format!("output float[{}] {};", op.length(), op.name(),))
+                } else {
+                    Ok(format!("float[{}] {};", op.length(), op.name(),))
+                }
+            },
         },
         Operation::DefinitionUsize(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
-            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
+            QasmVersion::V3point0 => {
+                if *op.is_output() {
+                    Ok(format!("output uint[{}] {};", op.length(), op.name(),))
+                } else {
+                    Ok(format!("uint[{}] {};", op.length(), op.name(),))
+                }
+            },
         },
         Operation::DefinitionBit(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
-            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
+            QasmVersion::V3point0 => {
+                if *op.is_output() {
+                    Ok(format!("output bit[{}] {};", op.length(), op.name(),))
+                } else {
+                    Ok(format!("bit[{}] {};", op.length(), op.name(),))
+                }
+            },
         },
         Operation::DefinitionComplex(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
-            QasmVersion::V3point0 => Ok(format!("bits[{}] {};", op.length(), op.name(),)),
+            QasmVersion::V3point0 => {
+                let mut data = "".to_string();
+                if *op.is_output() {
+                    data.push_str(&format!(
+                        "output float[{}] {}_re;\n",
+                        op.length(),
+                        op.name(),
+                    ));
+                    data.push_str(&format!(
+                        "output float[{}] {}_im;",
+                        op.length(),
+                        op.name(),
+                    ));
+                } else {
+                    data.push_str(&format!(
+                        "float[{}] {}_re;\n",
+                        op.length(),
+                        op.name(),
+                    ));
+                    data.push_str(&format!(
+                        "float[{}] {}_im;",
+                        op.length(),
+                        op.name(),
+                    ));
+                }
+                Ok(data)
+            },
+        },
+        Operation::InputSymbolic(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok("".to_string()),
+            QasmVersion::V3point0 => Ok(format!("input float {};", op.name()))
+        },
+        Operation::InputBit(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok("".to_string()),
+            QasmVersion::V3point0 => Ok(format!("{}[{}] = {};", op.name(), op.index(), op.value()))
+        },
+        Operation::PragmaSetNumberOfMeasurements(_op) => match qasm_version {
+            QasmVersion::V2point0 => Ok("".to_string()),
+            QasmVersion::V3point0 => {
+                let data = "".to_string();
+                // let mut data = "".to_string();
+                // for i in -> need input from Nico
+                Ok(data)
+            }
         },
         _ => {
             if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
