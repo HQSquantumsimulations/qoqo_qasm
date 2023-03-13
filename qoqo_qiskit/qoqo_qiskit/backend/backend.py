@@ -104,9 +104,7 @@ class QoqoQiskitBackend:
         # Handle simulation Options
         shots = 200
         if len(run_options["MeasurementInfo"]) >= 2:
-            raise ValueError(
-                "Only input Circuits containing one type of measurement."
-            )
+            raise ValueError("Only input Circuits containing one type of measurement.")
 
         # Simulation
         result = self.simulator.run(compiled_circuit, shots=shots, memory=True).result()

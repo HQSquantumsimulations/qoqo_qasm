@@ -21,23 +21,23 @@ def test_basic_circuit():
 
     out_circ, sim_dict = to_qiskit_circuit(circuit)
 
-    assert (out_circ == qc)
-    assert (len(sim_dict["MeasurementInfo"]) == 0)
+    assert out_circ == qc
+    assert len(sim_dict["MeasurementInfo"]) == 0
 
 
 def test_qreg_creg_names():
     circuit = Circuit()
-    circuit += ops.DefinitionBit('cr', 2, is_output=True)
-    circuit += ops.DefinitionBit('crr', 3, is_output=True)
+    circuit += ops.DefinitionBit("cr", 2, is_output=True)
+    circuit += ops.DefinitionBit("crr", 3, is_output=True)
 
-    qr = QuantumRegister(1, 'qrg')
-    cr = ClassicalRegister(2, 'cr')
-    cr2 = ClassicalRegister(3, 'crr')
+    qr = QuantumRegister(1, "qrg")
+    cr = ClassicalRegister(2, "cr")
+    cr2 = ClassicalRegister(3, "crr")
     qc = QuantumCircuit(qr, cr, cr2)
 
-    out_circ, _ = to_qiskit_circuit(circuit, qubit_register_name='qrg')
+    out_circ, _ = to_qiskit_circuit(circuit, qubit_register_name="qrg")
 
-    assert (out_circ == qc)
+    assert out_circ == qc
 
 
 def test_setstatevector():
@@ -49,7 +49,7 @@ def test_setstatevector():
 
     out_circ, _ = to_qiskit_circuit(circuit)
 
-    assert (out_circ == qc)
+    assert out_circ == qc
 
     circuit = Circuit()
     circuit += ops.PragmaSetStateVector([0, 1])
@@ -61,7 +61,7 @@ def test_setstatevector():
 
     out_circ, _ = to_qiskit_circuit(circuit)
 
-    assert (out_circ == qc)
+    assert out_circ == qc
 
 
 def test_repeated_measurement():
@@ -71,8 +71,8 @@ def test_repeated_measurement():
     circuit += ops.DefinitionBit("ri", 2, True)
     circuit += ops.PragmaRepeatedMeasurement("ri", 300)
 
-    qr = QuantumRegister(2, 'q')
-    cr = ClassicalRegister(2, 'ri')
+    qr = QuantumRegister(2, "q")
+    cr = ClassicalRegister(2, "ri")
     qc = QuantumCircuit(qr, cr)
     qc.h(0)
     qc.h(1)
@@ -80,8 +80,8 @@ def test_repeated_measurement():
 
     out_circ, sim_dict = to_qiskit_circuit(circuit)
 
-    assert (out_circ == qc)
-    assert (('ri', 300, None) in sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"])
+    assert out_circ == qc
+    assert ("ri", 300, None) in sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"]
 
 
 def test_measure_qubit():
@@ -91,7 +91,7 @@ def test_measure_qubit():
     circuit += ops.DefinitionBit("crg", 1, is_output=True)
     circuit += ops.MeasureQubit(0, "crg", 0)
 
-    qr = QuantumRegister(2, 'q')
+    qr = QuantumRegister(2, "q")
     cr = ClassicalRegister(1, "crg")
     qc = QuantumCircuit(qr, cr)
     qc.h(0)
@@ -100,8 +100,8 @@ def test_measure_qubit():
 
     out_circ, sim_dict = to_qiskit_circuit(circuit)
 
-    assert (out_circ == qc)
-    assert ((0, "crg", 0) in sim_dict["MeasurementInfo"]["MeasureQubit"])
+    assert out_circ == qc
+    assert (0, "crg", 0) in sim_dict["MeasurementInfo"]["MeasureQubit"]
 
 
 def test_simulation_info():
@@ -114,10 +114,10 @@ def test_simulation_info():
 
     _, sim_dict = to_qiskit_circuit(circuit)
 
-    assert ("SimulationInfo" in sim_dict)
-    assert (sim_dict["SimulationInfo"]["PragmaGetStateVector"] == True)
-    assert (sim_dict["SimulationInfo"]["PragmaGetDensityMatrix"] == True)
+    assert sim_dict["SimulationInfo"]["PragmaGetStateVector"] == True
+    assert sim_dict["SimulationInfo"]["PragmaGetDensityMatrix"] == True
+
 
 # For pytest
-if __name__ == '__main__':
+if __name__ == "__main__":
     pytest.main(sys.argv)
