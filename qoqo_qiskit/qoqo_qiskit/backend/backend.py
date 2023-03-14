@@ -143,11 +143,11 @@ class QoqoQiskitBackend:
             for reg in output_bit_register_dict:
                 output_bit_register_dict[reg] = transformed_counts.pop()
         if method == "statevector":
-            vector = list(np.asarray(result.data(0)["statevector"]))
+            vector = list(np.asarray(result.data(0)["statevector"]).flatten())
             for reg in output_complex_register_dict:
                 output_complex_register_dict[reg].append(vector)
         if method == "density_matrix":
-            vector = list(np.asarray(result.data(0)["density_matrix"]))
+            vector = list(np.asarray(result.data(0)["density_matrix"]).flatten())
             for reg in output_complex_register_dict:
                 output_complex_register_dict[reg].append(vector)
 
