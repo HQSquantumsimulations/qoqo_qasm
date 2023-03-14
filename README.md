@@ -4,10 +4,11 @@
 
 Qasm interface for the qoqo/roqoqo quantum toolkit by [HQS Quantum Simulations](https://quantumsimulations.de).
 
-This repository contains two components:
+This repository contains three components:
 
 * The qoqo_qasm backend for the qoqo python interface to roqoqo
 * The roqoqo_qasm backend for roqoqo directly
+* The qoqo_qiskit backend for qoqo's Qiskit interface
 
 ## qoqo-qasm
 
@@ -37,6 +38,14 @@ Qasm interface for the roqoqo quantum toolkit by [HQS Quantum Simulations](https
 roqoqo-qasm provides the QasmBackend class that allows users translate a roqoqo circuit into a qasm file.
 Not all roqoqo operations have a corresponding qasm expression.  
 Circuits containing operations without a corresponding expression can not be translated.
+
+
+## qoqo_qiskit
+
+Qiskit interface for the qoqo quantum toolkit by [HQS Quantum Simulations](https://quantumsimulations.de).
+
+qoqo_qiskit provides an interface to Qiskit's package.
+Qiskit is under the Apache-2.0 license ( see https://github.com/Qiskit/qiskit/blob/master/LICENSE.txt ). qoqo_qiskit itself is too provided under the Apache-2.0 license.
 
 ## General Notes
 
