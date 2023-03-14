@@ -6,11 +6,11 @@ import sys
 
 from qoqo import Circuit
 from qoqo import operations as ops
-from qoqo.measurements import (
+from qoqo.measurements import (  # type:ignore
     ClassicalRegister,
     PauliZProduct,
     PauliZProductInput,
-)  # type:ignore
+)
 from qiskit.providers.fake_provider import FakeAthens
 
 from qiskit_aer import AerSimulator
@@ -66,10 +66,10 @@ def test_run_circuit(operations: List[Any]):
 
     with pytest.raises(ValueError) as exc:
         _ = backend.run_circuit(circuit)
-        assert (
-            "The Circuit does not contain Measurement operations. Simulation not possible."
-            in str(exc.value)
-        )
+    assert (
+        "The Circuit does not contain Measurement, PragmaGetStateVector or PragmaGetDensityMatrix operations. Simulation not possible."
+        in str(exc.value)
+    )
 
     circuit += ops.DefinitionBit("ri", len(involved_qubits), True)
     circuit += ops.PragmaRepeatedMeasurement("ri", 10)

@@ -1,6 +1,7 @@
 # Copyright © 2023 HQS Quantum Simulations GmbH.
 """Qoqo-qiskit backend for simulation purposes."""
 
+import numpy as np
 from qoqo import Circuit
 from qiskit_aer import AerSimulator
 from qiskit.providers import Backend
@@ -95,24 +96,60 @@ class QoqoQiskitBackend:
         # Qiskit conversion
         compiled_circuit, run_options = to_qiskit_circuit(circuit)
 
-        # Raise ValueError if no measurement is performed
-        if not run_options["MeasurementInfo"]:
+        # Raise ValueError:
+        #   - if no measurement of any kind and no Pragmas are involved
+        if (
+            not run_options["MeasurementInfo"]
+            and not run_options["SimulationInfo"]["PragmaGetStateVector"]
+            and not run_options["SimulationInfo"]["PragmaGetDensityMatrix"]
+        ):
             raise ValueError(
-                "The Circuit does not contain Measurement operations. Simulation not possible."
+                "The Circuit does not contain Measurement, PragmaGetStateVector"
+                " or PragmaGetDensityMatrix operations. Simulation not possible."
+            )
+        #   - if both StateVector and DensityMatrix pragmas are involved
+        if (
+            run_options["SimulationInfo"]["PragmaGetStateVector"]
+            and run_options["SimulationInfo"]["PragmaGetDensityMatrix"]
+        ):
+            raise ValueError(
+                "The Circuit contains both a PragmaGetStateVector"
+                " and a PragmaGetDensityMatrix instruction. Simulation not possible."
             )
 
         # Handle simulation Options
         shots = 200
+        method = "automatic"
         if len(run_options["MeasurementInfo"]) >= 2:
             raise ValueError("Only input Circuits containing one type of measurement.")
+        if (
+            run_options["SimulationInfo"]["PragmaGetStateVector"]
+            or run_options["SimulationInfo"]["PragmaGetDensityMatrix"]
+        ):
+            compiled_circuit.save_state()
+            if run_options["SimulationInfo"]["PragmaGetStateVector"]:
+                method = "statevector"
+            elif run_options["SimulationInfo"]["PragmaGetDensityMatrix"]:
+                method = "density_matrix"
 
         # Simulation
-        result = self.simulator.run(compiled_circuit, shots=shots, memory=True).result()
+        result = self.simulator.run(
+            compiled_circuit, shots=shots, method=method, memory=True
+        ).result()
 
         # Result transformation
-        transformed_counts = self._counts_to_registers(result.get_memory())
-        for reg in output_bit_register_dict:
-            output_bit_register_dict[reg] = transformed_counts.pop()
+        if method == "automatic":
+            transformed_counts = self._counts_to_registers(result.get_memory())
+            for reg in output_bit_register_dict:
+                output_bit_register_dict[reg] = transformed_counts.pop()
+        if method == "statevector":
+            vector = list(np.asarray(result.data(0)["statevector"]))
+            for reg in output_complex_register_dict:
+                output_complex_register_dict[reg].append(vector)
+        if method == "density_matrix":
+            vector = list(np.asarray(result.data(0)["density_matrix"]))
+            for reg in output_complex_register_dict:
+                output_complex_register_dict[reg].append(vector)
 
         return (
             output_bit_register_dict,

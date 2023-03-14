@@ -7,7 +7,8 @@ requires-python = ">=3.7"
 dependencies = [
     "qoqo>=1.2",
     "qoqo_qasm>=0.5",
-    "qiskit"
+    "qiskit",
+    "numpy"
 ]
 [project.optional-dependencies]
 tests = [
