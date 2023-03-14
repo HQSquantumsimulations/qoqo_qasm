@@ -47,6 +47,10 @@ class QoqoQiskitBackend:
         """Simulate a Circuit on a Qiskit simulator.
 
         The default number of shots for the simulation is 200.
+        Any kind of Measurement, Statevector or DensityMatrix instruction only works as intended if
+        they are the last instructions in the Circuit.
+        Currently only one simulation is performed, meaning different measurements on different
+        registers are not supported.
 
         Args:
             circuit (Circuit): the Circuit to simulate.
@@ -116,37 +120,33 @@ class QoqoQiskitBackend:
                 "The Circuit contains both a PragmaGetStateVector"
                 " and a PragmaGetDensityMatrix instruction. Simulation not possible."
             )
+        #   - if more than 1 type of measurement is involved
+        if len(run_options["MeasurementInfo"]) > 1:
+            raise ValueError("Only input Circuits containing one type of measurement.")
 
         # Handle simulation Options
         shots = 200
-        method = "automatic"
-        if len(run_options["MeasurementInfo"]) >= 2:
-            raise ValueError("Only input Circuits containing one type of measurement.")
-        if (
-            run_options["SimulationInfo"]["PragmaGetStateVector"]
-            or run_options["SimulationInfo"]["PragmaGetDensityMatrix"]
-        ):
-            compiled_circuit.save_state()
-            if run_options["SimulationInfo"]["PragmaGetStateVector"]:
-                method = "statevector"
-            elif run_options["SimulationInfo"]["PragmaGetDensityMatrix"]:
-                method = "density_matrix"
+        sim_type = "automatic"
+        if run_options["SimulationInfo"]["PragmaGetStateVector"]:
+            compiled_circuit.save_statevector()
+            sim_type = "statevector"
+        elif run_options["SimulationInfo"]["PragmaGetDensityMatrix"]:
+            compiled_circuit.save_density_matrix()
+            sim_type = "density_matrix"
 
         # Simulation
-        result = self.simulator.run(
-            compiled_circuit, shots=shots, method=method, memory=True
-        ).result()
+        result = self.simulator.run(compiled_circuit, shots=shots, memory=True).result()
 
         # Result transformation
-        if method == "automatic":
+        if sim_type == "automatic":
             transformed_counts = self._counts_to_registers(result.get_memory())
             for reg in output_bit_register_dict:
                 output_bit_register_dict[reg] = transformed_counts.pop()
-        if method == "statevector":
+        if sim_type == "statevector":
             vector = list(np.asarray(result.data(0)["statevector"]).flatten())
             for reg in output_complex_register_dict:
                 output_complex_register_dict[reg].append(vector)
-        if method == "density_matrix":
+        if sim_type == "density_matrix":
             vector = list(np.asarray(result.data(0)["density_matrix"]).flatten())
             for reg in output_complex_register_dict:
                 output_complex_register_dict[reg].append(vector)

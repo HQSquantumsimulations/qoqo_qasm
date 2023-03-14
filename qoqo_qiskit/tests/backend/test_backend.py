@@ -31,14 +31,11 @@ def test_constructor():
 
     with pytest.raises(TypeError) as exc:
         _ = QoqoQiskitBackend("wrong_name")
-        assert "The input is not a valid Qiskit Backend instance." in str(exc.value)
+    assert "The input is not a valid Qiskit Backend instance." in str(exc.value)
 
     with pytest.raises(ValueError) as exc:
         _ = QoqoQiskitBackend(wrong_simulator)
-        assert (
-            "Input a simulator from the following allowed list: {ALLOWED_PROVIDERS}"
-            in str(exc.value)
-        )
+    assert "Input a simulator from the following allowed list: " in str(exc.value)
 
 
 @pytest.mark.parametrize(
@@ -55,7 +52,7 @@ def test_constructor():
         [ops.RotateX(0, 0.23), ops.RotateY(1, 0.12), ops.RotateZ(2, 0.34)],
     ],
 )
-def test_run_circuit(operations: List[Any]):
+def test_run_circuit_errors(operations: List[Any]):
     backend = QoqoQiskitBackend()
 
     circuit = Circuit()
@@ -71,13 +68,90 @@ def test_run_circuit(operations: List[Any]):
         in str(exc.value)
     )
 
-    circuit += ops.DefinitionBit("ri", len(involved_qubits), True)
-    circuit += ops.PragmaRepeatedMeasurement("ri", 10)
+    circuit_1 = Circuit()
+    circuit_1 += circuit
+    circuit_1 += ops.DefinitionComplex("ri", len(involved_qubits), True)
+    circuit_1 += ops.PragmaGetStateVector("ri", None)
+    circuit_1 += ops.PragmaGetDensityMatrix("ri", None)
+
+    with pytest.raises(ValueError) as exc:
+        _ = backend.run_circuit(circuit_1)
+    assert (
+        "The Circuit contains both a PragmaGetStateVector and a PragmaGetDensityMatrix instruction. Simulation not possible."
+        in str(exc.value)
+    )
+
+    circuit_2 = Circuit()
+    circuit_2 += circuit
+    circuit_2 += ops.DefinitionBit("ri", len(involved_qubits), True)
+    circuit_2 += ops.PragmaRepeatedMeasurement("ri", 10)
 
     try:
-        _ = backend.run_circuit(circuit)
+        _ = backend.run_circuit(circuit_2)
     except:
         assert False, f"Correct Circuit failed on '.run_circuit()' call."
+
+
+@pytest.mark.parametrize(
+    "operations",
+    [
+        [ops.PauliX(1), ops.PauliX(0), ops.PauliZ(2), ops.PauliX(3), ops.PauliY(4)],
+        [
+            ops.Hadamard(0),
+            ops.CNOT(0, 1),
+            ops.CNOT(1, 2),
+            ops.CNOT(2, 3),
+            ops.CNOT(3, 4),
+        ],
+        [ops.RotateX(0, 0.23), ops.RotateY(1, 0.12), ops.RotateZ(2, 0.34)],
+    ],
+)
+def test_run_circuit_results(operations: List[Any]):
+    backend = QoqoQiskitBackend()
+
+    circuit = Circuit()
+    involved_qubits = set()
+    for op in operations:
+        involved_qubits.update(op.involved_qubits())
+        circuit += op
+
+    circuit_1 = Circuit()
+    circuit_1 += circuit
+    circuit_1 += ops.DefinitionBit("ri", len(involved_qubits), True)
+    circuit_1 += ops.PragmaRepeatedMeasurement("ri", 10)
+
+    result = backend.run_circuit(circuit_1)
+
+    assert result[0]
+    assert result[0]["ri"]
+    assert not result[1]
+    assert not result[2]
+
+    circuit_2 = Circuit()
+    circuit_2 += circuit
+    circuit_2 += ops.DefinitionComplex("ri", len(involved_qubits), True)
+    circuit_2 += ops.PragmaGetStateVector("ri", None)
+
+    result = backend.run_circuit(circuit_2)
+
+    assert not result[0]
+    assert not result[1]
+    assert result[2]
+    assert result[2]["ri"]
+    assert len(result[2]["ri"][0]) == 2 ** len(involved_qubits)
+
+    circuit_3 = Circuit()
+    circuit_3 += circuit
+    circuit_3 += ops.DefinitionComplex("ri", len(involved_qubits), True)
+    circuit_3 += ops.PragmaGetDensityMatrix("ri", None)
+
+    result = backend.run_circuit(circuit_3)
+
+    assert not result[0]
+    assert not result[1]
+    assert result[2]
+    assert result[2]["ri"]
+    assert len(result[2]["ri"][0]) == (2 ** len(involved_qubits)) ** 2
 
 
 @pytest.mark.parametrize(
@@ -171,9 +245,7 @@ def test_run_options():
 
     with pytest.raises(ValueError) as exc:
         _ = backend.run_circuit(circuit)
-        assert "Only input Circuits containing one type of measurement." in str(
-            exc.value
-        )
+    assert "Only input Circuits containing one type of measurement." in str(exc.value)
 
 
 # For pytest
