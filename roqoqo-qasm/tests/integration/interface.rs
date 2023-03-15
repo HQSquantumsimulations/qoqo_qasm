@@ -12,12 +12,12 @@
 //
 //! Testing the roqoqo-qasm Interface
 
+use ndarray::array;
 use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::prelude::*;
 use roqoqo::Circuit;
-use roqoqo_qasm::QasmVersion;
-use roqoqo_qasm::{call_circuit, call_operation, gate_definition};
+use roqoqo_qasm::{call_circuit, call_operation, gate_definition, Qasm3Dialect, QasmVersion};
 use std::collections::HashMap;
 use std::f64::consts::PI;
 use std::usize;
@@ -68,18 +68,26 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(PragmaActiveReset::new(0)), "reset q[0];"; "PragmaActiveReset")]
 #[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
-#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), ""; "PragmaSleep")]
-#[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), ""; "PragmaStopDecompositionBlock")]
-#[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), ""; "PragmaStopParallelBlock")]
-#[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
-#[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), ""; "PragmaStartDecompositionBlock")]
-fn test_call_operation_identical_2_3(operation: Operation, converted: &str) {
+fn test_call_operation_identical_2_all_3(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
         converted.to_string()
     );
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V3point0).unwrap(),
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
+        converted.to_string()
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
+        )
+        .unwrap(),
+        converted.to_string()
+    );
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
         converted.to_string()
     );
 }
@@ -101,7 +109,67 @@ fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, co
         converted_2.to_string()
     );
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V3point0).unwrap(),
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
+        converted_3.to_string()
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
+        )
+        .unwrap(),
+        converted_3.to_string()
+    );
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
+        converted_3.to_string()
+    );
+}
+
+#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), "", "pragma roqoqo PragmaSleep [0, 1] 3e-1;"; "PragmaSleep")]
+#[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), "", "pragma roqoqo PragmaStopDecompositionBlock [0, 1];"; "PragmaStopDecompositionBlock")]
+#[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), "", "pragma roqoqo PragmaStopParallelBlock [] 0e0;"; "PragmaStopParallelBlock")]
+#[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), "", "pragma roqoqo PragmaSetNumberOfMeasurements 20 ro;"; "PragmaSetNumberOfMeasurements")]
+#[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), "", "pragma roqoqo PragmaStartDecompositionBlock [0, 1] {};"; "PragmaStartDecompositionBlock")]
+#[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())), "", "pragma roqoqo PragmaBoostNoise 1.5e0;"; "PragmaBoostNoise")]
+#[test_case(Operation::from(PragmaDamping::new(0, 1.0.into(), 1.5.into())), "", "pragma roqoqo PragmaDamping 0 1e0 1.5e0;"; "PragmaDamping")]
+#[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "", "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;"; "PragmaDephasing")]
+#[test_case(Operation::from(PragmaDepolarising::new(0, 1.0.into(), 1.5.into())), "", "pragma roqoqo PragmaDepolarising 0 1e0 1.5e0;"; "PragmaDepolarising")]
+#[test_case(Operation::from(PragmaGeneralNoise::new(0, 1.0.into(), array![[1.5]])), "", "pragma roqoqo PragmaGeneralNoise 0 1e0 [[1.5]];"; "PragmaGeneralNoise")]
+#[test_case(Operation::from(PragmaGetDensityMatrix::new("test".into(), None)), "", "pragma roqoqo PragmaGetDensityMatrix test ;"; "PragmaGetDensityMatrix")]
+#[test_case(Operation::from(PragmaGetOccupationProbability::new("test".into(), None)), "", "pragma roqoqo PragmaGetOccupationProbability test ;"; "PragmaGetOccupationProbability")]
+#[test_case(Operation::from(PragmaGetPauliProduct::new(HashMap::new(), "test".into(), Circuit::new())), "", "pragma roqoqo PragmaGetPauliProduct {} test ;"; "PragmaGetPauliProduct")]
+#[test_case(Operation::from(PragmaGetStateVector::new("test".into(), None)), "", "pragma roqoqo PragmaGetStateVector test ;"; "PragmaGetStateVector")]
+#[test_case(Operation::from(PragmaOverrotation::new("Hadamard".into(), [0, 1].into(), 0.4, 0.5)), "", "pragma roqoqo PragmaOverrotation Hadamard [0, 1] 0.4 0.5;"; "PragmaOverrotation")]
+#[test_case(Operation::from(PragmaRandomNoise::new(0, 0.4.into(), 0.5.into(), 0.3.into())), "", "pragma roqoqo PragmaRandomNoise 0 4e-1 5e-1 3e-1;"; "PragmaRandomNoise")]
+#[test_case(Operation::from(PragmaRepeatGate::new(3)), "", "pragma roqoqo PragmaRepeatGate 3;"; "PragmaRepeatGate")]
+#[test_case(Operation::from(PragmaSetDensityMatrix::new(array![[1.5.into()]])), "", "pragma roqoqo PragmaSetDensityMatrix [[1.5+0i]];"; "PragmaSetDensityMatrix")]
+#[test_case(Operation::from(PragmaSetStateVector::new(array![1.5.into()])), "", "pragma roqoqo PragmaSetStateVector [1.5+0i];"; "PragmaSetStateVector")]
+fn test_call_operation_different_2_roqoqo_3(
+    operation: Operation,
+    converted_2: &str,
+    converted_3: &str,
+) {
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
+        converted_2.to_string()
+    );
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
+        converted_2.to_string()
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
+        )
+        .unwrap(),
+        converted_2.to_string()
+    );
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
         converted_3.to_string()
     );
 }
@@ -150,14 +218,32 @@ fn test_gate_definition(operation: Operation, converted: &str) {
     assert_eq!(gate_definition(&operation).unwrap(), converted.to_string())
 }
 
+#[test_case(Operation::from(Bogoliubov::new(0, 1, 0.1.into(), 0.2.into())); "Bogoliubov")]
+fn test_gate_definition_error(operation: Operation) {
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: "Bogoliubov",
+    };
+    assert_eq!(gate_definition(&operation), Err(error))
+}
+
 #[test]
 fn test_pragma_conditional() {
     let mut circuit = Circuit::new();
     circuit += Hadamard::new(0);
     circuit += PauliX::new(0);
 
-    let pcond = PragmaConditional::new("c".to_string(), 0, circuit);
+    let mut break_circuit = circuit.clone();
+    break_circuit += PragmaConditional::new("c".to_string(), 0, Circuit::new());
+    let pcond = PragmaConditional::new("c".to_string(), 0, break_circuit);
+    assert_eq!(
+        call_operation(&Operation::from(pcond), "q", QasmVersion::V2point0),
+        Err(RoqoqoBackendError::GenericError {
+            msg: "For OpenQASM 2.0 we cannot have nested PragmaConditional operations".to_string()
+        })
+    );
 
+    let pcond = PragmaConditional::new("c".to_string(), 0, circuit.clone());
     let data_2 = "if(c[0]==1) h q[0];\nif(c[0]==1) x q[0];";
     assert_eq!(
         call_operation(&Operation::from(pcond.clone()), "q", QasmVersion::V2point0).unwrap(),
@@ -165,8 +251,122 @@ fn test_pragma_conditional() {
     );
     let data_3 = "if(c[0]==1) {\nh q[0];x q[0];}";
     assert_eq!(
-        call_operation(&Operation::from(pcond), "q", QasmVersion::V3point0).unwrap(),
+        call_operation(
+            &Operation::from(pcond.clone()),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Braket)
+        )
+        .unwrap(),
         data_3
+    );
+    assert_eq!(
+        call_operation(
+            &Operation::from(pcond.clone()),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
+        )
+        .unwrap(),
+        data_3
+    );
+    assert_eq!(
+        call_operation(
+            &Operation::from(pcond),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo)
+        )
+        .unwrap(),
+        data_3
+    );
+
+    let mut break_circuit = Circuit::new();
+    break_circuit += Bogoliubov::new(0, 1, 0.1.into(), 0.2.into());
+    let pcond = PragmaConditional::new("c".to_string(), 0, break_circuit);
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: "Bogoliubov",
+    };
+    assert_eq!(
+        call_operation(
+            &Operation::from(pcond),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Braket)
+        ),
+        Err(error)
+    );
+}
+
+#[test]
+fn test_pragma_loop() {
+    let mut circuit = Circuit::new();
+    circuit += Hadamard::new(0);
+
+    let pcond = PragmaLoop::new("test".into(), circuit.clone());
+
+    assert_eq!(
+        call_operation(&Operation::from(pcond.clone()), "q", QasmVersion::V2point0),
+        Err(RoqoqoBackendError::GenericError {
+            msg: "PragmaLoop not allowed with qams_version 2.0".into()
+        })
+    );
+
+    let data_3_roqoqo = "pragma roqoqo PragmaLoop test Hadamard(Hadamard { qubit: 0 })\n;";
+    assert_eq!(
+        call_operation(
+            &Operation::from(pcond),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo)
+        )
+        .unwrap(),
+        data_3_roqoqo
+    );
+
+    let pcond = PragmaLoop::new("test".into(), circuit.clone());
+    let qasm = QasmVersion::V3point0(Qasm3Dialect::Vanilla);
+    assert_eq!(
+        call_operation(&Operation::from(pcond.clone()), "q", qasm),
+        Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: {qasm:?}") })
+    );
+    let qasm = QasmVersion::V3point0(Qasm3Dialect::Braket);
+    assert_eq!(
+        call_operation(&Operation::from(pcond), "q", qasm),
+        Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: {qasm:?}") })
+    );
+
+    let pcond = PragmaLoop::new(2.0.into(), circuit);
+    let data_3 = "for uint i in [0:2] {\n    h q[0];\n}";
+    assert_eq!(
+        call_operation(
+            &Operation::from(pcond.clone()),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
+        )
+        .unwrap(),
+        data_3
+    );
+    assert_eq!(
+        call_operation(
+            &Operation::from(pcond),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Braket)
+        )
+        .unwrap(),
+        data_3
+    );
+
+    let mut break_circuit = Circuit::new();
+    break_circuit += Bogoliubov::new(0, 1, 0.1.into(), 0.2.into());
+    let pcond = PragmaLoop::new(2.0.into(), break_circuit.clone());
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: "Bogoliubov",
+    };
+    assert_eq!(
+        call_operation(
+            &Operation::from(pcond),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Braket)
+        ),
+        Err(error)
     );
 }
 
@@ -180,7 +380,20 @@ fn test_pragma_repeated_operation_mapping() {
     let qasm_string = call_operation(&operation, "q", QasmVersion::V2point0).unwrap();
     assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
     assert!(qasm_string.contains("measure q[1] -> ro[0];\n"));
-    let qasm_string = call_operation(&operation, "q", QasmVersion::V3point0).unwrap();
+    let qasm_string =
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap();
+    assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
+    assert!(qasm_string.contains("measure q[1] -> ro[0];\n"));
+    let qasm_string = call_operation(
+        &operation,
+        "q",
+        QasmVersion::V3point0(Qasm3Dialect::Vanilla),
+    )
+    .unwrap();
+    assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
+    assert!(qasm_string.contains("measure q[1] -> ro[0];\n"));
+    let qasm_string =
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap();
     assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
     assert!(qasm_string.contains("measure q[1] -> ro[0];\n"));
 }
@@ -202,7 +415,25 @@ fn test_call_operation_error() {
         })
     );
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V3point0),
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)),
+        Err(RoqoqoBackendError::OperationNotInBackend {
+            backend: "QASM",
+            hqslang: "Bogoliubov"
+        })
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
+        ),
+        Err(RoqoqoBackendError::OperationNotInBackend {
+            backend: "QASM",
+            hqslang: "Bogoliubov"
+        })
+    );
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
             hqslang: "Bogoliubov"
@@ -234,7 +465,15 @@ fn test_call_circuit() {
         "measure qr[0] -> ro[0];".to_string(),
     ];
     assert_eq!(
-        call_circuit(&circuit, "qr", QasmVersion::V3point0).unwrap(),
+        call_circuit(&circuit, "qr", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
+        qasm_circ
+    );
+    assert_eq!(
+        call_circuit(&circuit, "qr", QasmVersion::V3point0(Qasm3Dialect::Vanilla)).unwrap(),
+        qasm_circ
+    );
+    assert_eq!(
+        call_circuit(&circuit, "qr", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
         qasm_circ
     );
 }

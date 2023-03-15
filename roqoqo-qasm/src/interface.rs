@@ -17,12 +17,12 @@ use roqoqo::operations::*;
 use roqoqo::Circuit;
 use roqoqo::RoqoqoBackendError;
 
+use crate::Qasm3Dialect;
 use crate::QasmVersion;
 
 // Operations that are ignored by backend and do not throw an error
-const ALLOWED_OPERATIONS: &[&str; 7] = &[
+const ALLOWED_OPERATIONS: &[&str; 6] = &[
     "PragmaSleep",
-    "PragmaGlobalPhase",
     "PragmaStopParallelBlock",
     "PragmaStopDecompositionBlock",
     "PragmaSetNumberOfMeasurements",
@@ -31,7 +31,7 @@ const ALLOWED_OPERATIONS: &[&str; 7] = &[
 ];
 
 // Operations that are ignored when looking for a QASM definition
-const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
+const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 10] = &[
     "SingleQubitGate",
     "DefinitionFloat",
     "DefinitionUsize",
@@ -39,6 +39,7 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 9] = &[
     "DefinitionComplex",
     "PragmaActiveReset",
     "PragmaConditional",
+    "PragmaGlobalPhase",
     "PragmaRepeatedMeasurement",
     "MeasureQubit",
 ];
@@ -323,12 +324,12 @@ pub fn call_operation(
                 op.qubit()
             ))
         }
-        Operation::PragmaGlobalPhase(op) => match qasm_version {
-            QasmVersion::V2point0 => Ok("".to_string()),
-            QasmVersion::V3point0 => Ok(format!("gphase {};", op.phase(),))
-        }
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
+        }
+        Operation::PragmaBoostNoise(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {};", op.hqslang(), op.noise_coefficient(),)),
+            _ => Ok("".to_string())
         }
         Operation::PragmaConditional(op) => match qasm_version {
             QasmVersion::V2point0 => {
@@ -356,7 +357,7 @@ pub fn call_operation(
                 }
                 Ok(data)
             },
-            QasmVersion::V3point0 => {
+            QasmVersion::V3point0(_) => {
                 let mut data = "".to_string();
                 let circuit_vec = match call_circuit(op.circuit(), qubit_register_name, qasm_version) {
                     Ok(vec_str) => vec_str,
@@ -374,27 +375,130 @@ pub fn call_operation(
                 Ok(data)
             }
         }
-        Operation::PragmaRepeatedMeasurement(op) => match op.qubit_mapping() {
-            None => Ok(format!(
-                "measure {} -> {};",
-                qubit_register_name,
-                op.readout()
-            )),
-            Some(qm) => {
-                let mut output_string = "".to_string();
-                for (key, val) in qm.iter() {
-                    output_string += format!(
-                        "measure {}[{}] -> {}[{}];\n",
-                        qubit_register_name,
-                        key,
-                        op.readout(),
-                        val
-                    )
-                    .as_str();
+        Operation::PragmaDamping(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {} {};", op.hqslang(), op.qubit(), op.gate_time(), op.rate())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaDephasing(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {} {};", op.hqslang(), op.qubit(), op.gate_time(), op.rate())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaDepolarising(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {} {};", op.hqslang(), op.qubit(), op.gate_time(), op.rate())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaGeneralNoise(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {} {};", op.hqslang(), op.qubit(), op.gate_time(), op.rates())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaGetDensityMatrix(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {};", op.hqslang(), op.readout(), op.circuit().clone().unwrap_or(Circuit::new()))),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaGetOccupationProbability(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {};", op.hqslang(), op.readout(), op.circuit().clone().unwrap_or(Circuit::new()))),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaGetPauliProduct(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {:?} {} {};", op.hqslang(), op.qubit_paulis(), op.readout(), op.circuit())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaGetStateVector(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {};", op.hqslang(), op.readout(), op.circuit().clone().unwrap_or(Circuit::new()))),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaGlobalPhase(op) => match qasm_version {
+            QasmVersion::V2point0 => Ok("".to_string()),
+            QasmVersion::V3point0(_) => Ok(format!("gphase {};", op.phase(),))
+        }
+        Operation::PragmaLoop(op) => match qasm_version {
+            QasmVersion::V2point0 => Err(RoqoqoBackendError::GenericError { msg: "PragmaLoop not allowed with qams_version 2.0".to_string() }),
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {};", op.hqslang(), op.repetitions(), op.circuit())),
+            QasmVersion::V3point0(_) => {
+                let mut data = "".to_string();
+                match op.repetitions() {
+                    CalculatorFloat::Float(x) => {
+                        data.push_str(format!("for uint i in [0:{x}] {{\n").as_str());
+                        let circuit_vec = match call_circuit(op.circuit(), qubit_register_name, qasm_version) {
+                            Ok(vec_str) => vec_str,
+                            Err(x) => return Err(x)
+                        };
+                        for string in circuit_vec {
+                            data.push_str(format!("    {string}").as_str());
+                        }
+                        data.push_str("\n}");
+                        Ok(data)
+                    },
+                    CalculatorFloat::Str(x) => Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string {x} for repetitions and a qasm-version that is incompatible: {qasm_version:?}") })
                 }
-                Ok(output_string)
             }
-        },
+        }
+        Operation::PragmaOverrotation(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {:?} {} {};", op.hqslang(), op.gate_hqslang(), op.qubits(), op.amplitude(), op.variance())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaRandomNoise(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {} {} {};", op.hqslang(), op.qubit(), op.gate_time(), op.depolarising_rate(), op.dephasing_rate())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaRepeatGate(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {};", op.hqslang(), op.repetition_coefficient())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaRepeatedMeasurement(op) => // match qasm_version {
+            // QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => {Ok(format!("pragma roqoqo {} {} {} {:?};", op.hqslang(), op.readout(), op.number_measurements(), op.qubit_mapping().clone().unwrap_or_default()))}
+            // _ => {
+                match op.qubit_mapping() {
+                    None => Ok(format!(
+                        "measure {} -> {};",
+                        qubit_register_name,
+                        op.readout()
+                    )),
+                    Some(qm) => {
+                        let mut output_string = "".to_string();
+                        for (key, val) in qm.iter() {
+                            output_string += format!(
+                                "measure {}[{}] -> {}[{}];\n",
+                                qubit_register_name,
+                                key,
+                                op.readout(),
+                                val
+                            )
+                            .as_str();
+                        }
+                        Ok(output_string)
+                    }
+                // }
+            // }
+        }
+        Operation::PragmaSetDensityMatrix(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {};", op.hqslang(), op.density_matrix())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaSetNumberOfMeasurements(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {} {};", op.hqslang(), op.number_measurements(), op.readout())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaSetStateVector(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {};", op.hqslang(), op.statevector())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaSleep(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {:?} {};", op.hqslang(), op.qubits(), op.sleep_time())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaStartDecompositionBlock(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {:?} {:?};", op.hqslang(), op.qubits(), op.reordering_dictionary())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaStopDecompositionBlock(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {:?};", op.hqslang(), op.qubits())),
+            _ => Ok("".to_string())
+        }
+        Operation::PragmaStopParallelBlock(op) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("pragma roqoqo {} {:?} {};", op.hqslang(), op.qubits(), op.execution_time())),
+            _ => Ok("".to_string())
+        }
         Operation::MeasureQubit(op) => Ok(format!(
             "measure {}[{}] -> {}[{}];",
             qubit_register_name,
@@ -404,7 +508,7 @@ pub fn call_operation(
         )),
         Operation::DefinitionFloat(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
-            QasmVersion::V3point0 => {
+            QasmVersion::V3point0(_) => {
                 if *op.is_output() {
                     Ok(format!("output float[{}] {};", op.length(), op.name(),))
                 } else {
@@ -414,7 +518,7 @@ pub fn call_operation(
         },
         Operation::DefinitionUsize(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
-            QasmVersion::V3point0 => {
+            QasmVersion::V3point0(_) => {
                 if *op.is_output() {
                     Ok(format!("output uint[{}] {};", op.length(), op.name(),))
                 } else {
@@ -424,7 +528,7 @@ pub fn call_operation(
         },
         Operation::DefinitionBit(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
-            QasmVersion::V3point0 => {
+            QasmVersion::V3point0(_) => {
                 if *op.is_output() {
                     Ok(format!("output bit[{}] {};", op.length(), op.name(),))
                 } else {
@@ -434,7 +538,7 @@ pub fn call_operation(
         },
         Operation::DefinitionComplex(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
-            QasmVersion::V3point0 => {
+            QasmVersion::V3point0(_) => {
                 let mut data = "".to_string();
                 if *op.is_output() {
                     data.push_str(&format!(
@@ -464,20 +568,11 @@ pub fn call_operation(
         },
         Operation::InputSymbolic(op) => match qasm_version {
             QasmVersion::V2point0 => Ok("".to_string()),
-            QasmVersion::V3point0 => Ok(format!("input float {};", op.name()))
+            QasmVersion::V3point0(_) => Ok(format!("input float {};", op.name()))
         },
         Operation::InputBit(op) => match qasm_version {
             QasmVersion::V2point0 => Ok("".to_string()),
-            QasmVersion::V3point0 => Ok(format!("{}[{}] = {};", op.name(), op.index(), op.value()))
-        },
-        Operation::PragmaSetNumberOfMeasurements(_op) => match qasm_version {
-            QasmVersion::V2point0 => Ok("".to_string()),
-            QasmVersion::V3point0 => {
-                let data = "".to_string();
-                // let mut data = "".to_string();
-                // for i in -> need input from Nico
-                Ok(data)
-            }
+            QasmVersion::V3point0(_) => Ok(format!("{}[{}] = {};", op.name(), op.index(), op.value()))
         },
         _ => {
             if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
