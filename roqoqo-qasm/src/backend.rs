@@ -277,6 +277,7 @@ impl FromStr for QasmVersion {
             "2.0" => Ok(QasmVersion::V2point0),
             "3.0Roqoqo" => Ok(QasmVersion::V3point0(Qasm3Dialect::Roqoqo)),
             "3.0Braket" => Ok(QasmVersion::V3point0(Qasm3Dialect::Braket)),
+            "3.0Vanilla" => Ok(QasmVersion::V3point0(Qasm3Dialect::Vanilla)),
             "3.0" => Ok(QasmVersion::V3point0(Qasm3Dialect::Vanilla)),
             _ => Err(RoqoqoBackendError::GenericError {
                 msg: format!("Version for OpenQASM used is neither 2.0 nor 3.0: {}", s),

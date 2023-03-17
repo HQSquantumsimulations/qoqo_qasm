@@ -21,12 +21,13 @@ use crate::Qasm3Dialect;
 use crate::QasmVersion;
 
 // Operations that are ignored by backend and do not throw an error
-const ALLOWED_OPERATIONS: &[&str; 10] = &[
+const ALLOWED_OPERATIONS: &[&str; 11] = &[
     "PragmaGetDensityMatrix",
     "PragmaGetOccupationProbability",
     "PragmaGetPauliProduct",
     "PragmaGetStateVector",
     "PragmaSleep",
+    "PragmaSetNumberOfMeasurements",
     "PragmaStartDecompositionBlock",
     "PragmaStopDecompositionBlock",
     "PragmaStopParallelBlock",
@@ -663,7 +664,7 @@ pub fn call_operation(
             if qasm_version == QasmVersion::V3point0(Qasm3Dialect::Roqoqo) {
                 output_string.push_str(
                     format!(
-                        "pragma roqoqo PragmaSetNumberOfMeasurements {} {}",
+                        "\npragma roqoqo PragmaSetNumberOfMeasurements {} {};",
                         op.number_measurements(),
                         op.readout(),
                     )

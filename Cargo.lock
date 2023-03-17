@@ -437,6 +437,7 @@ dependencies = [
 name = "qoqo_qasm"
 version = "0.6.0"
 dependencies = [
+ "ndarray",
  "pyo3",
  "pyo3-build-config",
  "qoqo",

@@ -31,6 +31,7 @@ features = ["num-complex"]
 [dev-dependencies]
 test-case = "3.0"
 qoqo_calculator = "1.1"
+ndarray = "0.15"
 
 [build-dependencies]
 pyo3-build-config = "0.18"

@@ -66,7 +66,6 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(PhaseShiftedControlledPhase::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.2))), "pscp(0.1,0.2) q[0],q[1];"; "PhaseShiftedControlledPhase")]
 #[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,-0.000000000000000) q[0];"; "SingleQubitGate")]
 #[test_case(Operation::from(PragmaActiveReset::new(0)), "reset q[0];"; "PragmaActiveReset")]
-#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
 fn test_call_operation_identical_2_all_3(operation: Operation, converted: &str) {
     assert_eq!(
@@ -101,7 +100,6 @@ fn test_call_operation_identical_2_all_3(operation: Operation, converted: &str) 
 #[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro_re;\noutput float[1] ro_im;"; "DefinitionComplex output")]
 #[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "", "input float other;"; "InputSymbolic")]
-#[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "", "other[0] = false;"; "InputBit")]
 #[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;"; "PragmaGlobalPhase")]
 fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
     assert_eq!(
@@ -132,20 +130,11 @@ fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, co
 #[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), "", "pragma roqoqo PragmaStopParallelBlock [] 0e0;"; "PragmaStopParallelBlock")]
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), "", "pragma roqoqo PragmaSetNumberOfMeasurements 20 ro;"; "PragmaSetNumberOfMeasurements")]
 #[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), "", "pragma roqoqo PragmaStartDecompositionBlock [0, 1] {};"; "PragmaStartDecompositionBlock")]
-#[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())), "", "pragma roqoqo PragmaBoostNoise 1.5e0;"; "PragmaBoostNoise")]
-#[test_case(Operation::from(PragmaDamping::new(0, 1.0.into(), 1.5.into())), "", "pragma roqoqo PragmaDamping 0 1e0 1.5e0;"; "PragmaDamping")]
-#[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "", "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;"; "PragmaDephasing")]
-#[test_case(Operation::from(PragmaDepolarising::new(0, 1.0.into(), 1.5.into())), "", "pragma roqoqo PragmaDepolarising 0 1e0 1.5e0;"; "PragmaDepolarising")]
-#[test_case(Operation::from(PragmaGeneralNoise::new(0, 1.0.into(), array![[1.5]])), "", "pragma roqoqo PragmaGeneralNoise 0 1e0 [[1.5]];"; "PragmaGeneralNoise")]
 #[test_case(Operation::from(PragmaGetDensityMatrix::new("test".into(), None)), "", "pragma roqoqo PragmaGetDensityMatrix test ;"; "PragmaGetDensityMatrix")]
 #[test_case(Operation::from(PragmaGetOccupationProbability::new("test".into(), None)), "", "pragma roqoqo PragmaGetOccupationProbability test ;"; "PragmaGetOccupationProbability")]
 #[test_case(Operation::from(PragmaGetPauliProduct::new(HashMap::new(), "test".into(), Circuit::new())), "", "pragma roqoqo PragmaGetPauliProduct {} test ;"; "PragmaGetPauliProduct")]
 #[test_case(Operation::from(PragmaGetStateVector::new("test".into(), None)), "", "pragma roqoqo PragmaGetStateVector test ;"; "PragmaGetStateVector")]
-#[test_case(Operation::from(PragmaOverrotation::new("Hadamard".into(), [0, 1].into(), 0.4, 0.5)), "", "pragma roqoqo PragmaOverrotation Hadamard [0, 1] 0.4 0.5;"; "PragmaOverrotation")]
-#[test_case(Operation::from(PragmaRandomNoise::new(0, 0.4.into(), 0.5.into(), 0.3.into())), "", "pragma roqoqo PragmaRandomNoise 0 4e-1 5e-1 3e-1;"; "PragmaRandomNoise")]
-#[test_case(Operation::from(PragmaRepeatGate::new(3)), "", "pragma roqoqo PragmaRepeatGate 3;"; "PragmaRepeatGate")]
-#[test_case(Operation::from(PragmaSetDensityMatrix::new(array![[1.5.into()]])), "", "pragma roqoqo PragmaSetDensityMatrix [[1.5+0i]];"; "PragmaSetDensityMatrix")]
-#[test_case(Operation::from(PragmaSetStateVector::new(array![1.5.into()])), "", "pragma roqoqo PragmaSetStateVector [1.5+0i];"; "PragmaSetStateVector")]
+#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;", "measure q -> ro;\npragma roqoqo PragmaSetNumberOfMeasurements 1 ro;"; "PragmaRepeatedMeasurement")]
 fn test_call_operation_different_2_roqoqo_3(
     operation: Operation,
     converted_2: &str,
@@ -170,6 +159,101 @@ fn test_call_operation_different_2_roqoqo_3(
     );
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
+        converted_3.to_string()
+    );
+}
+
+#[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())), "pragma roqoqo PragmaBoostNoise 1.5e0;"; "PragmaBoostNoise")]
+#[test_case(Operation::from(PragmaDamping::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDamping 0 1e0 1.5e0;"; "PragmaDamping")]
+#[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;"; "PragmaDephasing")]
+#[test_case(Operation::from(PragmaDepolarising::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDepolarising 0 1e0 1.5e0;"; "PragmaDepolarising")]
+#[test_case(Operation::from(PragmaGeneralNoise::new(0, 1.0.into(), array![[1.5]])), "pragma roqoqo PragmaGeneralNoise 0 1e0 [[1.5]];"; "PragmaGeneralNoise")]
+#[test_case(Operation::from(PragmaOverrotation::new("Hadamard".into(), [0, 1].into(), 0.4, 0.5)), "pragma roqoqo PragmaOverrotation Hadamard [0, 1] 0.4 0.5;"; "PragmaOverrotation")]
+#[test_case(Operation::from(PragmaRandomNoise::new(0, 0.4.into(), 0.5.into(), 0.3.into())), "pragma roqoqo PragmaRandomNoise 0 4e-1 5e-1 3e-1;"; "PragmaRandomNoise")]
+#[test_case(Operation::from(PragmaRepeatGate::new(3)), "pragma roqoqo PragmaRepeatGate 3;"; "PragmaRepeatGate")]
+#[test_case(Operation::from(PragmaSetDensityMatrix::new(array![[1.5.into()]])), "pragma roqoqo PragmaSetDensityMatrix [[1.5+0i]];"; "PragmaSetDensityMatrix")]
+#[test_case(Operation::from(PragmaSetStateVector::new(array![1.5.into()])), "pragma roqoqo PragmaSetStateVector [1.5+0i];"; "PragmaSetStateVector")]
+fn test_call_operation_error_2_roqoqo_3(operation: Operation, converted_3: &str) {
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: operation.hqslang(),
+    };
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
+        ),
+        Err(error)
+    );
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: operation.hqslang(),
+    };
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)),
+        Err(error)
+    );
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: operation.hqslang(),
+    };
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V2point0),
+        Err(error)
+    );
+
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo)
+        )
+        .unwrap(),
+        converted_3.to_string()
+    );
+}
+
+#[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "other[0] = false;"; "InputBit")]
+fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: operation.hqslang(),
+    };
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0
+        ),
+        Err(error)
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
+        )
+        .unwrap(),
+        converted_3.to_string()
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Braket)
+        )
+        .unwrap(),
+        converted_3.to_string()
+    );
+
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo)
+        )
+        .unwrap(),
         converted_3.to_string()
     );
 }
@@ -305,7 +389,7 @@ fn test_pragma_loop() {
     assert_eq!(
         call_operation(&Operation::from(pcond.clone()), "q", QasmVersion::V2point0),
         Err(RoqoqoBackendError::GenericError {
-            msg: "PragmaLoop not allowed with qams_version 2.0".into()
+            msg: "PragmaLoop not allowed with qasm_version 2.0".into()
         })
     );
 
