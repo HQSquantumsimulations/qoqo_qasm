@@ -204,12 +204,7 @@ fn test_call_operation_error_2_roqoqo_3(operation: Operation, converted_3: &str)
     );
 
     assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Roqoqo)
-        )
-        .unwrap(),
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
         converted_3.to_string()
     );
 }
@@ -221,11 +216,7 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
         hqslang: operation.hqslang(),
     };
     assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V2point0
-        ),
+        call_operation(&operation, "q", QasmVersion::V2point0),
         Err(error)
     );
     assert_eq!(
@@ -238,22 +229,12 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
         converted_3.to_string()
     );
     assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket)
-        )
-        .unwrap(),
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
         converted_3.to_string()
     );
 
     assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Roqoqo)
-        )
-        .unwrap(),
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
         converted_3.to_string()
     );
 }

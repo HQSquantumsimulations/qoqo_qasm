@@ -25,11 +25,11 @@ use qoqo::QoqoError;
 use qoqo_qasm::qasm_gate_definition;
 use qoqo_qasm::{qasm_call_circuit, qasm_call_operation};
 
+use ndarray::array;
 use qoqo_calculator::CalculatorFloat;
 use roqoqo::RoqoqoBackendError;
-use std::f64::consts::PI;
-use ndarray::array;
 use std::collections::HashMap;
+use std::f64::consts::PI;
 
 use roqoqo::operations::*;
 use roqoqo::Circuit;
@@ -142,16 +142,11 @@ fn test_qasm_call_operation_different_2_3(
 }
 
 #[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "other[0] = false;"; "InputBit")]
-fn test_qasm_call_operation_error_2_3(
-    operation: Operation,
-    converted_3: &str,
-) {
+fn test_qasm_call_operation_error_2_3(operation: Operation, converted_3: &str) {
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
-        assert!(
-            qasm_call_operation(new_op.as_ref(py), "q", "2.0").is_err()
-        );
+        assert!(qasm_call_operation(new_op.as_ref(py), "q", "2.0").is_err());
         assert_eq!(
             qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
             converted_3.to_string()
@@ -210,15 +205,9 @@ fn test_call_operation_error_2_roqoqo_3(operation: Operation, converted_3: &str)
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
-        assert!(
-            qasm_call_operation(new_op.as_ref(py), "q", "2.0").is_err()
-        );
-        assert!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0").is_err()
-        );
-        assert!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").is_err()
-        );
+        assert!(qasm_call_operation(new_op.as_ref(py), "q", "2.0").is_err());
+        assert!(qasm_call_operation(new_op.as_ref(py), "q", "3.0").is_err());
+        assert!(qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").is_err());
         assert_eq!(
             qasm_call_operation(new_op.as_ref(py), "q", "3.0Roqoqo").unwrap(),
             converted_3.to_string()
