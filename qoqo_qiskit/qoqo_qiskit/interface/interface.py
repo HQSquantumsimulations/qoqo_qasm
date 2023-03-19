@@ -20,7 +20,7 @@ def to_qiskit_circuit(
 
     Returns:
         Tuple[QuantumCircuit, dict[str, int]]: the equivalent QuantumCircuit and the dict containing
-                                     info for Qiskit's simulator.
+                                     info for Qiskit's backend.
     """
     # Populating dict output. Currently handling:
     #   - PragmaSetStateVector (continues further down)
@@ -37,12 +37,6 @@ def to_qiskit_circuit(
     for op in circuit:
         if "PragmaSetStateVector" in op.tags():
             initial_statevector = op.statevector()
-        elif "PragmaSetNumberOfMeasurements" in op.tags():
-            if "PragmaSetNumberOfMeasurements" not in sim_dict["MeasurementInfo"]:
-                sim_dict["MeasurementInfo"]["PragmaSetNumberOfMeasurements"] = []
-            sim_dict["MeasurementInfo"]["PragmaSetNumberOfMeasurements"].append(
-                (op.readout(), op.number_measurements())
-            )
         elif "PragmaRepeatedMeasurement" in op.tags():
             if "PragmaRepeatedMeasurement" not in sim_dict["MeasurementInfo"]:
                 sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"] = []
@@ -57,6 +51,12 @@ def to_qiskit_circuit(
                 (op.qubit(), op.readout(), op.readout_index())
             )
             filtered_circuit += op
+        elif "PragmaSetNumberOfMeasurements" in op.tags():
+            if "PragmaSetNumberOfMeasurements" not in sim_dict["SimulationInfo"]:
+                sim_dict["SimulationInfo"]["PragmaSetNumberOfMeasurements"] = []
+            sim_dict["SimulationInfo"]["PragmaSetNumberOfMeasurements"].append(
+                (op.readout(), op.number_measurements())
+            )
         elif "PragmaGetStateVector" in op.tags():
             sim_dict["SimulationInfo"]["PragmaGetStateVector"] = True
         elif "PragmaGetDensityMatrix" in op.tags():

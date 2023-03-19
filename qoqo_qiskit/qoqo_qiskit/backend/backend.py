@@ -14,28 +14,30 @@ ALLOWED_PROVIDERS = ["aer_simulator", "aer_simulator_statevector"]
 
 
 class QoqoQiskitBackend:
-    """Simulate a Qoqo QuantumProgram on a Qiskit simulator."""
+    """Simulate a Qoqo QuantumProgram on a Qiskit backend."""
 
-    def __init__(self, simulator: Backend = None) -> None:
-        """Init for Qiskit simulator settings.
+    # TODO: create something with qoqo-qryd provider and locally test that qoqo-qiskit manages it
+    #   as input
+    def __init__(self, qiskit_backend: Backend = None) -> None:
+        """Init for Qiskit backend settings.
 
         Args:
-            simulator (Backend): Qiskit backend instance to use for the simulation.
+            qiskit_backend (Backend): Qiskit backend instance to use for the simulation.
 
         Raises:
             TypeError: the input is not a valid Qiskit Backend instance.
-            ValueError: the selected simulator is not allowed.
+            ValueError: the selected backend is not allowed.
         """
-        if simulator is None:
-            self.simulator = AerSimulator()
-        elif not isinstance(simulator, Backend):
+        if qiskit_backend is None:
+            self.qiskit_backend = AerSimulator()
+        elif not isinstance(qiskit_backend, Backend):
             raise TypeError("The input is not a valid Qiskit Backend instance.")
-        elif simulator.name() not in ALLOWED_PROVIDERS:
+        elif qiskit_backend.name() not in ALLOWED_PROVIDERS:
             raise ValueError(
-                f"Input a simulator from the following allowed list: {ALLOWED_PROVIDERS}"
+                f"Input a Backend from the following allowed list: {ALLOWED_PROVIDERS}"
             )
         else:
-            self.simulator = simulator
+            self.qiskit_backend = qiskit_backend
 
     def run_circuit(
         self, circuit: Circuit
@@ -44,7 +46,7 @@ class QoqoQiskitBackend:
         Dict[str, List[List[float]]],
         Dict[str, List[List[complex]]],
     ]:
-        """Simulate a Circuit on a Qiskit simulator.
+        """Simulate a Circuit on a Qiskit backend.
 
         The default number of shots for the simulation is 200.
         Any kind of Measurement, Statevector or DensityMatrix instruction only works as intended if
@@ -126,6 +128,7 @@ class QoqoQiskitBackend:
 
         # Handle simulation Options
         shots = 200
+        custom_shots = 0
         sim_type = "automatic"
         if run_options["SimulationInfo"]["PragmaGetStateVector"]:
             compiled_circuit.save_statevector()
@@ -133,9 +136,21 @@ class QoqoQiskitBackend:
         elif run_options["SimulationInfo"]["PragmaGetDensityMatrix"]:
             compiled_circuit.save_density_matrix()
             sim_type = "density_matrix"
+        if "PragmaRepeatedMeasurement" in run_options["MeasurementInfo"]:
+            for el in run_options["MeasurementInfo"]["PragmaRepeatedMeasurement"]:
+                if el[1] > custom_shots:
+                    custom_shots = el[1]
+        if "PragmaSetNumberOfMeasurements" in run_options["SimulationInfo"]:
+            for el in run_options["SimulationInfo"]["PragmaSetNumberOfMeasurements"]:
+                if el[1] > custom_shots:
+                    custom_shots = el[1]
+        if custom_shots != 0:
+            shots = custom_shots
 
         # Simulation
-        result = self.simulator.run(compiled_circuit, shots=shots, memory=True).result()
+        result = self.qiskit_backend.run(
+            compiled_circuit, shots=shots, memory=True
+        ).result()
 
         # Result transformation
         if sim_type == "automatic":

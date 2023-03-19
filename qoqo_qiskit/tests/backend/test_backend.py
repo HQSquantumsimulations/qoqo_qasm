@@ -35,7 +35,7 @@ def test_constructor():
 
     with pytest.raises(ValueError) as exc:
         _ = QoqoQiskitBackend(wrong_simulator)
-    assert "Input a simulator from the following allowed list: " in str(exc.value)
+    assert "Input a Backend from the following allowed list: " in str(exc.value)
 
 
 @pytest.mark.parametrize(
@@ -84,10 +84,21 @@ def test_run_circuit_errors(operations: List[Any]):
     circuit_2 = Circuit()
     circuit_2 += circuit
     circuit_2 += ops.DefinitionBit("ri", len(involved_qubits), True)
+    for i in range(len(involved_qubits)):
+        circuit_2 += ops.MeasureQubit(i, "ri", i)
     circuit_2 += ops.PragmaRepeatedMeasurement("ri", 10)
 
-    try:
+    with pytest.raises(ValueError) as exc:
         _ = backend.run_circuit(circuit_2)
+    assert "Only input Circuits containing one type of measurement." in str(exc.value)
+
+    circuit_3 = Circuit()
+    circuit_3 += circuit
+    circuit_3 += ops.DefinitionBit("ri", len(involved_qubits), True)
+    circuit_3 += ops.PragmaRepeatedMeasurement("ri", 10)
+
+    try:
+        _ = backend.run_circuit(circuit_3)
     except:
         assert False, f"Correct Circuit failed on '.run_circuit()' call."
 
@@ -238,14 +249,25 @@ def test_run_options():
     circuit += ops.Hadamard(0)
     circuit += ops.CNOT(0, 1)
 
-    circuit += ops.DefinitionBit("ri", 2, True)
-    circuit += ops.MeasureQubit(0, "ri", 0)
-    circuit += ops.MeasureQubit(1, "ri", 1)
-    circuit += ops.PragmaRepeatedMeasurement("ri", 10)
+    circuit_0 = Circuit()
+    circuit_0 += circuit
+    circuit_0 += ops.DefinitionBit("ri", 2, True)
+    circuit_0 += ops.PragmaRepeatedMeasurement("ri", 1000)
 
-    with pytest.raises(ValueError) as exc:
-        _ = backend.run_circuit(circuit)
-    assert "Only input Circuits containing one type of measurement." in str(exc.value)
+    result = backend.run_circuit(circuit_0)
+
+    assert len(result[0]["ri"]) == 1000
+
+    circuit_1 = Circuit()
+    circuit_1 += circuit
+    circuit_1 += ops.DefinitionBit("ro", 2, True)
+    circuit_1 += ops.MeasureQubit(0, "ro", 0)
+    circuit_1 += ops.MeasureQubit(1, "ro", 1)
+    circuit_1 += ops.PragmaSetNumberOfMeasurements(250, "ro")
+
+    result = backend.run_circuit(circuit_1)
+
+    assert len(result[0]["ro"]) == 250
 
 
 # For pytest
