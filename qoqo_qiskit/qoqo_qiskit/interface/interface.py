@@ -1,4 +1,14 @@
 # Copyright © 2023 HQS Quantum Simulations GmbH.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License
+# is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+# or implied. See the License for the specific language governing permissions and limitations under
+# the License.
 """Qiskit interface for qoqo circuits."""
 
 from qoqo import Circuit
@@ -6,7 +16,7 @@ from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 
 from qoqo_qasm import QasmBackend
 
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, Any
 
 
 def to_qiskit_circuit(
@@ -28,39 +38,39 @@ def to_qiskit_circuit(
     #   - PragmaRepeatedMeasurement
     #   - MeasureQubit
     filtered_circuit = Circuit()
-    sim_dict = {}
-    sim_dict["MeasurementInfo"] = {}
-    sim_dict["SimulationInfo"] = {}
-    sim_dict["SimulationInfo"]["PragmaGetStateVector"] = False
-    sim_dict["SimulationInfo"]["PragmaGetDensityMatrix"] = False
+    circuit_info: Dict[str, Any] = {}
+    circuit_info["MeasurementInfo"] = {}
+    circuit_info["SimulationInfo"] = {}
+    circuit_info["SimulationInfo"]["PragmaGetStateVector"] = False
+    circuit_info["SimulationInfo"]["PragmaGetDensityMatrix"] = False
     initial_statevector = []
     for op in circuit:
         if "PragmaSetStateVector" in op.tags():
             initial_statevector = op.statevector()
         elif "PragmaRepeatedMeasurement" in op.tags():
-            if "PragmaRepeatedMeasurement" not in sim_dict["MeasurementInfo"]:
-                sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"] = []
-            sim_dict["MeasurementInfo"]["PragmaRepeatedMeasurement"].append(
+            if "PragmaRepeatedMeasurement" not in circuit_info["MeasurementInfo"]:
+                circuit_info["MeasurementInfo"]["PragmaRepeatedMeasurement"] = []
+            circuit_info["MeasurementInfo"]["PragmaRepeatedMeasurement"].append(
                 (op.readout(), op.number_measurements(), op.qubit_mapping())
             )
             filtered_circuit += op
         elif "MeasureQubit" in op.tags():
-            if "MeasureQubit" not in sim_dict["MeasurementInfo"]:
-                sim_dict["MeasurementInfo"]["MeasureQubit"] = []
-            sim_dict["MeasurementInfo"]["MeasureQubit"].append(
+            if "MeasureQubit" not in circuit_info["MeasurementInfo"]:
+                circuit_info["MeasurementInfo"]["MeasureQubit"] = []
+            circuit_info["MeasurementInfo"]["MeasureQubit"].append(
                 (op.qubit(), op.readout(), op.readout_index())
             )
             filtered_circuit += op
         elif "PragmaSetNumberOfMeasurements" in op.tags():
-            if "PragmaSetNumberOfMeasurements" not in sim_dict["SimulationInfo"]:
-                sim_dict["SimulationInfo"]["PragmaSetNumberOfMeasurements"] = []
-            sim_dict["SimulationInfo"]["PragmaSetNumberOfMeasurements"].append(
+            if "PragmaSetNumberOfMeasurements" not in circuit_info["SimulationInfo"]:
+                circuit_info["SimulationInfo"]["PragmaSetNumberOfMeasurements"] = []
+            circuit_info["SimulationInfo"]["PragmaSetNumberOfMeasurements"].append(
                 (op.readout(), op.number_measurements())
             )
         elif "PragmaGetStateVector" in op.tags():
-            sim_dict["SimulationInfo"]["PragmaGetStateVector"] = True
+            circuit_info["SimulationInfo"]["PragmaGetStateVector"] = True
         elif "PragmaGetDensityMatrix" in op.tags():
-            sim_dict["SimulationInfo"]["PragmaGetDensityMatrix"] = True
+            circuit_info["SimulationInfo"]["PragmaGetDensityMatrix"] = True
         else:
             filtered_circuit += op
 
@@ -85,4 +95,4 @@ def to_qiskit_circuit(
     else:
         return_circuit = from_qasm_circuit
 
-    return (return_circuit, sim_dict)
+    return (return_circuit, circuit_info)

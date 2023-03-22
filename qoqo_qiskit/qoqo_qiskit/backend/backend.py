@@ -1,14 +1,25 @@
 # Copyright © 2023 HQS Quantum Simulations GmbH.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License
+# is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+# or implied. See the License for the specific language governing permissions and limitations under
+# the License.
 """Qoqo-qiskit backend for simulation purposes."""
 
 import numpy as np
 from qoqo import Circuit
 from qiskit_aer import AerSimulator
 from qiskit.providers import Backend
+from qiskit import QuantumCircuit
 
 from qoqo_qiskit.interface import to_qiskit_circuit
 
-from typing import Tuple, Union, Dict, List, cast, Any, Optional
+from typing import Tuple, Dict, List, cast, Any, Optional
 
 ALLOWED_PROVIDERS = ["aer_simulator", "aer_simulator_statevector"]
 
@@ -98,7 +109,9 @@ class QoqoQiskitBackend:
                 )
 
         # Qiskit conversion
-        compiled_circuit, run_options = to_qiskit_circuit(circuit)
+        res = to_qiskit_circuit(circuit)
+        compiled_circuit: QuantumCircuit = res[0]
+        run_options: Dict[str, Any] = res[1]
 
         # Raise ValueError:
         #   - if no measurement of any kind and no Pragmas are involved
@@ -153,8 +166,8 @@ class QoqoQiskitBackend:
         # Result transformation
         if sim_type == "automatic":
             transformed_counts = self._counts_to_registers(result.get_memory())
-            for reg in output_bit_register_dict:
-                output_bit_register_dict[reg] = transformed_counts.pop()
+            for id, reg in enumerate(output_bit_register_dict):
+                output_bit_register_dict[reg] = transformed_counts[id]
         elif sim_type == "statevector":
             vector = list(np.asarray(result.data(0)["statevector"]).flatten())
             for reg in output_complex_register_dict:
@@ -237,16 +250,16 @@ class QoqoQiskitBackend:
 
     def _counts_to_registers(
         self, counts: List[str]
-    ) -> Union[List[bool], List[List[bool]]]:
-        bit_map = []
+    ) -> List[List[List[bool]]]:
+        bit_map: List[List[List[bool]]] = []
         reg_num = counts[0].count(" ")
         for _ in range(reg_num + 1):
             bit_map.append([])
         for count in counts:
             splitted = count.split()
             for id, measurement in enumerate(splitted):
-                measurement = self._bit_to_bool(measurement)
-                bit_map[id].append(measurement)
+                transf_measurement = self._bit_to_bool(measurement)
+                bit_map[id].append(transf_measurement)
         return bit_map
 
     def _are_measurement_operations_in(self, input: Circuit) -> bool:
@@ -255,7 +268,7 @@ class QoqoQiskitBackend:
                 return True
         return False
 
-    def _bit_to_bool(self, element: str) -> Union[bool, List[bool]]:
+    def _bit_to_bool(self, element: str) -> List[bool]:
         ret = []
         for char in element:
             ret.append(char.lower() in ("1"))

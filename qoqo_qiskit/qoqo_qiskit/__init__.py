@@ -14,5 +14,3 @@ Translates qoqo operations and circuits to qiskit equivalents.
 
 from qoqo_qiskit.backend import QoqoQiskitBackend
 from qoqo_qiskit.interface import to_qiskit_circuit
-
-print("Copyright © 2023 HQS Quantum Simulations GmbH.")
