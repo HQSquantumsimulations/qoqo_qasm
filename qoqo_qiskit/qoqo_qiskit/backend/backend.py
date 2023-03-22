@@ -16,8 +16,6 @@ ALLOWED_PROVIDERS = ["aer_simulator", "aer_simulator_statevector"]
 class QoqoQiskitBackend:
     """Simulate a Qoqo QuantumProgram on a Qiskit backend."""
 
-    # TODO: create something with qoqo-qryd provider and locally test that qoqo-qiskit manages it
-    #   as input
     def __init__(self, qiskit_backend: Backend = None) -> None:
         """Init for Qiskit backend settings.
 
@@ -157,11 +155,11 @@ class QoqoQiskitBackend:
             transformed_counts = self._counts_to_registers(result.get_memory())
             for reg in output_bit_register_dict:
                 output_bit_register_dict[reg] = transformed_counts.pop()
-        if sim_type == "statevector":
+        elif sim_type == "statevector":
             vector = list(np.asarray(result.data(0)["statevector"]).flatten())
             for reg in output_complex_register_dict:
                 output_complex_register_dict[reg].append(vector)
-        if sim_type == "density_matrix":
+        elif sim_type == "density_matrix":
             vector = list(np.asarray(result.data(0)["density_matrix"]).flatten())
             for reg in output_complex_register_dict:
                 output_complex_register_dict[reg].append(vector)
@@ -179,7 +177,7 @@ class QoqoQiskitBackend:
         Dict[str, List[List[float]]],
         Dict[str, List[List[complex]]],
     ]:
-        """Run all circuits of a measurement with the PyQuEST backend.
+        """Run all circuits of a measurement with the Qiskit backend.
 
         Args:
             measurement: The measurement that is run.
@@ -217,7 +215,7 @@ class QoqoQiskitBackend:
         )
 
     def run_measurement(self, measurement: Any) -> Optional[Dict[str, float]]:
-        """Run a circuit with the PyQuEST backend.
+        """Run a circuit with the Qiskit backend.
 
         Args:
             measurement: The measurement that is run.
@@ -238,7 +236,7 @@ class QoqoQiskitBackend:
         )
 
     def _counts_to_registers(
-        self, counts: List[str]  # result.get_memory() style
+        self, counts: List[str]
     ) -> Union[List[bool], List[List[bool]]]:
         bit_map = []
         reg_num = counts[0].count(" ")
