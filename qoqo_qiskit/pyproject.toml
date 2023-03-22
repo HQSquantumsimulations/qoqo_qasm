@@ -13,7 +13,8 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
   'pytest',
-  'pytest-cov'
+  'pytest-cov',
+  'coverage'
 ]
 dev = [
     'flake8',
