@@ -1,0 +1,15 @@
+name: HQS build and deploy for pure python folders/repos
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+
+  deploy:
+    name: deploy
+    uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_build_pure_python.yml@main
+    with: 
+      python_folder: "qoqo_qiskit"
+    secrets: inherit
