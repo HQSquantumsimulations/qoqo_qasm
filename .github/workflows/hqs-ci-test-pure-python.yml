@@ -9,13 +9,13 @@ jobs:
   linting:
     uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_linting_pure_python.yml@main
     with: 
-      python_folder: "qoqo_qiskit"
-      linting_folder: "qoqo_qiskit/qoqo_qiskit"
+      python_folder: "."
+      linting_folder: "qoqo_qiskit"
 
   unittests:
     uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_tests_pure_python.yml@main
     with:
-      python_folder: "qoqo_qiskit"
+      python_folder: "tests"
       # Test code coverage of rust core is over 80 percent
       test_code_coverage: true
       # Run tests also on windows runners
