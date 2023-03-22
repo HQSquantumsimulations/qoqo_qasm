@@ -19,60 +19,69 @@ use roqoqo_qasm::Backend;
 use std::env::temp_dir;
 use std::fs;
 use std::path::Path;
+use test_case::test_case;
+
 /// Test simple circuit with a Definition, a GateOperation and a PragmaOperation
-#[test]
-fn run_simple_circuit() {
-    let backend = Backend::new(Some("qr".to_string()));
+#[test_case("2.0", "qreg qr[2]", "creg ro[2]"; "2.0")]
+#[test_case("3.0", "qubit[2] qr", "bits[2] ro"; "3.0")]
+fn run_simple_circuit(qasm_version: &str, qubits: &str, bits: &str) {
+    let backend = Backend::new(Some("qr".to_string()), Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
+    let mut file_name = format!("test_simple0_{}", qasm_version.chars().next().unwrap());
     backend
         .circuit_to_qasm_file(
             &circuit,
             temp_dir().as_path(),
-            Path::new("test_simple0"),
+            Path::new(file_name.as_str()),
             true,
         )
         .unwrap();
 
-    let lines = String::from("OPENQASM 2.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqreg qr[2];\ncreg ro[2];\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
-    let read_in_path = temp_dir().join(Path::new("test_simple0.qasm"));
+    let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ CX c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits};\n{bits};\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+    file_name.push_str(".qasm");
+    let read_in_path = temp_dir().join(Path::new(file_name.as_str()));
     let extracted = fs::read_to_string(&read_in_path);
     fs::remove_file(&read_in_path).unwrap();
     assert_eq!(lines, extracted.unwrap());
 }
 
 /// Test simple circuit with a Definition, a GateOperation and a PragmaOperation
-#[test]
-fn simple_circuit_iterator_to_file() {
-    let backend = Backend::new(None);
+#[test_case("2.0", "qreg q[2]", "creg ro[2]"; "2.0")]
+#[test_case("3.0", "qubit[2] q", "bits[2] ro"; "3.0")]
+fn simple_circuit_iterator_to_file(qasm_version: &str, qubits: &str, bits: &str) {
+    let backend = Backend::new(None, Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
+
+    let mut file_name = format!("test_simple1_{}", qasm_version.chars().next().unwrap());
     backend
         .circuit_iterator_to_qasm_file(
             circuit.iter(),
             temp_dir().as_path(),
-            Path::new("test_simple1"),
+            Path::new(file_name.as_str()),
             true,
         )
         .unwrap();
-
-    let lines = String::from("OPENQASM 2.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqreg q[2];\ncreg ro[2];\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
-    let read_in_path = temp_dir().join(Path::new("test_simple1.qasm"));
+    let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ CX c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits};\n{bits};\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
+    file_name.push_str(".qasm");
+    let read_in_path = temp_dir().join(Path::new(file_name.as_str()));
     let extracted = fs::read_to_string(&read_in_path);
     fs::remove_file(&read_in_path).unwrap();
     assert_eq!(lines, extracted.unwrap());
 }
 
 /// Test duplicate gates definitions
-#[test]
-fn test_duplicate_definitions() {
-    let backend = Backend::new(Some("qr".to_string()));
+#[test_case("2.0", "qreg qr[2]", "creg ro[2]"; "2.0")]
+#[test_case("3.0", "qubit[2] qr", "bits[2] ro"; "3.0")]
+fn test_duplicate_definitions(qasm_version: &str, qubits: &str, bits: &str) {
+    let backend = Backend::new(Some("qr".to_string()), Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     circuit += PauliX::new(0);
@@ -80,14 +89,14 @@ fn test_duplicate_definitions() {
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
 
     let output = backend.circuit_to_qasm_str(&circuit).unwrap();
-    let lines = String::from("OPENQASM 2.0;\n\ngate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\ngate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\ngate u1(lambda) q { U(0,0,lambda) q; }\ngate rx(theta) a { u3(theta,-pi/2,pi/2) a; }\ngate ry(theta) a { u3(theta,0,0) a; }\ngate rz(phi) a { u1(phi) a; }\ngate cx c,t { CX c,t; }\n\ngate x a { u3(pi,0,pi) a; }\n\nqreg qr[2];\ncreg ro[2];\nx qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+    let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ CX c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits};\n{bits};\nx qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
     assert_eq!(output, lines);
 }
 
 /// Test that backend returns error when running for a file that exists without overwrite
 #[test]
 fn run_error() {
-    let backend = Backend::new(None);
+    let backend = Backend::new(None, None).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, true);
     let _ = backend.circuit_to_qasm_file(
@@ -114,20 +123,20 @@ fn run_error() {
 /// Test Debug, Clone and PartialEq for Backend
 #[test]
 fn test_debug_clone_partialeq() {
-    let backend = Backend::new(Some("qtest".to_string()));
+    let backend = Backend::new(Some("qtest".to_string()), None).unwrap();
 
     // Test Debug trait
     assert_eq!(
         format!("{backend:?}"),
-        "Backend { qubit_register_name: \"qtest\" }"
+        "Backend { qubit_register_name: \"qtest\", qasm_version: V2point0 }"
     );
 
     // Test Clone trait
     assert_eq!(backend.clone(), backend);
 
     // PartialEq
-    let backend_0 = Backend::new(Some("qtest".to_string()));
-    let backend_2 = Backend::new(Some("q".to_string()));
+    let backend_0 = Backend::new(Some("qtest".to_string()), None).unwrap();
+    let backend_2 = Backend::new(Some("q".to_string()), None).unwrap();
 
     assert!(backend_0 == backend);
     assert!(backend == backend_0);
