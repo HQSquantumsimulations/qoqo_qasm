@@ -21,7 +21,7 @@ from typing import Tuple, Optional, Dict, Any
 
 def to_qiskit_circuit(
     circuit: Circuit, qubit_register_name: Optional[str] = None
-) -> Tuple[QuantumCircuit, dict[str, int]]:
+) -> Tuple[QuantumCircuit, Dict[str, int]]:
     """Applies the qoqo Circuit -> Qiskit QuantumCircuit conversion.
 
     Args:
@@ -29,7 +29,7 @@ def to_qiskit_circuit(
         qubit_register_name (Optional[str]): the name of the qubit register.
 
     Returns:
-        Tuple[QuantumCircuit, dict[str, int]]: the equivalent QuantumCircuit and the dict containing
+        Tuple[QuantumCircuit, Dict[str, int]]: the equivalent QuantumCircuit and the dict containing
                                      info for Qiskit's backend.
     """
     # Populating dict output. Currently handling:
