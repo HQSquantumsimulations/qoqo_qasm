@@ -248,9 +248,7 @@ class QoqoQiskitBackend:
             output_complex_register_dict,
         )
 
-    def _counts_to_registers(
-        self, counts: List[str]
-    ) -> List[List[List[bool]]]:
+    def _counts_to_registers(self, counts: List[str]) -> List[List[List[bool]]]:
         bit_map: List[List[List[bool]]] = []
         reg_num = counts[0].count(" ")
         for _ in range(reg_num + 1):
