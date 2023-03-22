@@ -10,7 +10,7 @@ jobs:
     uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_linting_pure_python.yml@main
     with: 
       python_folder: "qoqo_qiskit"
-      linting_folder: "qoqo_qiskit/qoqo_qiskit"
+      linting_folder: "qoqo_qiskit"
 
   unittests:
     uses: HQSquantumsimulations/reusable_workflows/.github/workflows/reusable_tests_pure_python.yml@main
