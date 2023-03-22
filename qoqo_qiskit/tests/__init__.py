@@ -11,5 +11,5 @@
 # the License.
 """Test folder for qoqo_qiskit."""
 
-from tests.backend.test_backend import test_backend
-from tests.interface.test_interface import test_interface
+from tests.backend import test_backend
+from tests.interface import test_interface
