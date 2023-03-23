@@ -167,7 +167,10 @@ class QoqoQiskitBackend:
         if sim_type == "automatic":
             transformed_counts = self._counts_to_registers(result.get_memory())
             for id, reg in enumerate(output_bit_register_dict):
-                output_bit_register_dict[reg] = transformed_counts[id]
+                reversed_list = []
+                for shot in transformed_counts[id]:
+                    reversed_list.append(shot[::-1])
+                output_bit_register_dict[reg] = reversed_list
         elif sim_type == "statevector":
             vector = list(np.asarray(result.data(0)["statevector"]).flatten())
             for reg in output_complex_register_dict:

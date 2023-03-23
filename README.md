@@ -45,7 +45,7 @@ Circuits containing operations without a corresponding expression can not be tra
 Qiskit interface for the qoqo quantum toolkit by [HQS Quantum Simulations](https://quantumsimulations.de).
 
 qoqo_qiskit provides an interface to Qiskit's package.
-Qiskit is under the Apache-2.0 license ( see https://github.com/Qiskit/qiskit/blob/master/LICENSE.txt ). qoqo_qiskit itself is too provided under the Apache-2.0 license.
+Qiskit is under the Apache-2.0 license ( see https://github.com/Qiskit/qiskit/blob/master/LICENSE.txt ). qoqo_qiskit itself is also provided under the Apache-2.0 license.
 
 ## General Notes
 

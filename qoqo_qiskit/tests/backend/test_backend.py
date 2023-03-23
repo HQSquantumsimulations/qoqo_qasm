@@ -280,6 +280,53 @@ def test_run_options():
     assert len(result[0]["ro"]) == 250
 
 
+@pytest.mark.parametrize(
+    "operations, outcome",
+    [
+        (
+            [
+                ops.PauliX(0),
+                ops.CNOT(0, 1),
+                ops.PauliX(2),
+                ops.CNOT(0, 1),
+                ops.PauliX(3),
+            ],
+            [True, False, True, True],
+        ),
+        (
+            [
+                ops.PauliX(0),
+                ops.CNOT(0, 1),
+                ops.CNOT(1, 2),
+                ops.CNOT(2, 3),
+                ops.PauliX(0),
+                ops.PauliX(2),
+            ],
+            [False, True, False, True],
+        ),
+        (
+            [ops.PauliX(0), ops.PauliX(2), ops.PauliX(2), ops.CNOT(0, 1)],
+            [True, True, False],
+        ),
+    ],
+)
+def test_deterministic_circuit(operations: List[Any], outcome: List[bool]):
+    backend = QoqoQiskitBackend()
+
+    circuit = Circuit()
+    involved_qubits = set()
+    for op in operations:
+        involved_qubits.update(op.involved_qubits())
+        circuit += op
+    circuit += ops.DefinitionBit("ro", len(involved_qubits), True)
+    circuit += ops.PragmaRepeatedMeasurement("ro", 10)
+
+    result = backend.run_circuit(circuit)
+
+    for el in result[0]["ro"]:
+        assert el == outcome
+
+
 # For pytest
 if __name__ == "__main__":
     pytest.main(sys.argv)
