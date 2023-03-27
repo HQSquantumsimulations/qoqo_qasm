@@ -21,8 +21,6 @@ from qoqo_qiskit.interface import to_qiskit_circuit
 
 from typing import Tuple, Dict, List, cast, Any, Optional
 
-ALLOWED_PROVIDERS = ["aer_simulator", "aer_simulator_statevector"]
-
 
 class QoqoQiskitBackend:
     """Simulate a Qoqo QuantumProgram on a Qiskit backend."""
@@ -35,16 +33,11 @@ class QoqoQiskitBackend:
 
         Raises:
             TypeError: the input is not a valid Qiskit Backend instance.
-            ValueError: the selected backend is not allowed.
         """
         if qiskit_backend is None:
             self.qiskit_backend = AerSimulator()
         elif not isinstance(qiskit_backend, Backend):
             raise TypeError("The input is not a valid Qiskit Backend instance.")
-        elif qiskit_backend.name() not in ALLOWED_PROVIDERS:
-            raise ValueError(
-                f"Input a Backend from the following allowed list: {ALLOWED_PROVIDERS}"
-            )
         else:
             self.qiskit_backend = qiskit_backend
 

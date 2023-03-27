@@ -21,7 +21,6 @@ from qoqo.measurements import (  # type:ignore
     PauliZProduct,
     PauliZProductInput,
 )
-from qiskit.providers.fake_provider import FakeAthens
 
 from qiskit_aer import AerSimulator
 
@@ -32,7 +31,6 @@ from typing import List, Any
 
 def test_constructor():
     simulator = AerSimulator()
-    wrong_simulator = AerSimulator.from_backend(FakeAthens())
     try:
         _ = QoqoQiskitBackend()
         _ = QoqoQiskitBackend(simulator)
@@ -42,10 +40,6 @@ def test_constructor():
     with pytest.raises(TypeError) as exc:
         _ = QoqoQiskitBackend("wrong_name")
     assert "The input is not a valid Qiskit Backend instance." in str(exc.value)
-
-    with pytest.raises(ValueError) as exc:
-        _ = QoqoQiskitBackend(wrong_simulator)
-    assert "Input a Backend from the following allowed list: " in str(exc.value)
 
 
 @pytest.mark.parametrize(
