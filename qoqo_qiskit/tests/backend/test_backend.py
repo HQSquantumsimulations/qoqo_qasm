@@ -34,6 +34,7 @@ def test_constructor():
     try:
         _ = QoqoQiskitBackend()
         _ = QoqoQiskitBackend(simulator)
+        _ = QoqoQiskitBackend(simulator, memory=True)
     except:
         assert False
 
@@ -319,6 +320,27 @@ def test_deterministic_circuit(operations: List[Any], outcome: List[bool]):
 
     for el in result[0]["ro"]:
         assert el == outcome
+
+
+def test_memory():
+    backend_no_mem = QoqoQiskitBackend(memory=False)
+    backend_mem = QoqoQiskitBackend(memory=True)
+
+    circuit = Circuit()
+    circuit += ops.PauliX(0)
+    circuit += ops.PauliX(2)
+
+    circuit += ops.DefinitionBit("ro", 2, True)
+    circuit += ops.DefinitionBit("ri", 1, True)
+    circuit += ops.MeasureQubit(0, "ro", 0)
+    circuit += ops.MeasureQubit(1, "ro", 1)
+    circuit += ops.MeasureQubit(2, "ri", 0)
+
+    result_no_mem = backend_no_mem.run_circuit(circuit)
+    result_mem = backend_mem.run_circuit(circuit)
+
+    for el1, el2 in zip(result_no_mem, result_mem):
+        el1 == el2
 
 
 # For pytest

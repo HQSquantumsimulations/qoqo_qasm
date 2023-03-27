@@ -25,11 +25,13 @@ from typing import Tuple, Dict, List, cast, Any, Optional
 class QoqoQiskitBackend:
     """Simulate a Qoqo QuantumProgram on a Qiskit backend."""
 
-    def __init__(self, qiskit_backend: Backend = None) -> None:
+    def __init__(self, qiskit_backend: Backend = None, memory: bool = False) -> None:
         """Init for Qiskit backend settings.
 
         Args:
             qiskit_backend (Backend): Qiskit backend instance to use for the simulation.
+            memory (bool): Whether the output will return the actual single shots instead
+                           of an equivalent sequence taken from a result summary.
 
         Raises:
             TypeError: the input is not a valid Qiskit Backend instance.
@@ -40,6 +42,7 @@ class QoqoQiskitBackend:
             raise TypeError("The input is not a valid Qiskit Backend instance.")
         else:
             self.qiskit_backend = qiskit_backend
+        self.memory = memory
 
     def run_circuit(
         self, circuit: Circuit
@@ -153,12 +156,15 @@ class QoqoQiskitBackend:
 
         # Simulation
         result = self.qiskit_backend.run(
-            compiled_circuit, shots=shots, memory=True
+            compiled_circuit, shots=shots, memory=self.memory
         ).result()
 
         # Result transformation
         if sim_type == "automatic":
-            transformed_counts = self._counts_to_registers(result.get_memory())
+            if self.memory:
+                transformed_counts = self._counts_to_registers_mem(result.get_memory())
+            else:
+                transformed_counts = self._counts_to_registers(result.get_counts())
             for id, reg in enumerate(output_bit_register_dict):
                 reversed_list = []
                 for shot in transformed_counts[id]:
@@ -244,16 +250,31 @@ class QoqoQiskitBackend:
             output_complex_register_dict,
         )
 
-    def _counts_to_registers(self, counts: List[str]) -> List[List[List[bool]]]:
+    def _counts_to_registers_mem(self, counts: List[str]) -> List[List[List[bool]]]:
         bit_map: List[List[List[bool]]] = []
-        reg_num = counts[0].count(" ")
-        for _ in range(reg_num + 1):
+        reg_num = counts[0].count(" ") + 1
+        for _ in range(reg_num):
             bit_map.append([])
         for count in counts:
             splitted = count.split()
+            splitted.reverse()
             for id, measurement in enumerate(splitted):
                 transf_measurement = self._bit_to_bool(measurement)
                 bit_map[id].append(transf_measurement)
+        return bit_map
+
+    def _counts_to_registers(self, counts: Dict[str, int]) -> List[List[List[bool]]]:
+        bit_map: List[List[List[bool]]] = []
+        reg_num = len(counts.creg_sizes)
+        for _ in range(reg_num):
+            bit_map.append([])
+        for key in counts:
+            splitted = key.split()
+            splitted.reverse()
+            for id, measurement in enumerate(splitted):
+                transf_measurement = self._bit_to_bool(measurement)
+                for _ in range(counts[key]):
+                    bit_map[id].append(transf_measurement)
         return bit_map
 
     def _are_measurement_operations_in(self, input: Circuit) -> bool:
