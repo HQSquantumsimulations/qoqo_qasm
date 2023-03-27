@@ -263,7 +263,7 @@ class QoqoQiskitBackend:
                 bit_map[id].append(transf_measurement)
         return bit_map
 
-    def _counts_to_registers(self, counts: Dict[str, int]) -> List[List[List[bool]]]:
+    def _counts_to_registers(self, counts: Any) -> List[List[List[bool]]]:
         bit_map: List[List[List[bool]]] = []
         reg_num = len(counts.creg_sizes)
         for _ in range(reg_num):
