@@ -23,11 +23,11 @@ use test_case::test_case;
 
 /// Test simple circuit with a Definition, a GateOperation and a PragmaOperation
 #[test_case("2.0", "qreg qr[2]", "creg ro[2]"; "2.0")]
-#[test_case("3.0", "qubit[2] qr", "bits[2] ro"; "3.0")]
+#[test_case("3.0", "qubit[2] qr", "bit[2] ro"; "3.0")]
 fn run_simple_circuit(qasm_version: &str, qubits: &str, bits: &str) {
     let backend = Backend::new(Some("qr".to_string()), Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
-    circuit += DefinitionBit::new("ro".to_string(), 2, true);
+    circuit += DefinitionBit::new("ro".to_string(), 2, false);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
@@ -51,11 +51,11 @@ fn run_simple_circuit(qasm_version: &str, qubits: &str, bits: &str) {
 
 /// Test simple circuit with a Definition, a GateOperation and a PragmaOperation
 #[test_case("2.0", "qreg q[2]", "creg ro[2]"; "2.0")]
-#[test_case("3.0", "qubit[2] q", "bits[2] ro"; "3.0")]
+#[test_case("3.0", "qubit[2] q", "bit[2] ro"; "3.0")]
 fn simple_circuit_iterator_to_file(qasm_version: &str, qubits: &str, bits: &str) {
     let backend = Backend::new(None, Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
-    circuit += DefinitionBit::new("ro".to_string(), 2, true);
+    circuit += DefinitionBit::new("ro".to_string(), 2, false);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
@@ -79,11 +79,11 @@ fn simple_circuit_iterator_to_file(qasm_version: &str, qubits: &str, bits: &str)
 
 /// Test duplicate gates definitions
 #[test_case("2.0", "qreg qr[2]", "creg ro[2]"; "2.0")]
-#[test_case("3.0", "qubit[2] qr", "bits[2] ro"; "3.0")]
+#[test_case("3.0", "qubit[2] qr", "bit[2] ro"; "3.0")]
 fn test_duplicate_definitions(qasm_version: &str, qubits: &str, bits: &str) {
     let backend = Backend::new(Some("qr".to_string()), Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
-    circuit += DefinitionBit::new("ro".to_string(), 2, true);
+    circuit += DefinitionBit::new("ro".to_string(), 2, false);
     circuit += PauliX::new(0);
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
@@ -98,7 +98,7 @@ fn test_duplicate_definitions(qasm_version: &str, qubits: &str, bits: &str) {
 fn run_error() {
     let backend = Backend::new(None, None).unwrap();
     let mut circuit = Circuit::new();
-    circuit += DefinitionBit::new("ro".to_string(), 2, true);
+    circuit += DefinitionBit::new("ro".to_string(), 2, false);
     let _ = backend.circuit_to_qasm_file(
         &circuit,
         temp_dir().as_path(),

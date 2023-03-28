@@ -64,10 +64,10 @@ fn new_qasmbackend(
 
 /// Test circuit_to_qasm_str on a simple Circuit
 #[test_case("2.0", "qreg q[2]", "creg ro[2]"; "2.0")]
-#[test_case("3.0", "qubit[2] q", "bits[2] ro"; "3.0")]
+#[test_case("3.0", "qubit[2] q", "bit[2] ro"; "3.0")]
 fn test_circuit_to_qasm_str(qasm_version: &str, qubits: &str, bits: &str) {
     let mut circuit = Circuit::new();
-    circuit += DefinitionBit::new("ro".to_string(), 2, true);
+    circuit += DefinitionBit::new("ro".to_string(), 2, false);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
@@ -89,10 +89,10 @@ fn test_circuit_to_qasm_str(qasm_version: &str, qubits: &str, bits: &str) {
 
 /// Test circuit_to_qasm_file on a simple Circuit
 #[test_case("2.0", "qreg qr[2]", "creg ro[2]"; "2.0")]
-#[test_case("3.0", "qubit[2] qr", "bits[2] ro"; "3.0")]
+#[test_case("3.0", "qubit[2] qr", "bit[2] ro"; "3.0")]
 fn test_circuit_to_qasm_file(qasm_version: &str, qubits: &str, bits: &str) {
     let mut circuit = Circuit::new();
-    circuit += DefinitionBit::new("ro".to_string(), 2, true);
+    circuit += DefinitionBit::new("ro".to_string(), 2, false);
     circuit += RotateX::new(0, std::f64::consts::FRAC_PI_2.into());
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);

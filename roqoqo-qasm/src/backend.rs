@@ -91,7 +91,7 @@ impl Backend {
         let mut qasm_string = String::from("OPENQASM ");
         match self.qasm_version {
             QasmVersion::V2point0 => qasm_string.push_str("2.0;\n\n"),
-            QasmVersion::V3point0 => qasm_string.push_str("3.0;\n\n"),
+            QasmVersion::V3point0(_) => qasm_string.push_str("3.0;\n\n"),
         }
 
         let mut number_qubits_required: usize = 0;
@@ -157,7 +157,7 @@ impl Backend {
                 )
                 .as_str(),
             ),
-            QasmVersion::V3point0 => qasm_string.push_str(
+            QasmVersion::V3point0(_) => qasm_string.push_str(
                 format!(
                     "qubit[{}] {};\n",
                     number_qubits_required + 1,
@@ -253,8 +253,21 @@ pub enum QasmVersion {
     /// OpenQASM 2.0
     V2point0,
     /// OpenQASM 3.0
-    V3point0,
+    V3point0(Qasm3Dialect),
 }
+
+/// Enum for setting the version of OpenQASM used
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Qasm3Dialect {
+    /// OpenQASM 2.0 FIX
+    Vanilla,
+    /// OpenQASM 3.0 FIX
+    Roqoqo,
+    /// OpenQASM 3.0 FIX
+    Braket,
+}
+
+// v3point0 => vanilla, no pragmas; roqoqo, our pragmas; braket, braket pragmas
 
 impl FromStr for QasmVersion {
     type Err = RoqoqoBackendError;
@@ -262,7 +275,10 @@ impl FromStr for QasmVersion {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "2.0" => Ok(QasmVersion::V2point0),
-            "3.0" => Ok(QasmVersion::V3point0),
+            "3.0Roqoqo" => Ok(QasmVersion::V3point0(Qasm3Dialect::Roqoqo)),
+            "3.0Braket" => Ok(QasmVersion::V3point0(Qasm3Dialect::Braket)),
+            "3.0Vanilla" => Ok(QasmVersion::V3point0(Qasm3Dialect::Vanilla)),
+            "3.0" => Ok(QasmVersion::V3point0(Qasm3Dialect::Vanilla)),
             _ => Err(RoqoqoBackendError::GenericError {
                 msg: format!("Version for OpenQASM used is neither 2.0 nor 3.0: {}", s),
             }),
