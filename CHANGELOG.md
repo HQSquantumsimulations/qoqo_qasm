@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.7.1
+
+* Updated to qoqo 1.3
+
 ### 0.7.0
 
 * Extended support for OpenQASM 3.0 features
