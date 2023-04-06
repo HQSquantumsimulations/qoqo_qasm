@@ -15,7 +15,7 @@ import numpy as np
 from qoqo import Circuit
 from qiskit_aer import AerSimulator
 from qiskit.providers import Backend
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, execute
 
 from qoqo_qiskit.interface import to_qiskit_circuit
 
@@ -155,16 +155,20 @@ class QoqoQiskitBackend:
             shots = custom_shots
 
         # Simulation
-        result = self.qiskit_backend.run(
-            compiled_circuit, shots=shots, memory=self.memory
+        result = execute(
+            compiled_circuit, self.qiskit_backend, shots=shots, memory=self.memory
         ).result()
 
         # Result transformation
         if sim_type == "automatic":
             if self.memory:
-                transformed_counts = self._counts_to_registers_mem(result.get_memory())
+                transformed_counts = self._counts_to_registers(
+                    result.get_memory(), True
+                )
             else:
-                transformed_counts = self._counts_to_registers(result.get_counts())
+                transformed_counts = self._counts_to_registers(
+                    result.get_counts(), False
+                )
             for id, reg in enumerate(output_bit_register_dict):
                 reversed_list = []
                 for shot in transformed_counts[id]:
@@ -250,22 +254,12 @@ class QoqoQiskitBackend:
             output_complex_register_dict,
         )
 
-    def _counts_to_registers_mem(self, counts: List[str]) -> List[List[List[bool]]]:
+    def _counts_to_registers(self, counts: Any, mem: bool) -> List[List[List[bool]]]:
         bit_map: List[List[List[bool]]] = []
-        reg_num = counts[0].count(" ") + 1
-        for _ in range(reg_num):
-            bit_map.append([])
-        for count in counts:
-            splitted = count.split()
-            splitted.reverse()
-            for id, measurement in enumerate(splitted):
-                transf_measurement = self._bit_to_bool(measurement)
-                bit_map[id].append(transf_measurement)
-        return bit_map
-
-    def _counts_to_registers(self, counts: Any) -> List[List[List[bool]]]:
-        bit_map: List[List[List[bool]]] = []
-        reg_num = len(counts.creg_sizes)
+        if mem:
+            reg_num = counts[0].count(" ") + 1
+        else:
+            reg_num = list(counts.keys())[0].count(" ") + 1
         for _ in range(reg_num):
             bit_map.append([])
         for key in counts:
@@ -273,8 +267,11 @@ class QoqoQiskitBackend:
             splitted.reverse()
             for id, measurement in enumerate(splitted):
                 transf_measurement = self._bit_to_bool(measurement)
-                for _ in range(counts[key]):
+                if mem:
                     bit_map[id].append(transf_measurement)
+                else:
+                    for _ in range(counts[key]):
+                        bit_map[id].append(transf_measurement)
         return bit_map
 
     def _are_measurement_operations_in(self, input: Circuit) -> bool:
