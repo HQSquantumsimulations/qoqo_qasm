@@ -70,6 +70,8 @@ class QoqoQiskitBackend:
         Raises:
             ValueError: the Circuit does not contain Measurement operations
         """
+        clas_regs_sizes: Dict[str, int] = dict()
+
         # Initializing the classical registers for calculation and output
         internal_bit_register_dict: Dict[str, List[bool]] = dict()
         internal_float_register_dict: Dict[str, List[float]] = dict()
@@ -83,6 +85,7 @@ class QoqoQiskitBackend:
             internal_bit_register_dict[bit_def.name()] = [
                 False for _ in range(bit_def.length())
             ]
+            clas_regs_sizes[bit_def.name()] = bit_def.length()
             if bit_def.is_output():
                 output_bit_register_dict[bit_def.name()] = list()
 
@@ -163,11 +166,11 @@ class QoqoQiskitBackend:
         if sim_type == "automatic":
             if self.memory:
                 transformed_counts = self._counts_to_registers(
-                    result.get_memory(), True
+                    result.get_memory(), True, clas_regs_sizes
                 )
             else:
                 transformed_counts = self._counts_to_registers(
-                    result.get_counts(), False
+                    result.get_counts(), False, clas_regs_sizes
                 )
             for id, reg in enumerate(output_bit_register_dict):
                 reversed_list = []
@@ -254,17 +257,20 @@ class QoqoQiskitBackend:
             output_complex_register_dict,
         )
 
-    def _counts_to_registers(self, counts: Any, mem: bool) -> List[List[List[bool]]]:
+    def _counts_to_registers(
+            self,
+            counts: Any,
+            mem: bool,
+            clas_regs_sizes: Dict[str, int]
+    ) -> List[List[List[bool]]]:
         bit_map: List[List[List[bool]]] = []
-        if mem:
-            reg_num = counts[0].count(" ") + 1
-        else:
-            reg_num = list(counts.keys())[0].count(" ") + 1
+        reg_num = 0
+        for key in clas_regs_sizes:
+            reg_num += clas_regs_sizes[key]
         for _ in range(reg_num):
             bit_map.append([])
         for key in counts:
-            splitted = key.split()
-            splitted.reverse()
+            splitted = self._split(key, clas_regs_sizes)
             for id, measurement in enumerate(splitted):
                 transf_measurement = self._bit_to_bool(measurement)
                 if mem:
@@ -285,3 +291,16 @@ class QoqoQiskitBackend:
         for char in element:
             ret.append(char.lower() in ("1"))
         return ret
+
+    def _split(self, element: str, clas_regs_sizes: Dict[str, int]) -> List[str]:
+        splitted: list[str] = []
+        if " " in element:
+            splitted = element.split()
+            splitted.reverse()
+        else:
+            element = element[::-1]
+            for key in clas_regs_sizes:
+                splitted.append(element[:clas_regs_sizes[key]:])
+                splitted[-1] = splitted[-1][::-1]
+                element = element[clas_regs_sizes[key]:]
+        return splitted
