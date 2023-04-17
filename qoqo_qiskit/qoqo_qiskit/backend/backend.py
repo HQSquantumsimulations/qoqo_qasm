@@ -258,10 +258,7 @@ class QoqoQiskitBackend:
         )
 
     def _counts_to_registers(
-            self,
-            counts: Any,
-            mem: bool,
-            clas_regs_sizes: Dict[str, int]
+        self, counts: Any, mem: bool, clas_regs_sizes: Dict[str, int]
     ) -> List[List[List[bool]]]:
         bit_map: List[List[List[bool]]] = []
         reg_num = 0
@@ -300,7 +297,7 @@ class QoqoQiskitBackend:
         else:
             element = element[::-1]
             for key in clas_regs_sizes:
-                splitted.append(element[:clas_regs_sizes[key]:])
+                splitted.append(element[: clas_regs_sizes[key] :])
                 splitted[-1] = splitted[-1][::-1]
-                element = element[clas_regs_sizes[key]:]
+                element = element[clas_regs_sizes[key] :]
         return splitted
