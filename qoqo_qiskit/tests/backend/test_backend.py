@@ -343,6 +343,24 @@ def test_memory():
         el1 == el2
 
 
+def test_split():
+    clas_regs = {}
+    clas_regs["ro"] = 1
+    clas_regs["ri"] = 2
+    shot_result_ws = "01 1"
+    shot_result_no_ws = "011"
+
+    backend_no_mem = QoqoQiskitBackend(memory=False)
+    backend_mem = QoqoQiskitBackend(memory=True)
+
+    assert backend_mem._split(shot_result_ws, clas_regs) == backend_mem._split(
+        shot_result_no_ws, clas_regs
+    )
+    assert backend_no_mem._split(shot_result_ws, clas_regs) == backend_no_mem._split(
+        shot_result_no_ws, clas_regs
+    )
+
+
 # For pytest
 if __name__ == "__main__":
     pytest.main(sys.argv)
