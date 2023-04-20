@@ -90,10 +90,12 @@ pub fn qasm_call_operation(
 /// Raises:
 ///     ValueError: Operation-specific error or Operation not in QASM backend
 #[pyfunction]
-pub fn qasm_gate_definition(operation: &PyAny) -> PyResult<String> {
+pub fn qasm_gate_definition(operation: &PyAny, qasm_version: &str) -> PyResult<String> {
     let operation = convert_pyany_to_operation(operation).map_err(|x| {
         PyTypeError::new_err(format!("Cannot convert python object to Operation: {x:?}"))
     })?;
-    gate_definition(&operation)
+    let qasm_version =
+        QasmVersion::from_str(qasm_version).map_err(|x| PyValueError::new_err(format!("{x}")))?;
+    gate_definition(&operation, qasm_version)
         .map_err(|x| PyValueError::new_err(format!("Error during QASM gate definition: {x:?}")))
 }

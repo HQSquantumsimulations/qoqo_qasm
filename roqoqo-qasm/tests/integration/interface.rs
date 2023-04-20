@@ -280,7 +280,10 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
 #[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), ""; "PragmaStartDecompositionBlock")]
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), ""; "InputSymbolic")]
 fn test_gate_definition(operation: Operation, converted: &str) {
-    assert_eq!(gate_definition(&operation).unwrap(), converted.to_string())
+    assert_eq!(
+        gate_definition(&operation, QasmVersion::V2point0).unwrap(),
+        converted.to_string()
+    )
 }
 
 #[test_case(Operation::from(Bogoliubov::new(0, 1, 0.1.into(), 0.2.into())); "Bogoliubov")]
@@ -289,7 +292,10 @@ fn test_gate_definition_error(operation: Operation) {
         backend: "QASM",
         hqslang: "Bogoliubov",
     };
-    assert_eq!(gate_definition(&operation), Err(error))
+    assert_eq!(
+        gate_definition(&operation, QasmVersion::V2point0),
+        Err(error)
+    )
 }
 
 #[test]

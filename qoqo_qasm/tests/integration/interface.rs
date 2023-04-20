@@ -300,7 +300,7 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
             .to_string()
         );
 
-        let result = qasm_gate_definition(dict.as_ref());
+        let result = qasm_gate_definition(dict.as_ref(), qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -311,7 +311,7 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
             .to_string()
         );
 
-        let result = qasm_gate_definition(wrongoperationpy.as_ref(py));
+        let result = qasm_gate_definition(wrongoperationpy.as_ref(py), qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -336,7 +336,7 @@ fn test_qasm_gate_definition(operation: Operation, converted: &str) {
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
         assert_eq!(
-            qasm_gate_definition(new_op.as_ref(py)).unwrap(),
+            qasm_gate_definition(new_op.as_ref(py), "2.0").unwrap(),
             converted.to_string()
         )
     })
