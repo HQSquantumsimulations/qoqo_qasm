@@ -104,22 +104,25 @@ impl Backend {
         definitions.push_str("gate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\n");
         definitions.push_str("gate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\n");
         definitions.push_str("gate u1(lambda) q { U(0,0,lambda) q; }\n");
-        definitions.push_str(&gate_definition(&Operation::from(RotateX::new(
-            0,
-            CalculatorFloat::from(0.0),
-        )))?);
+        definitions.push_str(&gate_definition(
+            &Operation::from(RotateX::new(0, CalculatorFloat::from(0.0))),
+            self.qasm_version,
+        )?);
         definitions.push('\n');
-        definitions.push_str(&gate_definition(&Operation::from(RotateY::new(
-            0,
-            CalculatorFloat::from(0.0),
-        )))?);
+        definitions.push_str(&gate_definition(
+            &Operation::from(RotateY::new(0, CalculatorFloat::from(0.0))),
+            self.qasm_version,
+        )?);
         definitions.push('\n');
-        definitions.push_str(&gate_definition(&Operation::from(RotateZ::new(
-            0,
-            CalculatorFloat::from(0.0),
-        )))?);
+        definitions.push_str(&gate_definition(
+            &Operation::from(RotateZ::new(0, CalculatorFloat::from(0.0))),
+            self.qasm_version,
+        )?);
         definitions.push('\n');
-        definitions.push_str(&gate_definition(&Operation::from(CNOT::new(0, 1)))?);
+        definitions.push_str(&gate_definition(
+            &Operation::from(CNOT::new(0, 1)),
+            self.qasm_version,
+        )?);
         definitions.push('\n');
 
         for op in circuit {
@@ -132,7 +135,7 @@ impl Backend {
             }
             if !already_seen_definitions.contains(&op.hqslang().to_string()) {
                 already_seen_definitions.push(op.hqslang().to_string());
-                definitions.push_str(&gate_definition(op)?);
+                definitions.push_str(&gate_definition(op, self.qasm_version)?);
                 if !definitions.is_empty() {
                     definitions.push('\n');
                 }

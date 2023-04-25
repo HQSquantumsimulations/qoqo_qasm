@@ -900,7 +900,10 @@ pub fn call_operation(
 ///
 /// * `Ok(String)` - The gate QASM gate definition.
 /// * `RoqoqoBackendError::OperationNotInBackend` - Operation not supported by QASM backend.
-pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendError> {
+pub fn gate_definition(
+    operation: &Operation,
+    qasm_version: QasmVersion,
+) -> Result<String, RoqoqoBackendError> {
     match operation {
         Operation::RotateX(_) => Ok(String::from(
             "gate rx(theta) a { u3(theta,-pi/2,pi/2) a; }"
@@ -929,9 +932,13 @@ pub fn gate_definition(operation: &Operation) -> Result<String, RoqoqoBackendErr
         Operation::Hadamard(_) => Ok(String::from(
             "gate h a { u2(0,pi) a; }"
         )),
-        Operation::CNOT(_) => Ok(String::from(
+        Operation::CNOT(_) => match qasm_version {
+            QasmVersion::V2point0 => Ok(String::from(
             "gate cx c,t { CX c,t; }"
         )),
+        QasmVersion::V3point0(_) => Ok(String::from(
+            "gate cx c,t { ctrl @ x c,t; }"
+        ))},
         Operation::PhaseShiftState1(_) => Ok(String::from(
             "gate p(lambda) q { U(0,0,lambda) q; }"
         )),
