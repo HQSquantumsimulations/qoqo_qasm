@@ -240,6 +240,22 @@ fn test_call_operation_error_2_roqoqo_3(operation: Operation, converted_3: &str)
     CalculatorFloat::from(0.3),
     CalculatorFloat::from(0.2)
 )), "3.0"; "complexpm, 3.0")]
+#[test_case(Operation::from(GPi::new(
+    0,
+    CalculatorFloat::from(0.3),
+)), "2.0"; "gpi, 2.0")]
+#[test_case(Operation::from(GPi::new(
+    0,
+    CalculatorFloat::from(0.3),
+)), "3.0"; "gpi, 3.0")]
+#[test_case(Operation::from(GPi2::new(
+    0,
+    CalculatorFloat::from(0.3),
+)), "2.0"; "gpi2, 2.0")]
+#[test_case(Operation::from(GPi2::new(
+    0,
+    CalculatorFloat::from(0.3),
+)), "3.0"; "gpi2, 3.0")]
 fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
     let mut wrong_circuit = Circuit::new();
     wrong_circuit += operation.clone();
