@@ -18,13 +18,10 @@
 #
 
 # set __version__
-try:
-    with open('../qoqo_qasm/__version__.py') as f:
-        lines = f.readlines()
-    versions = lines[-1].strip().split("'")[1].strip()
-    main_version = "{}.{}".format(versions[0], versions[1])
-except Exception:
-    main_version = '0.0'
+import tomli
+
+main_version = tomli.load(open("../pyproject.toml", "rb"))["project"]["version"]
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
