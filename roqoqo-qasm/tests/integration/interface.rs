@@ -544,8 +544,6 @@ fn test_pragma_repeated_operation_mapping() {
     CalculatorFloat::from(0.2),
     CalculatorFloat::from(0.2),
 )); "Bogoliubov")]
-#[test_case(Operation::from(GPi::new(0, 0.1.into())); "GPi")]
-#[test_case(Operation::from(GPi2::new(0, 0.2.into())); "GPi2")]
 fn test_call_operation_error(operation: Operation) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0),
