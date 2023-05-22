@@ -1,0 +1,36 @@
+﻿qoqo\_qasm
+==========
+
+.. automodule:: qoqo_qasm
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      qasm_call_circuit
+      qasm_call_operation
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      QasmBackend
+   
+   
+
+   
+   
+   
+
+
+

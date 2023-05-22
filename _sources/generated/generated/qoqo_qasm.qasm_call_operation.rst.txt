@@ -1,0 +1,6 @@
+qoqo\_qasm.qasm\_call\_operation
+================================
+
+.. currentmodule:: qoqo_qasm
+
+.. autofunction:: qasm_call_operation
