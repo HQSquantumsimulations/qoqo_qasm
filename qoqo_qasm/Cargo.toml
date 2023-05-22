@@ -20,8 +20,8 @@ crate-type = ["cdylib", "rlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-qoqo = {version="1.3", default-features = false}
-roqoqo = {version="1.3", features=["serialize"]}
+qoqo = {version="1.4", default-features = false}
+roqoqo = {version="1.4", features=["serialize"]}
 roqoqo-qasm = { version = "0.7", path = "../roqoqo-qasm" }
 
 [dependencies.pyo3]

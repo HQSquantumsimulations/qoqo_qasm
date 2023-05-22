@@ -149,7 +149,10 @@ impl Backend {
                 data.push('\n');
             }
         }
-        qasm_string.push_str(definitions.as_str());
+        match self.qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => {}
+            _ => qasm_string.push_str(definitions.as_str()),
+        };
 
         match self.qasm_version {
             QasmVersion::V2point0 => qasm_string.push_str(
