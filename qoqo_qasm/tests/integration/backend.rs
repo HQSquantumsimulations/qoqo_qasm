@@ -152,6 +152,22 @@ fn test_circuit_to_qasm_file(qasm_version: &str, qubits: &str, bits: &str) {
     CalculatorFloat::from(0.3),
     CalculatorFloat::from(0.2)
 )), "3.0"; "complexpm, 3.0")]
+#[test_case(Operation::from(GPi::new(
+    0,
+    CalculatorFloat::from(0.3),
+)), "2.0"; "gpi, 2.0")]
+#[test_case(Operation::from(GPi::new(
+    0,
+    CalculatorFloat::from(0.3),
+)), "3.0"; "gpi, 3.0")]
+#[test_case(Operation::from(GPi2::new(
+    0,
+    CalculatorFloat::from(0.3),
+)), "2.0"; "gpi2, 2.0")]
+#[test_case(Operation::from(GPi2::new(
+    0,
+    CalculatorFloat::from(0.3),
+)), "3.0"; "gpi2, 3.0")]
 fn test_circuit_to_qasm_error(operation: Operation, qasm_version: &str) {
     let mut wrong_circuit = Circuit::new();
     wrong_circuit += operation.clone();

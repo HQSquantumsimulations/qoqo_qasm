@@ -353,10 +353,12 @@ fn test_gate_definition(operation: Operation, converted: &str) {
 }
 
 #[test_case(Operation::from(Bogoliubov::new(0, 1, 0.1.into(), 0.2.into())); "Bogoliubov")]
+#[test_case(Operation::from(GPi::new(0, 0.1.into())); "GPi")]
+#[test_case(Operation::from(GPi2::new(0, 0.2.into())); "GPi2")]
 fn test_gate_definition_error(operation: Operation) {
     let error = RoqoqoBackendError::OperationNotInBackend {
         backend: "QASM",
-        hqslang: "Bogoliubov",
+        hqslang: operation.hqslang(),
     };
     assert_eq!(
         gate_definition(&operation, QasmVersion::V2point0),
@@ -536,26 +538,27 @@ fn test_pragma_repeated_operation_mapping() {
 }
 
 /// Test that non-included gates return an error
-#[test]
-fn test_call_operation_error() {
-    let operation = Operation::from(Bogoliubov::new(
-        0,
-        1,
-        CalculatorFloat::from(0.2),
-        CalculatorFloat::from(0.2),
-    ));
+#[test_case(Operation::from(Bogoliubov::new(
+    0,
+    1,
+    CalculatorFloat::from(0.2),
+    CalculatorFloat::from(0.2),
+)); "Bogoliubov")]
+#[test_case(Operation::from(GPi::new(0, 0.1.into())); "GPi")]
+#[test_case(Operation::from(GPi2::new(0, 0.2.into())); "GPi2")]
+fn test_call_operation_error(operation: Operation) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
-            hqslang: "Bogoliubov"
+            hqslang: operation.hqslang()
         })
     );
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
-            hqslang: "Bogoliubov"
+            hqslang: operation.hqslang()
         })
     );
     assert_eq!(
@@ -566,14 +569,14 @@ fn test_call_operation_error() {
         ),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
-            hqslang: "Bogoliubov"
+            hqslang: operation.hqslang()
         })
     );
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
-            hqslang: "Bogoliubov"
+            hqslang: operation.hqslang()
         })
     );
 }

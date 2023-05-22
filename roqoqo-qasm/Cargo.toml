@@ -1,6 +1,6 @@
 [package]
 name = "roqoqo-qasm"
-version = "0.7.2"
+version = "0.7.3"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 license = "Apache-2.0"
 edition = "2018"
@@ -20,5 +20,7 @@ doctest = false
 [dependencies]
 roqoqo = { version = "1.4", features = ["serialize"] }
 qoqo_calculator = { version = "1.1" }
-test-case = "3.0"
 ndarray = "0.15"
+
+[dev-dependencies]
+test-case = "3.0"

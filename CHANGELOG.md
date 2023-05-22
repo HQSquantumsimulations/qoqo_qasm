@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.7.3
+
+* Updated to qoqo 1.4
+
 ### 0.7.2
 
 * Modified cx definition for 3.0
