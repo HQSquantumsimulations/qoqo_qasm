@@ -1,4 +1,4 @@
-<img src="qoqo_Logo_vertical_color.png" alt="qoqo logo" width="300" />
+<img src="../qoqo_Logo_vertical_color.png" alt="qoqo logo" width="300" />
 
 # qoqo-qasm
 
