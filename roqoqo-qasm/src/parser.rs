@@ -24,12 +24,12 @@ use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::Circuit;
 
-/// TODO
+/// Pest Parser for QASM -> qoqo translation.
 #[derive(Parser, Debug)]
 #[grammar = "grammars/qasm2_0.pest"]
-pub struct QoqoQASMParser;
+struct QoqoQASMParser;
 
-/// Doc
+/// Dispatch function for qoqo operations.
 fn gate_dispatch(name: &str, params: &[f64], qubits: &[usize]) -> Option<Operation> {
     match name {
         "rz" => Some(Operation::from(RotateZ::new(
@@ -142,7 +142,7 @@ fn gate_dispatch(name: &str, params: &[f64], qubits: &[usize]) -> Option<Operati
     }
 }
 
-/// Doc
+/// Main parse function method.
 fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
     let pairs = QoqoQASMParser::parse(Rule::openqasm, file)?;
     let mut circuit = Circuit::new();
@@ -236,17 +236,22 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
     Ok(circuit)
 }
 
-/// Doc
+/// Translates a QASM file into a qoqo Circuit instance.
+///
+/// # Arguments
+///
+/// * `file` - The '.qasm' file to translate.
+///
+/// # Returns
+///
+/// * `Circuit` - The translated qoqo Circuit.
 pub fn qasm_file_to_circuit(file: File) -> Result<Circuit, Box<dyn std::error::Error>> {
-    // let unparsed_file =
-    //     fs::read_to_string(file).expect("Cannot read file");
     let unparsed_file = BufReader::new(file)
         .lines()
         .map(|line| line.unwrap() + "\n")
         .collect::<String>();
 
-    let circuit: Circuit = parse_qasm_file(&unparsed_file).expect("Unsuccessful parse");
+    let circuit: Circuit = parse_qasm_file(&unparsed_file)?;
 
-    // println!("{:?}", &circuit);
     Ok(circuit)
 }
