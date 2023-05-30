@@ -12,12 +12,16 @@
 //
 //! Test roqoqo QASM acceptance
 
-use qoqo_calculator::CalculatorFloat;
-use roqoqo::{operations::*, Circuit};
-use roqoqo_qasm::Backend;
 use std::env::temp_dir;
 use std::fs;
+use std::fs::File;
 use std::path::Path;
+
+use qoqo_calculator::CalculatorFloat;
+use roqoqo::{operations::*, Circuit};
+
+use roqoqo_qasm::qasm_file_to_circuit;
+use roqoqo_qasm::Backend;
 
 /// Test generating a file for gate operations with QASM interface
 #[test]
@@ -67,4 +71,14 @@ fn test_acceptance_with_qasmbackend() {
     let b = read_in_path.exists();
     fs::remove_file(&read_in_path).unwrap();
     assert!(b);
+}
+
+/// Test generating a circuit
+#[test]
+fn test_acceptance_with_parser() {
+    let path = std::env::current_dir()
+        .unwrap()
+        .join("tests/acceptance/input.qasm");
+    let file = File::open(path).unwrap();
+    assert!(qasm_file_to_circuit(file).is_ok());
 }
