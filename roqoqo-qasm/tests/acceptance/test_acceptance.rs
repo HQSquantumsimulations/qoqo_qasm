@@ -23,7 +23,7 @@ use roqoqo::{operations::*, Circuit};
 use roqoqo_qasm::qasm_file_to_circuit;
 use roqoqo_qasm::Backend;
 
-/// Test generating a file for gate operations with QASM interface
+/// Test generating a file for gate operations with QASM interface.
 #[test]
 fn test_acceptance_with_qasmbackend() {
     let backend = Backend::new(Some("qr".to_string()), None).unwrap();
@@ -73,7 +73,7 @@ fn test_acceptance_with_qasmbackend() {
     assert!(b);
 }
 
-/// Test generating a circuit
+/// Test generating a circuit from QASM file.
 #[test]
 fn test_acceptance_with_parser() {
     let path = std::env::current_dir()
