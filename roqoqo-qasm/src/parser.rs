@@ -12,17 +12,18 @@
 //
 //! The roqoqo-qasm Parser translates qasm files in Qoqo Circuit instances.
 
-use pest::error::Error;
-use pest::iterators::Pair;
-use pest::Parser;
+use num_complex::Complex64;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
 use qoqo_calculator::CalculatorFloat;
-
 use roqoqo::operations::*;
 use roqoqo::Circuit;
+
+use pest::error::Error;
+use pest::iterators::Pair;
+use pest::Parser;
 
 /// Pest Parser for QASM -> qoqo translation.
 #[derive(Parser, Debug)]
@@ -57,12 +58,20 @@ fn gate_dispatch(name: &str, params: &[f64], qubits: &[usize]) -> Option<Operati
         "sx" => Some(Operation::from(SqrtPauliX::new(qubits[0]))),
         "sxdg" => Some(Operation::from(InvSqrtPauliX::new(qubits[0]))),
         "cx" => Some(Operation::from(CNOT::new(qubits[0], qubits[1]))),
-        // MolmerSorensenXX
-        "rxx" => Some(Operation::from(VariableMSXX::new(
-            qubits[0],
-            qubits[1],
-            CalculatorFloat::from(params[0]),
-        ))),
+        "rxx" => {
+            if is_close(
+                params[0].into(),
+                CalculatorFloat::PI.float().unwrap().into(),
+            ) {
+                Some(Operation::from(MolmerSorensenXX::new(qubits[0], qubits[1])))
+            } else {
+                Some(Operation::from(VariableMSXX::new(
+                    qubits[0],
+                    qubits[1],
+                    CalculatorFloat::from(params[0]),
+                )))
+            }
+        }
         "cy" => Some(Operation::from(ControlledPauliY::new(qubits[0], qubits[1]))),
         "cz" => Some(Operation::from(ControlledPauliZ::new(qubits[0], qubits[1]))),
         "cp" => Some(Operation::from(ControlledPhaseShift::new(
@@ -254,4 +263,9 @@ pub fn qasm_file_to_circuit(file: File) -> Result<Circuit, Box<dyn std::error::E
     let circuit: Circuit = parse_qasm_file(&unparsed_file)?;
 
     Ok(circuit)
+}
+
+// helper function
+fn is_close(a: Complex64, b: Complex64) -> bool {
+    (a - b).norm() < 1e-10
 }
