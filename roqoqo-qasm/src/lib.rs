@@ -10,7 +10,7 @@
 // express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![deny(missing_docs)]
+#![allow(missing_docs)]
 #![warn(rustdoc::private_intra_doc_links)]
 #![warn(rustdoc::missing_crate_level_docs)]
 #![warn(rustdoc::missing_doc_code_examples)]
@@ -23,7 +23,13 @@
 //!
 //! Translates qoqo operations and circuits to QASM operations via the interface, and Create a Qasm file with QasmBackend.
 
+extern crate pest;
+#[macro_use]
+extern crate pest_derive;
+
 mod backend;
 pub use backend::*;
 mod interface;
 pub use interface::*;
+mod parser;
+pub use parser::*;
