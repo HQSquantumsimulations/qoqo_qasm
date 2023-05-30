@@ -642,6 +642,7 @@ name = "roqoqo-qasm"
 version = "0.7.4"
 dependencies = [
  "ndarray",
+ "num-complex",
  "pest",
  "pest_derive",
  "qoqo_calculator",
