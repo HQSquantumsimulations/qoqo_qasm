@@ -78,7 +78,7 @@ fn test_acceptance_with_qasmbackend() {
 fn test_acceptance_with_parser() {
     let path = std::env::current_dir()
         .unwrap()
-        .join("tests/acceptance/input.qasm");
+        .join("tests/input.qasm");
     let file = File::open(path).unwrap();
     assert!(qasm_file_to_circuit(file).is_ok());
 }

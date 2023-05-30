@@ -17,3 +17,7 @@ pub use backend::*;
 #[cfg(test)]
 mod interface;
 pub use interface::*;
+
+#[cfg(test)]
+mod parser;
+pub use parser::*;
