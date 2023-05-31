@@ -416,6 +416,15 @@ pub fn call_operation(
                 op.qubit()
             ))
         }
+        Operation::Toffoli(op) => Ok(format!(
+            "ccx {}[{}],{}[{}],{}[{}];",
+            qubit_register_name,
+            op.control_0(),
+            qubit_register_name,
+            op.control_1(),
+            qubit_register_name,
+            op.target(),
+        )),
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
         }
@@ -1091,6 +1100,9 @@ pub fn gate_definition(
         )),
         Operation::RotateXY(_) => Ok(String::from(
             "gate rxy(theta,phi) q { u3(theta,phi-pi/2,pi/2-phi) q; }"
+        )),
+        Operation::Toffoli(_) => Ok(String::from(
+            "gate ccx a,b,c { h c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) b; u1(pi/4) c; h c; cx a,b; u1(pi/4) a; u1(-pi/4) b; cx a,b; }"
         )),
         _ => {
             if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
