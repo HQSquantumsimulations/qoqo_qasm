@@ -425,6 +425,25 @@ pub fn call_operation(
             qubit_register_name,
             op.target(),
         )),
+        Operation::ControlledControlledPauliZ(op) => Ok(format!(
+            "ccz {}[{}],{}[{}],{}[{}];",
+            qubit_register_name,
+            op.control_0(),
+            qubit_register_name,
+            op.control_1(),
+            qubit_register_name,
+            op.target(),
+        )),
+        Operation::ControlledControlledPhaseShift(op) => Ok(format!(
+            "ccp({}) {}[{}],{}[{}],{}[{}];",
+            op.theta().float()?,
+            qubit_register_name,
+            op.control_0(),
+            qubit_register_name,
+            op.control_1(),
+            qubit_register_name,
+            op.target(),
+        )),
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
         }
@@ -1030,11 +1049,12 @@ pub fn gate_definition(
         )),
         Operation::CNOT(_) => match qasm_version {
             QasmVersion::V2point0 => Ok(String::from(
-            "gate cx c,t { CX c,t; }"
-        )),
-        QasmVersion::V3point0(_) => Ok(String::from(
-            "gate cx c,t { ctrl @ x c,t; }"
-        ))},
+                "gate cx c,t { CX c,t; }"
+            )),
+            QasmVersion::V3point0(_) => Ok(String::from(
+                "gate cx c,t { ctrl @ x c,t; }"
+            ))
+        },
         Operation::PhaseShiftState1(_) => Ok(String::from(
             "gate p(lambda) q { U(0,0,lambda) q; }"
         )),
@@ -1102,7 +1122,13 @@ pub fn gate_definition(
             "gate rxy(theta,phi) q { u3(theta,phi-pi/2,pi/2-phi) q; }"
         )),
         Operation::Toffoli(_) => Ok(String::from(
-            "gate ccx a,b,c { h c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) b; u1(pi/4) c; h c; cx a,b; u1(pi/4) a; u1(-pi/4) b; cx a,b; }"
+            "gate ccx a,b,c { u2(0,pi) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) b; u1(pi/4) c; u2(0,pi) c; cx a,b; u1(pi/4) a; u1(-pi/4) b; cx a,b; }"
+        )),
+        Operation::ControlledControlledPauliZ(_) => Ok(String::from(
+            "gate ccz a,b,c { U(0,0,pi/4) b; cx b,c; U(0,0,-pi/4) c; cx b,c; U(0,0,pi/4) c; cx a,b; U(0,0,-pi/4) b; cx b,c; U(0,0,pi/4) c; cx b,c; U(0,0,-pi/4) c; cx a,b; U(0,0,pi/4) a; cx a,c; U(0,0,-pi/4) c; cx a,c; U(0,0,pi/4) c; }"
+        )),
+        Operation::ControlledControlledPhaseShift(_) => Ok(String::from(
+            "gate ccp(theta) a,b,c { U(0,0,theta/4) b; cx b,c; U(0,0,-theta/4) c; cx b,c; U(0,0,theta/4) c; cx a,b; U(0,0,-theta/4) b; cx b,c; U(0,0,theta/4) c; cx b,c; U(0,0,-theta/4) c; cx a,b; U(0,0,theta/4) a; cx a,c; U(0,0,-theta/4) c; cx a,c; U(0,0,theta/4) c; }"
         )),
         _ => {
             if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
