@@ -37,9 +37,9 @@ fn test_basic_file() {
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
 
-/// Test all implemented gates
+/// Test all implemented qoqo gates
 #[test]
-fn test_gates() {
+fn test_qoqo_gates() {
     let file = File::open(std::env::current_dir().unwrap().join("tests/gates.qasm")).unwrap();
 
     let circuit_from_file = qasm_file_to_circuit(file).unwrap();
