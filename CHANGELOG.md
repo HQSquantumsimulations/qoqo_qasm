@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.7.5
+
+* Added support for 3-qubit operations
+
 ### 0.7.4
 
 * Modified braket version of 3.0 to work with amazon braket

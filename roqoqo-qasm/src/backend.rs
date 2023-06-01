@@ -157,7 +157,7 @@ impl Backend {
         match self.qasm_version {
             QasmVersion::V2point0 => qasm_string.push_str(
                 format!(
-                    "qreg {}[{}];\n",
+                    "qreg {}[{}];\n\n",
                     self.qubit_register_name,
                     number_qubits_required + 1,
                 )
@@ -165,7 +165,7 @@ impl Backend {
             ),
             QasmVersion::V3point0(_) => qasm_string.push_str(
                 format!(
-                    "qubit[{}] {};\n",
+                    "qubit[{}] {};\n\n",
                     number_qubits_required + 1,
                     self.qubit_register_name,
                 )
