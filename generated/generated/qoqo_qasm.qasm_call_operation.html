@@ -4,13 +4,15 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>qoqo_qasm.qasm_call_operation &mdash; qoqo_qasm 0.7.4 documentation</title>
+  <title>qoqo_qasm.qasm_call_operation &mdash; qoqo_qasm 0.7.5 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
@@ -34,7 +36,7 @@
             qoqo_qasm
           </a>
               <div class="version">
-                0.7.4
+                0.7.5
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -44,21 +46,17 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">qoqo qasm documentation</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../qoqo_qasm.html">qoqo_qasm</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">qoqo_qasm.qasm_call_operation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#qoqo_qasm.qasm_call_operation"><code class="docutils literal notranslate"><span class="pre">qasm_call_operation()</span></code></a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../qoqo_qasm.html">qoqo_qasm</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">qoqo_qasm.qasm_call_operation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#qoqo_qasm.qasm_call_operation"><code class="docutils literal notranslate"><span class="pre">qasm_call_operation()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="qoqo_qasm.qasm_call_circuit.html">qoqo_qasm.qasm_call_circuit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="qoqo_qasm.QasmBackend.html">qoqo_qasm.QasmBackend</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.QasmBackend"><code class="docutils literal notranslate"><span class="pre">QasmBackend</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.qasm_call_circuit"><code class="docutils literal notranslate"><span class="pre">qasm_call_circuit()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.qasm_call_operation"><code class="docutils literal notranslate"><span class="pre">qasm_call_operation()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="qoqo_qasm.qasm_call_circuit.html">qoqo_qasm.qasm_call_circuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qoqo_qasm.QasmBackend.html">qoqo_qasm.QasmBackend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.QasmBackend"><code class="docutils literal notranslate"><span class="pre">QasmBackend</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.qasm_call_circuit"><code class="docutils literal notranslate"><span class="pre">qasm_call_circuit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.qasm_call_operation"><code class="docutils literal notranslate"><span class="pre">qasm_call_operation()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -77,7 +75,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../../modules.html">qoqo qasm documentation</a></li>
           <li class="breadcrumb-item"><a href="../qoqo_qasm.html">qoqo_qasm</a></li>
       <li class="breadcrumb-item active">qoqo_qasm.qasm_call_operation</li>
       <li class="wy-breadcrumbs-aside">
