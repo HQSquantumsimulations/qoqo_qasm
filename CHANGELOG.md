@@ -2,7 +2,7 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
-### 0.8.0
+### 0.7.5
 
 * Added support for 3-qubit operations
 
