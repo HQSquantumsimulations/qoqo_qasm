@@ -143,10 +143,24 @@ fn gate_dispatch(name: &str, params: &[f64], qubits: &[usize]) -> Option<Operati
             CalculatorFloat::from(params[0]),
             CalculatorFloat::from(params[1]),
         ))),
-        // "u3" => {
-        //     let alpha_r =
-        //     Some(Operation::from(SingleQubitGate::new(qubits[0], CalculatorFloat::from(params[0]), CalculatorFloat::from(params[1]), CalculatorFloat::from(params[2]), CalculatorFloat::from(params[3]))))
-        // },
+        "u3" => {
+            let theta = params[0];
+            let phi = params[1];
+            let lambda = params[2];
+            let alpha_r = CalculatorFloat::from(((phi + lambda) / 2.0).cos() * (theta / 2.0).cos());
+            let alpha_i =
+                CalculatorFloat::from((-(phi + lambda) / 2.0).sin() * (theta / 2.0).cos());
+            let beta_r = CalculatorFloat::from(((phi - lambda) / 2.0).cos() * (theta / 2.0).sin());
+            let beta_i = CalculatorFloat::from(((phi - lambda) / 2.0).sin() * (theta / 2.0).sin());
+            Some(Operation::from(SingleQubitGate::new(
+                qubits[0],
+                alpha_r,
+                alpha_i,
+                beta_r,
+                beta_i,
+                CalculatorFloat::ZERO,
+            )))
+        }
         "ccx" => Some(Operation::from(Toffoli::new(
             qubits[0], qubits[1], qubits[2],
         ))),
