@@ -82,6 +82,7 @@ fn test_qoqo_gates() {
     circuit_qoqo += Toffoli::new(0, 2, 1);
     circuit_qoqo += ControlledControlledPauliZ::new(2, 1, 0);
     circuit_qoqo += ControlledControlledPhaseShift::new(1, 0, 2, 0.3.into());
+    // circuit_qoqo += SingleQubitGate::new(2, 0.1.into(), 0.2.into(), 0.25.into(), 0.2.into(), 0.0.into()); // TODO: betas are failing
     circuit_qoqo += PragmaActiveReset::new(1);
     circuit_qoqo += MeasureQubit::new(0, "c".into(), 0);
     
