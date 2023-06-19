@@ -87,7 +87,7 @@ fn test_circuit_to_qasm_str(qasm_version: &str, qubits: &str, bits: &str) {
         } else {
             "ctrl @ x"
         };
-        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ {cnot} c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits};\n{bits};\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
+        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ {cnot} c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits};\n\n{bits};\nrx(1.5707963267948966) q[0];\nx q[1];\nmeasure q -> ro;\n");
         assert_eq!(lines, result);
     })
 }
@@ -119,7 +119,7 @@ fn test_circuit_to_qasm_file(qasm_version: &str, qubits: &str, bits: &str) {
         } else {
             "ctrl @ x"
         };
-        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ {cnot} c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits};\n{bits};\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
+        let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ {cnot} c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\n\n{qubits};\n\n{bits};\nrx(1.5707963267948966) qr[0];\nx qr[1];\nmeasure qr -> ro;\n");
         let read_in_path = temp_dir().join(Path::new("fnametest.qasm"));
         let extracted = fs::read_to_string(&read_in_path);
         fs::remove_file(&read_in_path).unwrap();

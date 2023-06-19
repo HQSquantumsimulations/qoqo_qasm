@@ -7,7 +7,10 @@ qoqo_qasm is the QASM interface to HQS Quantum Simulation's qoqo package.
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+.. autosummary::
+    :toctree: generated/
+
+    qoqo_qasm
    
 
 

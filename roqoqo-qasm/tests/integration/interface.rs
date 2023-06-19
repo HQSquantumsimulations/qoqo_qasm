@@ -30,7 +30,7 @@ fn tmp_create_map() -> HashMap<usize, usize> {
     hm
 }
 
-/// Test that all operations return the correct String
+/// Test that all operations return the correct String: no dialect differences
 #[test_case(Operation::from(PauliX::new(0)), "x q[0];"; "PauliX")]
 #[test_case(Operation::from(PauliY::new(0)), "y q[0];"; "PauliY")]
 #[test_case(Operation::from(PauliZ::new(0)), "z q[0];"; "PauliZ")]
@@ -61,6 +61,9 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,-0.000000000000000) q[0];"; "SingleQubitGate")]
 #[test_case(Operation::from(PragmaActiveReset::new(0)), "reset q[0];"; "PragmaActiveReset")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
+#[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "ccz q[0],q[1],q[2];"; "ControlledControlledPauliZ")]
+#[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(0.3) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
+#[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
 fn test_call_operation_identical_2_all_3(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
@@ -85,6 +88,7 @@ fn test_call_operation_identical_2_all_3(operation: Operation, converted: &str) 
     );
 }
 
+/// Test that all operations return the correct String: with dialect differences
 #[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro;"; "DefinitionFloat output")]
 #[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro;"; "DefinitionFloat")]
 #[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];", "output uint[1] ro;"; "DefinitionUsize ouput")]
@@ -119,6 +123,7 @@ fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, co
     );
 }
 
+/// Test that all operations return the correct String: with dialect differences
 #[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), "", "pragma roqoqo PragmaSleep [0, 1] 3e-1;"; "PragmaSleep")]
 #[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), "", "pragma roqoqo PragmaStopDecompositionBlock [0, 1];"; "PragmaStopDecompositionBlock")]
 #[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), "", "pragma roqoqo PragmaStopParallelBlock [] 0e0;"; "PragmaStopParallelBlock")]
@@ -157,6 +162,7 @@ fn test_call_operation_different_2_roqoqo_3(
     );
 }
 
+/// Test that all operations return the correct String: with dialect differences
 #[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];", "cnot q[0],q[1];"; "CNOT")]
 #[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(PI/4.0))), "cp(7.853981633974483e-1) q[0],q[1];", "cphaseshift(7.853981633974483e-1) q[0],q[1];"; "ControlledPhaseShift")]
 #[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "rxx(pi/2) q[0],q[1];", "xx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
@@ -345,6 +351,9 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
 #[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), ""; "PragmaStartDecompositionBlock")]
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), ""; "InputSymbolic")]
+#[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "gate ccz a,b,c { U(0,0,pi/4) b; cx b,c; U(0,0,-pi/4) c; cx b,c; U(0,0,pi/4) c; cx a,b; U(0,0,-pi/4) b; cx b,c; U(0,0,pi/4) c; cx b,c; U(0,0,-pi/4) c; cx a,b; U(0,0,pi/4) a; cx a,c; U(0,0,-pi/4) c; cx a,c; U(0,0,pi/4) c; }"; "ControlledControlledPauliZ")]
+#[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "gate ccp(theta) a,b,c { U(0,0,theta/4) b; cx b,c; U(0,0,-theta/4) c; cx b,c; U(0,0,theta/4) c; cx a,b; U(0,0,-theta/4) b; cx b,c; U(0,0,theta/4) c; cx b,c; U(0,0,-theta/4) c; cx a,b; U(0,0,theta/4) a; cx a,c; U(0,0,-theta/4) c; cx a,c; U(0,0,theta/4) c; }"; "ControlledControlledPhaseShift")]
+#[test_case(Operation::from(Toffoli::new(0, 1, 2)), "gate ccx a,b,c { u2(0,pi) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) b; u1(pi/4) c; u2(0,pi) c; cx a,b; u1(pi/4) a; u1(-pi/4) b; cx a,b; }"; "Toffoli")]
 fn test_gate_definition(operation: Operation, converted: &str) {
     assert_eq!(
         gate_definition(&operation, QasmVersion::V2point0).unwrap(),
