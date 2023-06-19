@@ -79,6 +79,9 @@ fn test_qoqo_gates() {
     circuit_qoqo += RotateXY::new(0, 0.3.into(), 0.9.into());
     circuit_qoqo += PhaseShiftedControlledZ::new(0, 2, 0.3.into());
     circuit_qoqo += PhaseShiftedControlledPhase::new(0, 1, 1.4.into(), 1.9.into());
+    circuit_qoqo += Toffoli::new(0, 2, 1);
+    circuit_qoqo += ControlledControlledPauliZ::new(2, 1, 0);
+    circuit_qoqo += ControlledControlledPhaseShift::new(1, 0, 2, 0.3.into());
     circuit_qoqo += PragmaActiveReset::new(1);
     circuit_qoqo += MeasureQubit::new(0, "c".into(), 0);
     
