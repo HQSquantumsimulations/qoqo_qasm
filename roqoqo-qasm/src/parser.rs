@@ -147,6 +147,18 @@ fn gate_dispatch(name: &str, params: &[f64], qubits: &[usize]) -> Option<Operati
         //     let alpha_r =
         //     Some(Operation::from(SingleQubitGate::new(qubits[0], CalculatorFloat::from(params[0]), CalculatorFloat::from(params[1]), CalculatorFloat::from(params[2]), CalculatorFloat::from(params[3]))))
         // },
+        "ccx" => Some(Operation::from(Toffoli::new(
+            qubits[0], qubits[1], qubits[2],
+        ))),
+        "ccz" => Some(Operation::from(ControlledControlledPauliZ::new(
+            qubits[0], qubits[1], qubits[2],
+        ))),
+        "ccp" => Some(Operation::from(ControlledControlledPhaseShift::new(
+            qubits[0],
+            qubits[1],
+            qubits[2],
+            CalculatorFloat::from(params[0]),
+        ))),
         _ => None,
     }
 }
