@@ -29,7 +29,8 @@ use roqoqo_qasm::file_to_circuit;
 ///     PyValueError: An error occurred while reading the QASM file or while converting the file into a Circuit.
 #[pyfunction]
 pub fn qasm_file_to_circuit(file: &str) -> PyResult<CircuitWrapper> {
-    let f = File::open(file).map_err(|x| PyValueError::new_err(format!("Error during File opening: {x}")))?;
+    let f = File::open(file)
+        .map_err(|x| PyValueError::new_err(format!("Error during File opening: {x}")))?;
 
     let circuit = file_to_circuit(f).map_err(|x| PyValueError::new_err(format!("{x}")))?;
 

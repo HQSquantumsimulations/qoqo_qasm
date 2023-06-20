@@ -100,5 +100,8 @@ fn test_errors() {
     .unwrap();
     let result = file_to_circuit(file);
     assert!(result.is_err());
-    assert!(result.unwrap_err().to_string().contains("unknown parsing error"));
+    assert!(result
+        .unwrap_err()
+        .to_string()
+        .contains("unknown parsing error"));
 }

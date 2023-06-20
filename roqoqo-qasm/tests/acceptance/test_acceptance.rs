@@ -76,9 +76,7 @@ fn test_acceptance_with_qasmbackend() {
 /// Test generating a circuit from QASM file.
 #[test]
 fn test_acceptance_with_parser() {
-    let path = std::env::current_dir()
-        .unwrap()
-        .join("tests/input.qasm");
+    let path = std::env::current_dir().unwrap().join("tests/input.qasm");
     let file = File::open(path).unwrap();
     assert!(file_to_circuit(file).is_ok());
 }

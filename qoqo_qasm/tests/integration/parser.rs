@@ -67,6 +67,7 @@ fn test_qasm_file_to_circuit_file_error() {
     assert!(result.is_err());
     assert_eq!(
         result.unwrap_err().to_string(),
-        PyValueError::new_err("Error during File opening: No such file or directory (os error 2)").to_string()
+        PyValueError::new_err("Error during File opening: No such file or directory (os error 2)")
+            .to_string()
     );
 }
