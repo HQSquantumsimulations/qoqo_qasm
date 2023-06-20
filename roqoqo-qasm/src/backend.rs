@@ -265,15 +265,13 @@ pub enum QasmVersion {
 /// Enum for setting the version of OpenQASM used
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Qasm3Dialect {
-    /// OpenQASM 2.0 FIX
+    /// No Pragma operations
     Vanilla,
-    /// OpenQASM 3.0 FIX
+    /// With Pragma operations
     Roqoqo,
-    /// OpenQASM 3.0 FIX
+    /// With Braket's Pragma operations
     Braket,
 }
-
-// v3point0 => vanilla, no pragmas; roqoqo, our pragmas; braket, braket pragmas
 
 impl FromStr for QasmVersion {
     type Err = RoqoqoBackendError;
