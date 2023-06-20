@@ -6,7 +6,6 @@ roqoqo-qasm/target/*
 */docs/generated*
 .mypy_cache*
 *.egg-info*
-*.qasm
 *.profraw
 *.DS_Store*
 coverage.lcov
