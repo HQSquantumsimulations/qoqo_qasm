@@ -14,17 +14,17 @@
 
 use std::fs::File;
 
-use roqoqo::Circuit;
 use roqoqo::operations::*;
+use roqoqo::Circuit;
 
-use roqoqo_qasm::qasm_file_to_circuit;
+use roqoqo_qasm::file_to_circuit;
 
 /// Test basic file
 #[test]
 fn test_basic_file() {
     let file = File::open(std::env::current_dir().unwrap().join("tests/input.qasm")).unwrap();
 
-    let circuit_from_file = qasm_file_to_circuit(file).unwrap();
+    let circuit_from_file = file_to_circuit(file).unwrap();
 
     let mut circuit_qoqo = Circuit::new();
     circuit_qoqo += DefinitionBit::new("c".into(), 2, true);
@@ -42,7 +42,7 @@ fn test_basic_file() {
 fn test_qoqo_gates() {
     let file = File::open(std::env::current_dir().unwrap().join("tests/gates.qasm")).unwrap();
 
-    let circuit_from_file = qasm_file_to_circuit(file).unwrap();
+    let circuit_from_file = file_to_circuit(file).unwrap();
 
     let mut circuit_qoqo = Circuit::new();
     circuit_qoqo += DefinitionBit::new("c".into(), 2, true);
@@ -85,6 +85,6 @@ fn test_qoqo_gates() {
     // circuit_qoqo += SingleQubitGate::new(2, 0.1.into(), 0.2.into(), 0.25.into(), 0.2.into(), 0.0.into()); // TODO: betas are failing
     circuit_qoqo += PragmaActiveReset::new(1);
     circuit_qoqo += MeasureQubit::new(0, "c".into(), 0);
-    
+
     assert_eq!(circuit_from_file, circuit_qoqo);
 }

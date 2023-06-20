@@ -20,7 +20,7 @@ use std::path::Path;
 use qoqo_calculator::CalculatorFloat;
 use roqoqo::{operations::*, Circuit};
 
-use roqoqo_qasm::qasm_file_to_circuit;
+use roqoqo_qasm::file_to_circuit;
 use roqoqo_qasm::Backend;
 
 /// Test generating a file for gate operations with QASM interface.
@@ -80,5 +80,5 @@ fn test_acceptance_with_parser() {
         .unwrap()
         .join("tests/input.qasm");
     let file = File::open(path).unwrap();
-    assert!(qasm_file_to_circuit(file).is_ok());
+    assert!(file_to_circuit(file).is_ok());
 }
