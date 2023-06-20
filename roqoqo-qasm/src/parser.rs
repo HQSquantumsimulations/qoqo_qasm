@@ -13,6 +13,7 @@
 //! The roqoqo-qasm Parser translates qasm files in Qoqo Circuit instances.
 
 use num_complex::Complex64;
+use roqoqo::RoqoqoBackendError;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
@@ -280,15 +281,15 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
 /// # Returns
 ///
 /// * `Circuit` - The translated qoqo Circuit.
-pub fn qasm_file_to_circuit(file: File) -> Result<Circuit, Box<dyn std::error::Error>> {
+pub fn file_to_circuit(file: File) -> Result<Circuit, RoqoqoBackendError> {
     let unparsed_file = BufReader::new(file)
         .lines()
         .map(|line| line.unwrap() + "\n")
         .collect::<String>();
 
-    let circuit: Circuit = parse_qasm_file(&unparsed_file)?;
-
-    Ok(circuit)
+    parse_qasm_file(&unparsed_file).map_err(|x| RoqoqoBackendError::GenericError {
+        msg: format!("Error during conversion: {}", x),
+    })
 }
 
 // helper function
