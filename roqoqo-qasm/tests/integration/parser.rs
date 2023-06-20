@@ -88,3 +88,16 @@ fn test_qoqo_gates() {
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
+
+/// Test errors
+#[test]
+fn test_errors() {
+    let file = File::open(
+        std::env::current_dir()
+            .unwrap()
+            .join("tests/incorrect_file.qasm"),
+    )
+    .unwrap();
+    let result = file_to_circuit(file);
+    assert!(result.is_err());
+}
