@@ -64,7 +64,7 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "ccz q[0],q[1],q[2];"; "ControlledControlledPauliZ")]
 #[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(0.3) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
 #[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
-fn test_call_operation_identical_2_all_3(operation: Operation, converted: &str) {
+fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
         converted.to_string()
@@ -88,7 +88,7 @@ fn test_call_operation_identical_2_all_3(operation: Operation, converted: &str) 
     );
 }
 
-/// Test that all operations return the correct String: with dialect differences
+/// Test that all operations return the correct String: 2.0 vs. 3.0 differences
 #[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro;"; "DefinitionFloat output")]
 #[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro;"; "DefinitionFloat")]
 #[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];", "output uint[1] ro;"; "DefinitionUsize ouput")]
@@ -123,7 +123,7 @@ fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, co
     );
 }
 
-/// Test that all operations return the correct String: with dialect differences
+/// Test that all operations return the correct String: 2.0 vs. 3.0 differences (Roqoqo dialect)
 #[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), "", "pragma roqoqo PragmaSleep [0, 1] 3e-1;"; "PragmaSleep")]
 #[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), "", "pragma roqoqo PragmaStopDecompositionBlock [0, 1];"; "PragmaStopDecompositionBlock")]
 #[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), "", "pragma roqoqo PragmaStopParallelBlock [] 0e0;"; "PragmaStopParallelBlock")]
@@ -134,7 +134,7 @@ fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, co
 #[test_case(Operation::from(PragmaGetPauliProduct::new(HashMap::new(), "test".into(), Circuit::new())), "", "pragma roqoqo PragmaGetPauliProduct {} test ;"; "PragmaGetPauliProduct")]
 #[test_case(Operation::from(PragmaGetStateVector::new("test".into(), None)), "", "pragma roqoqo PragmaGetStateVector test ;"; "PragmaGetStateVector")]
 #[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;", "measure q -> ro;\npragma roqoqo PragmaSetNumberOfMeasurements 1 ro;"; "PragmaRepeatedMeasurement")]
-fn test_call_operation_different_2_roqoqo_3(
+fn test_call_operation_different_2_3_roqoqo_dialect(
     operation: Operation,
     converted_2: &str,
     converted_3: &str,
@@ -162,14 +162,14 @@ fn test_call_operation_different_2_roqoqo_3(
     );
 }
 
-/// Test that all operations return the correct String: with dialect differences
+/// Test that all operations return the correct String: 2.0 vs. 3.0 differences (Braket dialect)
 #[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];", "cnot q[0],q[1];"; "CNOT")]
 #[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(PI/4.0))), "cp(7.853981633974483e-1) q[0],q[1];", "cphaseshift(7.853981633974483e-1) q[0],q[1];"; "ControlledPhaseShift")]
 #[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "rxx(pi/2) q[0],q[1];", "xx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
 #[test_case(Operation::from(VariableMSXX::new(0, 1, CalculatorFloat::from(PI/2.0))), "rxx(1.5707963267948966e0) q[0],q[1];", "xx(1.5707963267948966e0) q[0],q[1];"; "VariableMSXX")]
 #[test_case(Operation::from(SqrtPauliX::new(0)), "sx q[0];", "v q[0];"; "SqrtPauliX")]
 #[test_case(Operation::from(PhaseShiftState1::new(0, CalculatorFloat::from(PI))), "p(3.141592653589793) q[0];", "phaseshift(3.141592653589793) q[0];"; "PhaseShiftState1")]
-fn test_call_operation_different_2_braket_3(
+fn test_call_operation_different_2_3_braket_dialect(
     operation: Operation,
     converted_2: &str,
     converted_3: &str,
@@ -197,6 +197,7 @@ fn test_call_operation_different_2_braket_3(
     );
 }
 
+/// Test that all operations return the correct error: 2.0 vs. 3.0 differences (Roqoqo dialect)
 #[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())), "pragma roqoqo PragmaBoostNoise 1.5e0;"; "PragmaBoostNoise")]
 #[test_case(Operation::from(PragmaDamping::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDamping 0 1e0 1.5e0;"; "PragmaDamping")]
 #[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;"; "PragmaDephasing")]
@@ -207,86 +208,85 @@ fn test_call_operation_different_2_braket_3(
 #[test_case(Operation::from(PragmaRepeatGate::new(3)), "pragma roqoqo PragmaRepeatGate 3;"; "PragmaRepeatGate")]
 #[test_case(Operation::from(PragmaSetDensityMatrix::new(array![[1.5.into()]])), "pragma roqoqo PragmaSetDensityMatrix [[1.5+0i]];"; "PragmaSetDensityMatrix")]
 #[test_case(Operation::from(PragmaSetStateVector::new(array![1.5.into()])), "pragma roqoqo PragmaSetStateVector [1.5+0i];"; "PragmaSetStateVector")]
-fn test_call_operation_error_2_roqoqo_3(operation: Operation, converted_3: &str) {
+fn test_call_operation_error_2_3_roqoqo_dialect(operation: Operation, converted_3: &str) {
     let error = RoqoqoBackendError::OperationNotInBackend {
         backend: "QASM",
         hqslang: operation.hqslang(),
     };
+
     assert_eq!(
         call_operation(
             &operation,
             "q",
             QasmVersion::V3point0(Qasm3Dialect::Vanilla)
-        ),
-        Err(error)
+        )
+        .unwrap_err()
+        .to_string(),
+        error.to_string()
     );
-    let error = RoqoqoBackendError::OperationNotInBackend {
-        backend: "QASM",
-        hqslang: operation.hqslang(),
-    };
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)),
-        Err(error)
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket))
+            .unwrap_err()
+            .to_string(),
+        error.to_string()
     );
-    let error = RoqoqoBackendError::OperationNotInBackend {
-        backend: "QASM",
-        hqslang: operation.hqslang(),
-    };
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0),
-        Err(error)
+        call_operation(&operation, "q", QasmVersion::V2point0)
+            .unwrap_err()
+            .to_string(),
+        error.to_string()
     );
-
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
         converted_3.to_string()
     );
 }
 
+/// Test that all operations return the correct error: 2.0 vs. 3.0 differences (braket dialect)
 #[test_case(Operation::from(GPi::new(0, CalculatorFloat::PI)), "gpi(3.141592653589793) q[0];"; "GPi")]
 #[test_case(Operation::from(GPi2::new(0, CalculatorFloat::PI)), "gpi2(3.141592653589793) q[0];"; "GPi2")]
-fn test_call_operation_error_2_braket_3(operation: Operation, converted_3: &str) {
+fn test_call_operation_error_2_3_braket_dialect(operation: Operation, converted_3: &str) {
     let error = RoqoqoBackendError::OperationNotInBackend {
         backend: "QASM",
         hqslang: operation.hqslang(),
     };
+
     assert_eq!(
         call_operation(
             &operation,
             "q",
             QasmVersion::V3point0(Qasm3Dialect::Vanilla)
-        ),
-        Err(error)
+        )
+        .unwrap_err()
+        .to_string(),
+        error.to_string()
     );
-    let error = RoqoqoBackendError::OperationNotInBackend {
-        backend: "QASM",
-        hqslang: operation.hqslang(),
-    };
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)),
-        Err(error)
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo))
+            .unwrap_err()
+            .to_string(),
+        error.to_string()
     );
-    let error = RoqoqoBackendError::OperationNotInBackend {
-        backend: "QASM",
-        hqslang: operation.hqslang(),
-    };
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0),
-        Err(error)
+        call_operation(&operation, "q", QasmVersion::V2point0)
+            .unwrap_err()
+            .to_string(),
+        error.to_string()
     );
-
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
         converted_3.to_string()
     );
 }
 
+/// Test that all operations return the correct error: 2.0 vs. 3.0 differences
 #[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "other[0] = false;"; "InputBit")]
 fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
     let error = RoqoqoBackendError::OperationNotInBackend {
         backend: "QASM",
         hqslang: operation.hqslang(),
     };
+
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0),
         Err(error)
@@ -304,13 +304,13 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
         call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
         converted_3.to_string()
     );
-
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
         converted_3.to_string()
     );
 }
 
+/// Test that all operations return the correct gate definition
 #[test_case(Operation::from(PauliX::new(0)), "gate x a { u3(pi,0,pi) a; }"; "PauliX")]
 #[test_case(Operation::from(PauliY::new(0)), "gate y a { u3(pi,pi/2,pi/2) a; }"; "PauliY")]
 #[test_case(Operation::from(PauliZ::new(0)), "gate z a { u1(pi) a; }"; "PauliZ")]
@@ -361,6 +361,7 @@ fn test_gate_definition(operation: Operation, converted: &str) {
     )
 }
 
+/// Test that operations return the correct gate definition error
 #[test_case(Operation::from(Bogoliubov::new(0, 1, 0.1.into(), 0.2.into())); "Bogoliubov")]
 #[test_case(Operation::from(GPi::new(0, 0.1.into())); "GPi")]
 #[test_case(Operation::from(GPi2::new(0, 0.2.into())); "GPi2")]
@@ -375,6 +376,7 @@ fn test_gate_definition_error(operation: Operation) {
     )
 }
 
+/// Test PragmaConditional correct behaviour
 #[test]
 fn test_pragma_conditional() {
     let mut circuit = Circuit::new();
@@ -443,6 +445,7 @@ fn test_pragma_conditional() {
     );
 }
 
+/// Test PragmaLoop correct behaviour
 #[test]
 fn test_pragma_loop() {
     let mut circuit = Circuit::new();
@@ -518,6 +521,7 @@ fn test_pragma_loop() {
     );
 }
 
+/// Test PragmaRepeatedMeasurement correct behaviour
 #[test]
 fn test_pragma_repeated_operation_mapping() {
     let operation = Operation::from(PragmaRepeatedMeasurement::new(
@@ -596,31 +600,31 @@ fn test_call_circuit() {
     circuit += PauliX::new(0);
     circuit += MeasureQubit::new(0, "ro".to_string(), 0);
 
-    let qasm_circ: Vec<String> = vec![
+    let qasm_circ_2_0: Vec<String> = vec![
         "creg ro[1];".to_string(),
         "x qr[0];".to_string(),
         "measure qr[0] -> ro[0];".to_string(),
     ];
     assert_eq!(
         call_circuit(&circuit, "qr", QasmVersion::V2point0).unwrap(),
-        qasm_circ
+        qasm_circ_2_0
     );
 
-    let qasm_circ: Vec<String> = vec![
+    let qasm_circ_3_0: Vec<String> = vec![
         "bit[1] ro;".to_string(),
         "x qr[0];".to_string(),
         "measure qr[0] -> ro[0];".to_string(),
     ];
     assert_eq!(
         call_circuit(&circuit, "qr", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
-        qasm_circ
+        qasm_circ_3_0
     );
     assert_eq!(
         call_circuit(&circuit, "qr", QasmVersion::V3point0(Qasm3Dialect::Vanilla)).unwrap(),
-        qasm_circ
+        qasm_circ_3_0
     );
     assert_eq!(
         call_circuit(&circuit, "qr", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
-        qasm_circ
+        qasm_circ_3_0
     );
 }
