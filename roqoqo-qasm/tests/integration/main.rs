@@ -19,5 +19,7 @@ mod interface;
 pub use interface::*;
 
 #[cfg(test)]
+#[cfg(feature = "parser")]
 mod parser;
+#[cfg(feature = "parser")]
 pub use parser::*;

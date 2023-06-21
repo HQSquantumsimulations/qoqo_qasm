@@ -32,7 +32,9 @@ pub use backend::*;
 mod interface;
 pub use interface::*;
 
+#[cfg(feature = "parser")]
 mod parser;
+#[cfg(feature = "parser")]
 pub use parser::*;
 
 #[pymodule]
@@ -40,6 +42,7 @@ fn qoqo_qasm(_py: Python, module: &PyModule) -> PyResult<()> {
     module.add_class::<QasmBackendWrapper>()?;
     module.add_function(wrap_pyfunction!(qasm_call_circuit, module)?)?;
     module.add_function(wrap_pyfunction!(qasm_call_operation, module)?)?;
+    #[cfg(feature = "parser")]
     module.add_function(wrap_pyfunction!(qasm_file_to_circuit, module)?)?;
     Ok(())
 }

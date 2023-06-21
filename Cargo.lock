@@ -468,9 +468,9 @@ dependencies = [
 
 [[package]]
 name = "qoqo"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf07f3e506270363fc27cd0d64d6a731e16bb541aefe5d6ada33a5eae988abff"
+checksum = "b989a139a4330c99bdf79f77827e5fedd96f3620596211214ea475fd40bc6bdd"
 dependencies = [
  "bincode",
  "ndarray",
@@ -492,9 +492,9 @@ dependencies = [
 
 [[package]]
 name = "qoqo-macros"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d92049ac4baa56a91d6d349714192e8ccb48cbceab7c0ed01a225442e950e492"
+checksum = "03411b76166a46cb3e8e2d6846cefe0c53c77f9d8469a8a4b2224121e34f2761"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -528,7 +528,7 @@ dependencies = [
 
 [[package]]
 name = "qoqo_qasm"
-version = "0.7.5"
+version = "0.8.0"
 dependencies = [
  "ndarray",
  "pyo3",
@@ -606,9 +606,9 @@ dependencies = [
 
 [[package]]
 name = "roqoqo"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64df85d14e330f6ecb7736ef2251cbd86508c50a2edda310edc23054caa76822"
+checksum = "15b5e9d03e8f531c6a9781f8aafff4605609aea622b0121dae5f2b046bb1d0ff"
 dependencies = [
  "bincode",
  "nalgebra",
@@ -628,9 +628,9 @@ dependencies = [
 
 [[package]]
 name = "roqoqo-derive"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74660c4266cc53915499961c19a15e7e558dcce5c39a0c4ea1f3ad41e0dbab44"
+checksum = "fe0bdd70484ec44a5580ecd12ba68bca8dbfe789ca6c87464828b2c8d5355dd6"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -639,7 +639,7 @@ dependencies = [
 
 [[package]]
 name = "roqoqo-qasm"
-version = "0.7.5"
+version = "0.8.0"
 dependencies = [
  "ndarray",
  "num-complex",

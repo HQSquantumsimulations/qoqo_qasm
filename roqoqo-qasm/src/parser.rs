@@ -281,6 +281,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
 /// # Returns
 ///
 /// * `Circuit` - The translated qoqo Circuit.
+#[cfg(feature = "parser")]
 pub fn file_to_circuit(file: File) -> Result<Circuit, RoqoqoBackendError> {
     let unparsed_file = BufReader::new(file)
         .lines()
@@ -288,6 +289,22 @@ pub fn file_to_circuit(file: File) -> Result<Circuit, RoqoqoBackendError> {
         .collect::<String>();
 
     parse_qasm_file(&unparsed_file).map_err(|x| RoqoqoBackendError::GenericError {
+        msg: format!("Error during conversion: {}", x),
+    })
+}
+
+/// Translates a QASM string into a qoqo Circuit instance.
+///
+/// # Arguments
+///
+/// * `input` - The QASM string to translate.
+///
+/// # Returns
+///
+/// * `Circuit` - The translated qoqo Circuit.
+#[cfg(feature = "parser")]
+pub fn string_to_circuit(input: &str) -> Result<Circuit, RoqoqoBackendError> {
+    parse_qasm_file(input).map_err(|x| RoqoqoBackendError::GenericError {
         msg: format!("Error during conversion: {}", x),
     })
 }

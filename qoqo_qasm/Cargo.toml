@@ -1,6 +1,6 @@
 [package]
 name = "qoqo_qasm"
-version = "0.7.5"
+version = "0.8.0"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 license = "Apache-2.0"
 edition = "2018"
@@ -20,9 +20,9 @@ crate-type = ["cdylib", "rlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-qoqo = {version="1.4", default-features = false}
-roqoqo = {version="1.4", features=["serialize"]}
-roqoqo-qasm = { version = "0.7", path = "../roqoqo-qasm" }
+qoqo = {version="1.5", default-features = false}
+roqoqo = {version="1.5", features=["serialize"]}
+roqoqo-qasm = { version = "0.8", path = "../roqoqo-qasm" }
 
 [dependencies.pyo3]
 version = "0.18"
@@ -39,3 +39,4 @@ pyo3-build-config = "0.18"
 [features]
 extension-module = ["pyo3/extension-module"]
 default = ["extension-module"]
+parser = ["roqoqo-qasm/parser"]
