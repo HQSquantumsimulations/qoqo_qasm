@@ -134,3 +134,19 @@ fn test_single_qubit_gate() {
     assert!(is_close(sq.beta_r().float().unwrap().into(), 0.0.into()));
     assert!(is_close(sq.beta_i().float().unwrap().into(), (-1.0).into()));
 }
+
+#[test]
+fn test_comments() {
+    let file = File::open(std::env::current_dir().unwrap().join("tests/comments.qasm")).unwrap();
+
+    let circuit_from_file = file_to_circuit(file).unwrap();
+
+    let mut circuit_qoqo = Circuit::new();
+    circuit_qoqo += DefinitionBit::new("c".into(), 2, true);
+    circuit_qoqo += RotateZ::new(0, 0.2.into());
+    circuit_qoqo += RotateX::new(2, 2.1.into());
+    circuit_qoqo += Hadamard::new(0);
+    circuit_qoqo += PauliY::new(1);
+
+    assert_eq!(circuit_from_file, circuit_qoqo);
+}
