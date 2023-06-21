@@ -239,3 +239,28 @@ fn test_circuit_to_qasm_error(operation: Operation, qasm_version: &str) {
         );
     })
 }
+
+#[test]
+#[cfg(feature = "parser")]
+fn test_parsing_methods() {
+    use std::fs::File;
+    use std::io::BufRead;
+    use std::io::BufReader;
+
+    let path = std::env::current_dir().unwrap().join("tests/input.qasm");
+    let file = File::open(path.clone()).unwrap();
+    let unparsed_file = BufReader::new(file)
+        .lines()
+        .map(|line| line.unwrap() + "\n")
+        .collect::<String>();
+
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        let backend = new_qasmbackend(py, None, None);
+        let result = backend.call_method1("qasm_file_to_circuit", (path.to_str().unwrap(),));
+        assert!(result.is_ok());
+
+        let result = backend.call_method1("qasm_str_to_circuit", (unparsed_file,));
+        assert!(result.is_ok());
+    })
+}

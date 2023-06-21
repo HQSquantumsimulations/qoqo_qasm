@@ -12,7 +12,7 @@
 //
 //! Testing the qoqo-qasm parsing functions
 
-use pyo3::{exceptions::PyValueError, prelude::*};
+use pyo3::{exceptions::PyFileNotFoundError, prelude::*};
 
 use qoqo::{operations::convert_operation_to_pyobject, CircuitWrapper};
 use roqoqo::{operations::*, Circuit};
@@ -67,7 +67,9 @@ fn test_qasm_file_to_circuit_file_error() {
     assert!(result.is_err());
     assert_eq!(
         result.unwrap_err().to_string(),
-        PyValueError::new_err("Error during File opening: No such file or directory (os error 2)")
-            .to_string()
+        PyFileNotFoundError::new_err(
+            "Error during File opening: No such file or directory (os error 2)"
+        )
+        .to_string()
     );
 }

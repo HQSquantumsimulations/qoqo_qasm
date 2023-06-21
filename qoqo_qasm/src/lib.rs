@@ -44,5 +44,7 @@ fn qoqo_qasm(_py: Python, module: &PyModule) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(qasm_call_operation, module)?)?;
     #[cfg(feature = "parser")]
     module.add_function(wrap_pyfunction!(qasm_file_to_circuit, module)?)?;
+    #[cfg(feature = "parser")]
+    module.add_function(wrap_pyfunction!(qasm_str_to_circuit, module)?)?;
     Ok(())
 }
