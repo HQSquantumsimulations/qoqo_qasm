@@ -161,7 +161,7 @@ fn test_debug_clone_partialeq() {
 }
 
 #[test]
-#[cfg(feature = "parser")]
+#[cfg(feature = "unstable_qasm_import")]
 fn test_parsing_methods() {
     use std::fs::File;
     use std::io::BufRead;

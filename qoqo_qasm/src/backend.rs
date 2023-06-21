@@ -17,7 +17,7 @@ use pyo3::{
 use std::path::Path;
 
 use qoqo::convert_into_circuit;
-#[cfg(feature = "parser")]
+#[cfg(feature = "unstable_qasm_import")]
 use qoqo::CircuitWrapper;
 
 use roqoqo_qasm::Backend;
@@ -119,7 +119,7 @@ impl QasmBackendWrapper {
     /// Raises:
     ///     PyFileNotFoundError: The file could not be opened.
     ///     PyValueError: An error occurred while converting the file into a Circuit.
-    #[cfg(feature = "parser")]
+    #[cfg(feature = "unstable_qasm_import")]
     #[pyo3(text_signature = "($self, file)")]
     pub fn qasm_file_to_circuit(&self, file: &str) -> PyResult<CircuitWrapper> {
         crate::qasm_file_to_circuit(file)
@@ -135,7 +135,7 @@ impl QasmBackendWrapper {
     ///
     /// Raises:
     ///     PyValueError: An error occurred while converting the file into a Circuit.
-    #[cfg(feature = "parser")]
+    #[cfg(feature = "unstable_qasm_import")]
     #[pyo3(text_signature = "(input)")]
     pub fn qasm_str_to_circuit(&self, input: &str) -> PyResult<CircuitWrapper> {
         crate::qasm_str_to_circuit(input)

@@ -9,7 +9,14 @@ readme = "README.md"
 homepage = "https://github.com/HQSquantumsimulations/qoqo_qasm"
 repository = "https://github.com/HQSquantumsimulations/qoqo_qasm"
 description = "Python interface of roqoqo mocked backend"
-include = ["src*", "build.rs", "qoqo_qasm", "LICENSE", "pyproject.toml", "README.md"]
+include = [
+    "src*",
+    "build.rs",
+    "qoqo_qasm",
+    "LICENSE",
+    "pyproject.toml",
+    "README.md",
+]
 
 [lib]
 name = "qoqo_qasm"
@@ -20,8 +27,8 @@ crate-type = ["cdylib", "rlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-qoqo = {version="1.5", default-features = false}
-roqoqo = {version="1.5", features=["serialize"]}
+qoqo = { version = "1.5", default-features = false }
+roqoqo = { version = "1.5", features = ["serialize"] }
 roqoqo-qasm = { version = "0.8", path = "../roqoqo-qasm" }
 
 [dependencies.pyo3]
@@ -39,4 +46,4 @@ pyo3-build-config = "0.18"
 [features]
 extension-module = ["pyo3/extension-module"]
 default = ["extension-module"]
-parser = ["roqoqo-qasm/parser"]
+unstable_qasm_import = ["roqoqo-qasm/unstable_qasm_import"]
