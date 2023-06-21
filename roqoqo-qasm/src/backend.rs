@@ -251,6 +251,36 @@ impl Backend {
     ) -> Result<(), RoqoqoBackendError> {
         self.circuit_iterator_to_qasm_file(circuit.iter(), folder_name, filename, overwrite)
     }
+
+    /// Translates a QASM file into a qoqo Circuit instance.
+    ///
+    /// # Arguments
+    ///
+    /// * `file` - The '.qasm' file to translate.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Circuit)` - The translated qoqo Circuit.
+    /// * `RoqoqoBackendError::GenericError` - Error encountered while parsing.
+    #[cfg(feature = "parser")]
+    pub fn file_to_circuit(&self, file: File) -> Result<Circuit, RoqoqoBackendError> {
+        crate::file_to_circuit(file)
+    }
+
+    /// Translates a QASM string into a qoqo Circuit instance.
+    ///
+    /// # Arguments
+    ///
+    /// * `input` - The QASM string to translate.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Circuit)` - The translated qoqo Circuit.
+    /// * `RoqoqoBackendError::GenericError` - Error encountered while parsing.
+    #[cfg(feature = "parser")]
+    pub fn string_to_circuit(&self, input: &str) -> Result<Circuit, RoqoqoBackendError> {
+        crate::string_to_circuit(input)
+    }
 }
 
 /// Enum for setting the version of OpenQASM used

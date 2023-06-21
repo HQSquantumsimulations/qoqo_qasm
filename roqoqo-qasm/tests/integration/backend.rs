@@ -12,13 +12,14 @@
 //
 //! Testing the roqoqo-qasm Backend
 
-use roqoqo::prelude::*;
-use roqoqo::{operations::*, Circuit};
-use roqoqo_qasm::Backend;
-// use roqoqo_test::prepare_monte_carlo_gate_test;
 use std::env::temp_dir;
 use std::fs;
 use std::path::Path;
+
+use roqoqo::prelude::*;
+use roqoqo::{operations::*, Circuit};
+use roqoqo_qasm::Backend;
+
 use test_case::test_case;
 
 /// Test simple circuit with a Definition, a GateOperation and a PragmaOperation
@@ -157,4 +158,26 @@ fn test_debug_clone_partialeq() {
     assert!(backend == backend_0);
     assert!(backend_2 != backend);
     assert!(backend != backend_2);
+}
+
+#[test]
+#[cfg(feature = "parser")]
+fn test_parsing_methods() {
+    use std::fs::File;
+    use std::io::BufRead;
+    use std::io::BufReader;
+
+    let backend = Backend::new(None, None).unwrap();
+
+    let file = File::open(std::env::current_dir().unwrap().join("tests/input.qasm")).unwrap();
+    let result_from_file = backend.file_to_circuit(file);
+    assert!(result_from_file.is_ok());
+
+    let file = File::open(std::env::current_dir().unwrap().join("tests/input.qasm")).unwrap();
+    let unparsed_file = BufReader::new(file)
+        .lines()
+        .map(|line| line.unwrap() + "\n")
+        .collect::<String>();
+    let result_from_string = backend.string_to_circuit(&unparsed_file);
+    assert!(result_from_string.is_ok());
 }
