@@ -7,7 +7,7 @@ measurement = { "measure" ~ argument ~ "->" ~ argument ~ ";" }
 comment = { "//" ~ (!NEWLINE ~ ANY)* }
 reset = { "reset" ~ argument ~ ";" }
 
-parameter_list = { "(" ~ real ~ ("," ~ real)* ~ ")" }
+parameter_list = { "(" ~ (real | integer) ~ ("," ~ (real | integer))* ~ ")" }
 qubit_list = { argument ~ ("," ~ argument)* }
 argument = { id ~ "[" ~ integer ~ "]" }
 

@@ -80,12 +80,12 @@ fn test_qoqo_gates() {
     circuit_qoqo += Qsim::new(0, 2, 1.0.into(), 1.1.into(), 1.2.into());
     circuit_qoqo += PMInteraction::new(1, 2, 0.8.into());
     circuit_qoqo += GivensRotation::new(1, 2, 0.2.into(), 0.9.into());
-    circuit_qoqo += GivensRotationLittleEndian::new(0, 2, 0.4.into(), 0.8.into());
+    circuit_qoqo += GivensRotationLittleEndian::new(0, 2, 0.0.into(), 0.8.into());
     circuit_qoqo += XY::new(1, 2, 0.5.into());
     circuit_qoqo += SpinInteraction::new(0, 2, 0.5.into(), 0.6.into(), 0.7.into());
     circuit_qoqo += RotateXY::new(0, 0.3.into(), 0.9.into());
     circuit_qoqo += PhaseShiftedControlledZ::new(0, 2, 0.3.into());
-    circuit_qoqo += PhaseShiftedControlledPhase::new(0, 1, 1.4.into(), 1.9.into());
+    circuit_qoqo += PhaseShiftedControlledPhase::new(0, 1, 1.0.into(), 1.9.into());
     circuit_qoqo += Toffoli::new(0, 2, 1);
     circuit_qoqo += ControlledControlledPauliZ::new(2, 1, 0);
     circuit_qoqo += ControlledControlledPhaseShift::new(1, 0, 2, 0.3.into());
