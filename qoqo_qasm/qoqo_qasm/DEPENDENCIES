@@ -4899,7 +4899,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ====================================================
-once_cell 1.17.1
+once_cell 1.17.2
 https://github.com/matklad/once_cell
 by Aleksey Kladov <aleksey.kladov@gmail.com>
 Single assignment cells and lazy values.
@@ -6790,7 +6790,7 @@ SOFTWARE.
 
 
 ====================================================
-proc-macro2 1.0.58
+proc-macro2 1.0.59
 https://github.com/dtolnay/proc-macro2
 by David Tolnay <dtolnay@gmail.com>, Alex Crichton <alex@alexcrichton.com>
 A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.
@@ -8432,7 +8432,7 @@ LICENSE:
 
 
 ====================================================
-qoqo 1.4.0
+qoqo 1.5.0
 https://github.com/HQSquantumsimulations/qoqo
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Quantum computing circuit toolkit. Python interface of roqoqo
@@ -8644,7 +8644,7 @@ LICENSE:
 
 
 ====================================================
-qoqo-macros 1.4.0
+qoqo-macros 1.5.0
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Macros for the qoqo crate
 License: Apache-2.0
@@ -9491,7 +9491,7 @@ LICENSE:
 
 
 ====================================================
-quote 1.0.27
+quote 1.0.28
 https://github.com/dtolnay/quote
 by David Tolnay <dtolnay@gmail.com>
 Quasi-quoting macro quote!(...)
@@ -10901,7 +10901,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-roqoqo 1.4.0
+roqoqo 1.5.0
 https://github.com/HQSquantumsimulations/qoqo
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Rust Quantum Computing Toolkit by HQS
@@ -11113,7 +11113,7 @@ LICENSE:
 
 
 ====================================================
-roqoqo-derive 1.4.0
+roqoqo-derive 1.5.0
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Macros for the roqoqo crate
 License: Apache-2.0
@@ -13591,7 +13591,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-syn 2.0.16
+syn 2.0.18
 https://github.com/dtolnay/syn
 by David Tolnay <dtolnay@gmail.com>
 Parser for Rust source code
@@ -14803,7 +14803,7 @@ LICENSE:
 MIT OR Apache-2.0
 
 ====================================================
-unicode-ident 1.0.8
+unicode-ident 1.0.9
 https://github.com/dtolnay/unicode-ident
 by David Tolnay <dtolnay@gmail.com>
 Determine whether characters have the XID_Start or XID_Continue properties according to Unicode Standard Annex #31

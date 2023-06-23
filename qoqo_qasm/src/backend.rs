@@ -14,9 +14,13 @@ use pyo3::{
     exceptions::{PyTypeError, PyValueError},
     prelude::*,
 };
-use qoqo::convert_into_circuit;
-use roqoqo_qasm::Backend;
 use std::path::Path;
+
+use qoqo::convert_into_circuit;
+#[cfg(feature = "unstable_qasm_import")]
+use qoqo::CircuitWrapper;
+
+use roqoqo_qasm::Backend;
 
 /// Backend to qoqo that produces QASM output which can be imported.
 ///
@@ -69,7 +73,7 @@ impl QasmBackendWrapper {
         let circuit = convert_into_circuit(circuit).map_err(|x| {
             PyTypeError::new_err(format!("Cannot convert python object to Circuit: {x:?}"))
         })?;
-        roqoqo_qasm::Backend::circuit_to_qasm_str(&self.internal, &circuit)
+        Backend::circuit_to_qasm_str(&self.internal, &circuit)
             .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
     }
 
@@ -100,13 +104,40 @@ impl QasmBackendWrapper {
         })?;
         let folder_name = Path::new(&folder_name);
         let filename = Path::new(&filename);
-        roqoqo_qasm::Backend::circuit_to_qasm_file(
-            &self.internal,
-            &circuit,
-            folder_name,
-            filename,
-            overwrite,
-        )
-        .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
+        Backend::circuit_to_qasm_file(&self.internal, &circuit, folder_name, filename, overwrite)
+            .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
+    }
+
+    /// Translates a QASM File to a Circuit.
+    ///
+    /// Args:
+    ///     file (str): The path to the QASM file.
+    ///
+    /// Returns:
+    ///     Circuit: The Circuit that was read from the QASM file.
+    ///
+    /// Raises:
+    ///     PyFileNotFoundError: The file could not be opened.
+    ///     PyValueError: An error occurred while converting the file into a Circuit.
+    #[cfg(feature = "unstable_qasm_import")]
+    #[pyo3(text_signature = "($self, file)")]
+    pub fn qasm_file_to_circuit(&self, file: &str) -> PyResult<CircuitWrapper> {
+        crate::qasm_file_to_circuit(file)
+    }
+
+    /// Translates a QASM string into a qoqo Circuit instance.
+    ///
+    /// Args:
+    ///     input (str): The QASM string to translate.
+    ///
+    /// Returns:
+    ///     Circuit: The Circuit that was read from the QASM file.
+    ///
+    /// Raises:
+    ///     PyValueError: An error occurred while converting the file into a Circuit.
+    #[cfg(feature = "unstable_qasm_import")]
+    #[pyo3(text_signature = "(input)")]
+    pub fn qasm_str_to_circuit(&self, input: &str) -> PyResult<CircuitWrapper> {
+        crate::qasm_str_to_circuit(input)
     }
 }
