@@ -37,3 +37,27 @@ pub use interface::*;
 mod parser;
 #[cfg(feature = "unstable_qasm_import")]
 pub use parser::*;
+
+use regex::Regex;
+use qoqo_calculator::CalculatorFloat;
+
+
+fn extract_parameters_from_calculator_float(calc_float: &CalculatorFloat) -> Vec<String> {
+    if calc_float.is_float() {
+        vec![calc_float.float().unwrap().to_string()]
+    } else {
+        extract_parameters_from_str(&calc_float.to_string())
+    }
+}
+
+fn extract_parameters_from_str(expression: &str) -> Vec<String> {
+    let re = Regex::new(r"(?:(?:^|[^a-zA-Z0-9_]))([a-zA-Z][a-zA-Z0-9_]*)").unwrap();
+    let mut parameters = Vec::new();
+
+    for capture in re.captures_iter(expression) {
+        let parameter = &capture[1].to_string();
+        parameters.push(parameter.clone());
+    }
+
+    parameters
+}
