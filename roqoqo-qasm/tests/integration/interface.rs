@@ -628,3 +628,13 @@ fn test_call_circuit() {
         qasm_circ_3_0
     );
 }
+
+
+#[test]
+fn test_parametric_gates() {
+    let op = Operation::from(RotateZ::new(0, "2.44+ciaoz/4*theta".into()));
+
+    let output = call_operation(&op, "q", QasmVersion::V3point0(Qasm3Dialect::Vanilla)).unwrap();
+
+    println!("{output}");
+}

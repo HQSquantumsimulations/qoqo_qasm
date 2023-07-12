@@ -17,6 +17,7 @@ use roqoqo::operations::*;
 use roqoqo::Circuit;
 use roqoqo::RoqoqoBackendError;
 
+use crate::extract_parameters_from_calculator_float;
 use crate::Qasm3Dialect;
 use crate::QasmVersion;
 
@@ -112,12 +113,20 @@ pub fn call_operation(
     qasm_version: QasmVersion,
 ) -> Result<String, RoqoqoBackendError> {
     match operation {
-        Operation::RotateZ(op) => Ok(format!(
-            "rz({}) {}[{}];",
-            op.theta().float()?,
-            qubit_register_name,
-            op.qubit()
-        )),
+        Operation::RotateZ(op) => match qasm_version {
+            QasmVersion::V3point0(_) => Ok(format!(
+                "rz({}) {}[{}];",
+                extract_parameters_from_calculator_float(op.theta()).join(","),
+                qubit_register_name,
+                op.qubit()
+            )),
+            _ => Ok(format!(
+                "rz({}) {}[{}];",
+                op.theta().float()?,
+                qubit_register_name,
+                op.qubit()
+            )),
+        },
         Operation::RotateX(op) => Ok(format!(
             "rx({}) {}[{}];",
             op.theta().float()?,
