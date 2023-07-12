@@ -42,7 +42,7 @@ Circuits containing operations without a corresponding expression can not be tra
 
 This software is still in the beta stage. Functions and documentation are not yet complete and breaking changes can occur.
 
-This project is partly supported by [PlanQK](https://planqk.de).
+This project has been partly supported by [PlanQK](https://planqk.de) and is partially supported by [QSolid](https://www.q-solid.de/) and [PhoQuant](https://www.quantentechnologien.de/forschung/foerderung/quantencomputer-demonstrationsaufbauten/phoquant.html).
 
 ## Contributing
 

@@ -2,6 +2,11 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.8.1
+
+* Updated to qoqo 1.5.1
+* Updated to pyo3 0.19
+
 ### 0.8.0
 
 * Added QASM files/strings parsing feature
