@@ -24,6 +24,7 @@ ndarray = "0.15"
 pest = { version = "2.5", optional = true }
 pest_derive = { version = "2.5", optional = true }
 num-complex = "0.4"
+regex = "1.9"
 
 [dev-dependencies]
 test-case = "3.0"
