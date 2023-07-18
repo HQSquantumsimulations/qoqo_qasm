@@ -896,6 +896,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use qoqo_calculator::CalculatorFloat;
+
     use super::CircuitParser;
     #[test]
     fn testing_stuff() {
@@ -903,5 +905,19 @@ mod tests {
         cp.set_variable("test", 0.64);
 
         println!("{:?}", cp.get_variable("test").unwrap());
+    }
+
+    #[test]
+    fn testin_str() {
+        let calc_0 = CalculatorFloat::from("a=3; 2*(a+1);");
+        let calc_1 = CalculatorFloat::from("b=4; a+4");
+        let mut cp = CircuitParser::new();
+        let res = cp.parse_str_assign(&calc_0.to_string()).unwrap();
+        println!("{:?}", res);
+        let res = cp.parse_str_assign(&calc_1.to_string()).unwrap();
+        println!("{:?}", res);
+        println!("{:?}", cp.get_variable("a"));
+        println!("{:?}", cp.variables);
+        println!("{:?}", cp.variables_values.keys().collect::<Vec<&String>>());
     }
 }
