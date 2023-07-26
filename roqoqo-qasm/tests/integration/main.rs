@@ -23,3 +23,7 @@ pub use interface::*;
 mod parser;
 #[cfg(feature = "unstable_qasm_import")]
 pub use parser::*;
+
+#[cfg(test)]
+mod variable_gatherer;
+pub use variable_gatherer::*;
