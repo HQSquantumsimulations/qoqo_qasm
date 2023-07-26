@@ -10,7 +10,7 @@
 // express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{call_operation, gate_definition};
+use crate::{call_operation, gate_definition, CircuitParser};
 use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::{Circuit, RoqoqoBackendError};
@@ -96,6 +96,7 @@ impl Backend {
             "RotateZ".to_string(),
             "CNOT".to_string(),
         ];
+        let mut circuit_parser = CircuitParser::new();
 
         // Appending QASM version
         let mut qasm_string = String::from("OPENQASM ");
@@ -128,7 +129,7 @@ impl Backend {
             self.qasm_version,
         )?);
         definitions.push('\n');
- 
+
         // Main loop over the circuit
         for op in circuit {
             // Taking note of the maximum number of qubits involved in the circuit for registers definition
@@ -154,6 +155,7 @@ impl Backend {
                 op,
                 &self.qubit_register_name,
                 self.qasm_version,
+                &mut Some(&mut circuit_parser),
             )?);
 
             if !data.is_empty() {
@@ -161,11 +163,16 @@ impl Backend {
             }
         }
 
-        // Building the final string: QASM version + definitions + registers + circuit data
+        // Building the final string: QASM version + definitions + parameters + registers + circuit data
         match self.qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {}
             _ => qasm_string.push_str(definitions.as_str()),
         };
+        if let QasmVersion::V3point0(_) = self.qasm_version {
+            for var in circuit_parser.variables.keys() {
+                qasm_string.push_str(format!("input angle[32] {};", var).as_str());
+            }
+        }
         match self.qasm_version {
             QasmVersion::V2point0 => qasm_string.push_str(
                 format!(
