@@ -169,7 +169,7 @@ impl Backend {
             _ => qasm_string.push_str(definitions.as_str()),
         };
         if let QasmVersion::V3point0(_) = self.qasm_version {
-            for var in circuit_parser.variables.keys() {
+            for var in circuit_parser.variables {
                 qasm_string.push_str(format!("input angle[32] {};", var).as_str());
             }
         }
