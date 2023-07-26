@@ -39,7 +39,7 @@ mod parser;
 pub use parser::*;
 
 use qoqo_calculator::CalculatorError;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::str::FromStr;
 static ATOL: f64 = f64::EPSILON;
 
@@ -216,8 +216,8 @@ fn function_2_arguments(input: &str, arg0: f64, arg1: f64) -> Result<f64, Calcul
 /// Struct to keep track of variables present in input Circuit.
 #[derive(Debug, Clone)]
 pub struct CircuitParser {
-    ///  HashMap of variables and their values in current Circuit
-    pub variables: HashMap<String, f64>,
+    ///  HashSet of variables in current Circuit
+    pub variables: HashSet<String>,
 }
 
 impl Default for CircuitParser {
@@ -230,45 +230,19 @@ impl CircuitParser {
     /// Create a new CircuitParser instance.
     pub fn new() -> Self {
         CircuitParser {
-            variables: HashMap::new(),
+            variables: HashSet::new(),
         }
     }
 
-    /// Set variable for CircuitParser.
-    ///
-    /// # Arguments
-    ///
-    /// * `name` - Name of the variable
-    /// * `value` - Float value of the variable
-    ///
-    pub fn set_variable(&mut self, name: &str, value: f64) {
-        self.variables.insert(name.to_string(), value);
-    }
-
-    /// Get variable for CircuitParser.
+    /// Register variable for CircuitParser.
     ///
     /// # Arguments
     ///
     /// * `name` - Name of the variable
     ///
-    pub fn get_variable(&self, name: &str) -> Result<f64, CalculatorError> {
-        Ok(*self
-            .variables
-            .get(name)
-            .ok_or(CalculatorError::VariableNotSet {
-                name: name.to_string(),
-            })?)
+    pub fn register_variable(&mut self, name: &str) {
+        self.variables.insert(name.to_string());
     }
-
-    // /// Register the new variable in the CircuitParser.
-    // ///
-    // /// # Arguments
-    // ///
-    // /// * `name` - Name of the variable
-    // ///
-    // pub fn register_variable(&mut self, name: &str) {
-    //     self.variable_names.insert(name.to_string());
-    // }
 
     ///  Parse a string expression allowing variable assignments.
     ///
@@ -551,31 +525,8 @@ impl<'a, 'b> MutableCircuitParser<'a>
 where
     'b: 'a,
 {
-    /// Get variable for CircuitParser.
-    ///
-    /// # Arguments
-    ///
-    /// * `name` - Name of the variable
-    ///
-    /// # Returns
-    ///
-    /// `value` - Result
-    ///
-    #[inline]
-    pub fn get_variable(&self, name: &str) -> Result<f64, CalculatorError> {
-        self.circuit_parser.get_variable(name)
-    }
-
-    /// Set variable for CircuitParser.
-    ///
-    /// # Arguments
-    ///
-    /// * `name` - Name of the variable
-    /// * `value` - Float value of the variable
-    #[inline]
-    pub fn set_variable(&mut self, name: &str, value: f64) -> Result<(), CalculatorError> {
-        self.circuit_parser.set_variable(name, value);
-        Ok(())
+    pub fn register_variable(&mut self, name: &str) {
+        self.circuit_parser.register_variable(name);
     }
 
     fn new_mutable(expression: &'a str, circuit_parser: &'b mut CircuitParser) -> Self {
@@ -636,13 +587,6 @@ where
         {
             Err(CalculatorError::UnexpectedEndOfExpression)
         } else {
-            if let Token::VariableAssign(ref vs) = (*self).current_token() {
-                let vsnew = vs.to_owned();
-                self.next_token();
-                let res = self.evaluate_binary_1()?;
-                self.set_variable(&vsnew, res)?;
-                return Ok(Some(res));
-            }
             Ok(Some(self.evaluate_binary_1()?))
         }
     }
@@ -744,9 +688,8 @@ where
             Token::Variable(ref vs) => {
                 let vsnew = vs.to_owned();
                 self.next_token();
-                let _ = self.set_variable(&vsnew, 0.0);
-                // self.register_variable(&vsnew);
-                self.get_variable(&vsnew)
+                self.register_variable(&vsnew);
+                Ok(0.0)
             }
             Token::Function(ref vs) => {
                 let vsnew = vs.to_owned();
@@ -810,13 +753,6 @@ mod tests {
     use roqoqo::operations::*;
 
     use super::{call_operation, CircuitParser, Qasm3Dialect, QasmVersion};
-    #[test]
-    fn testing_stuff() {
-        let mut cp = CircuitParser::new();
-        cp.set_variable("test", 0.64);
-
-        println!("{:?}", cp.get_variable("test").unwrap());
-    }
 
     #[test]
     fn testin_str() {
@@ -827,9 +763,7 @@ mod tests {
         println!("{:?}", res);
         let res = cp.parse(&calc_1.to_string()).unwrap();
         println!("{:?}", res);
-        println!("{:?}", cp.get_variable("a"));
         println!("{:?}", cp.variables);
-        println!("{:?}", cp.variables.keys().collect::<Vec<&String>>());
     }
 
     #[test]
