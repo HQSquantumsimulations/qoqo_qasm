@@ -38,7 +38,7 @@ mod parser;
 #[cfg(feature = "unstable_qasm_import")]
 pub use parser::*;
 
-use qoqo_calculator::{CalculatorError, CalculatorFloat};
+use qoqo_calculator::CalculatorError;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 static ATOL: f64 = f64::EPSILON;
@@ -49,43 +49,95 @@ fn function_argument_numbers(input: &str) -> Result<usize, CalculatorError> {
     match input {
         "sin" => Ok(1),
         "cos" => Ok(1),
-        "abs" => Err(CalculatorError::ParsingError { msg: "Function abs is not supported in OpenQASM 3.0." }),
+        "abs" => Err(CalculatorError::ParsingError {
+            msg: "Function abs is not supported in OpenQASM 3.0.",
+        }),
         "tan" => Ok(1),
         "acos" => Ok(1),
         "asin" => Ok(1),
         "atan" => Ok(1),
-        "cosh" => Err(CalculatorError::ParsingError { msg: "Function cosh is not supported in OpenQASM 3.0." }),
-        "sinh" => Err(CalculatorError::ParsingError { msg: "Function sinh is not supported in OpenQASM 3.0." }),
-        "tanh" => Err(CalculatorError::ParsingError { msg: "Function tanh is not supported in OpenQASM 3.0." }),
-        "acosh" => Err(CalculatorError::ParsingError { msg: "Function acosh is not supported in OpenQASM 3.0." }),
-        "asinh" => Err(CalculatorError::ParsingError { msg: "Function asinh is not supported in OpenQASM 3.0." }),
-        "atanh" => Err(CalculatorError::ParsingError { msg: "Function atanh is not supported in OpenQASM 3.0." }),
-        "arcosh" => Err(CalculatorError::ParsingError { msg: "Function arcosh is not supported in OpenQASM 3.0." }),
-        "arsinh" => Err(CalculatorError::ParsingError { msg: "Function arsinh is not supported in OpenQASM 3.0." }),
-        "artanh" => Err(CalculatorError::ParsingError { msg: "Function artanh is not supported in OpenQASM 3.0." }),
+        "cosh" => Err(CalculatorError::ParsingError {
+            msg: "Function cosh is not supported in OpenQASM 3.0.",
+        }),
+        "sinh" => Err(CalculatorError::ParsingError {
+            msg: "Function sinh is not supported in OpenQASM 3.0.",
+        }),
+        "tanh" => Err(CalculatorError::ParsingError {
+            msg: "Function tanh is not supported in OpenQASM 3.0.",
+        }),
+        "acosh" => Err(CalculatorError::ParsingError {
+            msg: "Function acosh is not supported in OpenQASM 3.0.",
+        }),
+        "asinh" => Err(CalculatorError::ParsingError {
+            msg: "Function asinh is not supported in OpenQASM 3.0.",
+        }),
+        "atanh" => Err(CalculatorError::ParsingError {
+            msg: "Function atanh is not supported in OpenQASM 3.0.",
+        }),
+        "arcosh" => Err(CalculatorError::ParsingError {
+            msg: "Function arcosh is not supported in OpenQASM 3.0.",
+        }),
+        "arsinh" => Err(CalculatorError::ParsingError {
+            msg: "Function arsinh is not supported in OpenQASM 3.0.",
+        }),
+        "artanh" => Err(CalculatorError::ParsingError {
+            msg: "Function artanh is not supported in OpenQASM 3.0.",
+        }),
         "exp" => Ok(1),
-        "exp2" => Err(CalculatorError::ParsingError { msg: "Function exp2 is not supported in OpenQASM 3.0." }),
-        "expm1" => Err(CalculatorError::ParsingError { msg: "Function expm1 is not supported in OpenQASM 3.0." }), //< exponential minus Ok(1)
+        "exp2" => Err(CalculatorError::ParsingError {
+            msg: "Function exp2 is not supported in OpenQASM 3.0.",
+        }),
+        "expm1" => Err(CalculatorError::ParsingError {
+            msg: "Function expm1 is not supported in OpenQASM 3.0.",
+        }), //< exponential minus Ok(1)
         "log" => Ok(1),
-        "log10" => Err(CalculatorError::ParsingError { msg: "Function log10 is not supported in OpenQASM 3.0." }),
+        "log10" => Err(CalculatorError::ParsingError {
+            msg: "Function log10 is not supported in OpenQASM 3.0.",
+        }),
         "sqrt" => Ok(1),
-        "cbrt" => Err(CalculatorError::ParsingError { msg: "Function cbrt is not supported in OpenQASM 3.0." }), //< cubic root
+        "cbrt" => Err(CalculatorError::ParsingError {
+            msg: "Function cbrt is not supported in OpenQASM 3.0.",
+        }), //< cubic root
         "ceil" => Ok(1),
         "floor" => Ok(1),
-        "fract" => Err(CalculatorError::ParsingError { msg: "Function fract is not supported in OpenQASM 3.0." }),
-        "round" => Err(CalculatorError::ParsingError { msg: "Function round is not supported in OpenQASM 3.0." }),
-        "erf" => Err(CalculatorError::ParsingError { msg: "Function erf is not supported in OpenQASM 3.0." }),
-        "tgamma" => Err(CalculatorError::ParsingError { msg: "Function tgamma is not supported in OpenQASM 3.0." }),
-        "lgamma" => Err(CalculatorError::ParsingError { msg: "Function lgamma is not supported in OpenQASM 3.0." }),
+        "fract" => Err(CalculatorError::ParsingError {
+            msg: "Function fract is not supported in OpenQASM 3.0.",
+        }),
+        "round" => Err(CalculatorError::ParsingError {
+            msg: "Function round is not supported in OpenQASM 3.0.",
+        }),
+        "erf" => Err(CalculatorError::ParsingError {
+            msg: "Function erf is not supported in OpenQASM 3.0.",
+        }),
+        "tgamma" => Err(CalculatorError::ParsingError {
+            msg: "Function tgamma is not supported in OpenQASM 3.0.",
+        }),
+        "lgamma" => Err(CalculatorError::ParsingError {
+            msg: "Function lgamma is not supported in OpenQASM 3.0.",
+        }),
         "sign" => Ok(1),
-        "delta" => Err(CalculatorError::ParsingError { msg: "Function delta is not supported in OpenQASM 3.0." }),
-        "theta" => Err(CalculatorError::ParsingError { msg: "Function theta is not supported in OpenQASM 3.0." }),
-        "parity" => Err(CalculatorError::ParsingError { msg: "Function parity is not supported in OpenQASM 3.0." }),
-        "atan2" => Err(CalculatorError::ParsingError { msg: "Function atan2 is not supported in OpenQASM 3.0." }),
-        "hypot" => Err(CalculatorError::ParsingError { msg: "Function hypot is not supported in OpenQASM 3.0." }),
+        "delta" => Err(CalculatorError::ParsingError {
+            msg: "Function delta is not supported in OpenQASM 3.0.",
+        }),
+        "theta" => Err(CalculatorError::ParsingError {
+            msg: "Function theta is not supported in OpenQASM 3.0.",
+        }),
+        "parity" => Err(CalculatorError::ParsingError {
+            msg: "Function parity is not supported in OpenQASM 3.0.",
+        }),
+        "atan2" => Err(CalculatorError::ParsingError {
+            msg: "Function atan2 is not supported in OpenQASM 3.0.",
+        }),
+        "hypot" => Err(CalculatorError::ParsingError {
+            msg: "Function hypot is not supported in OpenQASM 3.0.",
+        }),
         "pow" => Ok(2),
-        "max" => Err(CalculatorError::ParsingError { msg: "Function max is not supported in OpenQASM 3.0." }),
-        "min" => Err(CalculatorError::ParsingError { msg: "Function min is not supported in OpenQASM 3.0." }),
+        "max" => Err(CalculatorError::ParsingError {
+            msg: "Function max is not supported in OpenQASM 3.0.",
+        }),
+        "min" => Err(CalculatorError::ParsingError {
+            msg: "Function min is not supported in OpenQASM 3.0.",
+        }),
         _ => Err(CalculatorError::FunctionNotFound {
             fct: input.to_string(),
         }),
@@ -165,9 +217,7 @@ fn function_2_arguments(input: &str, arg0: f64, arg1: f64) -> Result<f64, Calcul
 #[derive(Debug, Clone)]
 pub struct CircuitParser {
     ///  HashMap of variables and their values in current Circuit
-    pub variables_values: HashMap<String, f64>,
-    ///  HashSet of variables in current Circuit
-    pub variables: HashSet<String>,
+    pub variables: HashMap<String, f64>,
 }
 
 impl Default for CircuitParser {
@@ -180,8 +230,7 @@ impl CircuitParser {
     /// Create a new CircuitParser instance.
     pub fn new() -> Self {
         CircuitParser {
-            variables_values: HashMap::new(),
-            variables: HashSet::new(),
+            variables: HashMap::new(),
         }
     }
 
@@ -193,8 +242,7 @@ impl CircuitParser {
     /// * `value` - Float value of the variable
     ///
     pub fn set_variable(&mut self, name: &str, value: f64) {
-        self.variables_values.insert(name.to_string(), value);
-        self.variables.insert(name.to_string());
+        self.variables.insert(name.to_string(), value);
     }
 
     /// Get variable for CircuitParser.
@@ -203,18 +251,24 @@ impl CircuitParser {
     ///
     /// * `name` - Name of the variable
     ///
-    /// # Returns
-    ///
-    /// `value` - Result
-    ///
     pub fn get_variable(&self, name: &str) -> Result<f64, CalculatorError> {
         Ok(*self
-            .variables_values
+            .variables
             .get(name)
             .ok_or(CalculatorError::VariableNotSet {
                 name: name.to_string(),
             })?)
     }
+
+    // /// Register the new variable in the CircuitParser.
+    // ///
+    // /// # Arguments
+    // ///
+    // /// * `name` - Name of the variable
+    // ///
+    // pub fn register_variable(&mut self, name: &str) {
+    //     self.variable_names.insert(name.to_string());
+    // }
 
     ///  Parse a string expression allowing variable assignments.
     ///
@@ -224,40 +278,12 @@ impl CircuitParser {
     ///
     /// * `expression` - Expression that is parsed
     ///
-    pub fn parse_str_assign(&mut self, expression: &str) -> Result<f64, CalculatorError> {
-        let mut parser = ParserEnum::new_mutable(expression, self);
+    pub fn parse(&mut self, expression: &str) -> Result<f64, CalculatorError> {
+        let mut parser = MutableCircuitParser::new_mutable(expression, self);
         let end_value = parser.evaluate_all_tokens()?;
         match end_value {
             None => Err(CalculatorError::NoValueReturnedParsing),
             Some(x) => Ok(x),
-        }
-    }
-
-    ///  Parse a string expression.
-    ///
-    /// # Arguments
-    ///
-    /// * `expression` - Expression that is parsed
-    ///
-    pub fn parse_str(&self, expression: &str) -> Result<f64, CalculatorError> {
-        let mut parser = ParserEnum::new_immutable(expression, self);
-        let end_value = parser.evaluate_all_tokens()?;
-        match end_value {
-            None => Err(CalculatorError::NoValueReturnedParsing),
-            Some(x) => Ok(x),
-        }
-    }
-
-    /// Parse a CalculatorFloat to float.
-    ///
-    /// # Arguments
-    ///
-    /// * `parse_variable` - Parsed string CalculatorFloat or returns float value
-    ///
-    pub fn parse_get(&self, parse_variable: CalculatorFloat) -> Result<f64, CalculatorError> {
-        match parse_variable {
-            CalculatorFloat::Float(x) => Ok(x),
-            CalculatorFloat::Str(expression) => self.parse_str(&expression),
         }
     }
 }
@@ -512,26 +538,16 @@ impl<'a> TokenIterator<'a> {
 }
 
 /// Parser from &str to f64 using TokenIterator lexer.
-enum ParserEnum<'a> {
-    MutableCircuitParser {
-        /// Expression that has not been parsed yet
-        remaining_expression: &'a str,
-        /// Token that is currently parsed
-        current_token: Token,
-        /// CircuitParser that contains set variables
-        circuit_parser: &'a mut CircuitParser,
-    },
-    ImmutableCircuitParser {
-        /// Expression that has not been parsed yet
-        remaining_expression: &'a str,
-        /// Token that is currently parsed
-        current_token: Token,
-        /// CircuitParser that contains set variables
-        circuit_parser: &'a CircuitParser,
-    },
+struct MutableCircuitParser<'a> {
+    /// Expression that has not been parsed yet
+    remaining_expression: &'a str,
+    /// Token that is currently parsed
+    current_token: Token,
+    /// CircuitParser that contains set variables
+    circuit_parser: &'a mut CircuitParser,
 }
 
-impl<'a, 'b> ParserEnum<'a>
+impl<'a, 'b> MutableCircuitParser<'a>
 where
     'b: 'a,
 {
@@ -547,12 +563,7 @@ where
     ///
     #[inline]
     pub fn get_variable(&self, name: &str) -> Result<f64, CalculatorError> {
-        match self {
-            Self::MutableCircuitParser { circuit_parser, .. } => circuit_parser.get_variable(name),
-            Self::ImmutableCircuitParser { circuit_parser, .. } => {
-                circuit_parser.get_variable(name)
-            }
-        }
+        self.circuit_parser.get_variable(name)
     }
 
     /// Set variable for CircuitParser.
@@ -563,16 +574,7 @@ where
     /// * `value` - Float value of the variable
     #[inline]
     pub fn set_variable(&mut self, name: &str, value: f64) -> Result<(), CalculatorError> {
-        match self {
-            Self::MutableCircuitParser { circuit_parser, .. } => {
-                circuit_parser.set_variable(name, value)
-            }
-            Self::ImmutableCircuitParser { .. } => {
-                return Err(CalculatorError::ParsingError {
-                    msg: "Assign operation not allowed when using immutable Calculator",
-                })
-            }
-        }
+        self.circuit_parser.set_variable(name, value);
         Ok(())
     }
 
@@ -581,19 +583,7 @@ where
             current_expression: expression,
         })
         .next_token_and_str();
-        ParserEnum::MutableCircuitParser {
-            remaining_expression: next_str,
-            current_token: next_token.unwrap(),
-            circuit_parser,
-        }
-    }
-
-    fn new_immutable(expression: &'a str, circuit_parser: &'b CircuitParser) -> Self {
-        let (next_token, next_str) = (TokenIterator {
-            current_expression: expression,
-        })
-        .next_token_and_str();
-        ParserEnum::ImmutableCircuitParser {
+        MutableCircuitParser {
             remaining_expression: next_str,
             current_token: next_token.unwrap(),
             circuit_parser,
@@ -601,23 +591,11 @@ where
     }
 
     fn remaining_expression(&mut self) -> &'a str {
-        match self {
-            ParserEnum::MutableCircuitParser {
-                remaining_expression,
-                ..
-            } => remaining_expression,
-            ParserEnum::ImmutableCircuitParser {
-                remaining_expression,
-                ..
-            } => remaining_expression,
-        }
+        self.remaining_expression
     }
 
     fn current_token(&self) -> &Token {
-        match self {
-            ParserEnum::MutableCircuitParser { current_token, .. } => current_token,
-            ParserEnum::ImmutableCircuitParser { current_token, .. } => current_token,
-        }
+        &self.current_token
     }
 
     /// Get next token via TokenIterator.
@@ -627,42 +605,14 @@ where
         })
         .next_token_and_str();
         match next_token {
-            None => match self {
-                ParserEnum::MutableCircuitParser {
-                    remaining_expression,
-                    current_token,
-                    ..
-                } => {
-                    *current_token = Token::EndOfString;
-                    *remaining_expression = "";
-                }
-                ParserEnum::ImmutableCircuitParser {
-                    remaining_expression,
-                    current_token,
-                    ..
-                } => {
-                    *current_token = Token::EndOfString;
-                    *remaining_expression = "";
-                }
-            },
-            Some(t) => match self {
-                ParserEnum::MutableCircuitParser {
-                    remaining_expression,
-                    current_token,
-                    ..
-                } => {
-                    *current_token = t;
-                    *remaining_expression = next_str;
-                }
-                ParserEnum::ImmutableCircuitParser {
-                    remaining_expression,
-                    current_token,
-                    ..
-                } => {
-                    *current_token = t;
-                    *remaining_expression = next_str;
-                }
-            },
+            None => {
+                self.current_token = Token::EndOfString;
+                self.remaining_expression = "";
+            }
+            Some(t) => {
+                self.current_token = t;
+                self.remaining_expression = next_str;
+            }
         }
     }
 
@@ -687,14 +637,6 @@ where
             Err(CalculatorError::UnexpectedEndOfExpression)
         } else {
             if let Token::VariableAssign(ref vs) = (*self).current_token() {
-                match self {
-                    ParserEnum::MutableCircuitParser { .. } => (),
-                    ParserEnum::ImmutableCircuitParser { .. } => {
-                        return Err(CalculatorError::ForbiddenAssign {
-                            variable_name: vs.to_owned(),
-                        })
-                    }
-                }
                 let vsnew = vs.to_owned();
                 self.next_token();
                 let res = self.evaluate_binary_1()?;
@@ -802,6 +744,8 @@ where
             Token::Variable(ref vs) => {
                 let vsnew = vs.to_owned();
                 self.next_token();
+                let _ = self.set_variable(&vsnew, 0.0);
+                // self.register_variable(&vsnew);
                 self.get_variable(&vsnew)
             }
             Token::Function(ref vs) => {
@@ -860,45 +804,12 @@ where
     }
 }
 
-// fn extract_parameters_from_calculator_float(
-//     calc_float: &CalculatorFloat,
-//     qasm_version: QasmVersion,
-// ) -> Result<Vec<String>, RoqoqoBackendError> {
-//     match qasm_version {
-//         QasmVersion::V3point0(_) => {
-//             if calc_float.is_float() {
-//                 Ok(vec![calc_float.float()?.to_string()])
-//             } else {
-//                 extract_parameters_from_str(&calc_float.to_string())
-//             }
-//         }
-//         QasmVersion::V2point0 => Ok(vec![calc_float.float()?.to_string()]),
-//     }
-// }
-
-// fn extract_parameters_from_str(expression: &str) -> Result<Vec<String>, RoqoqoBackendError> {
-//     let re = Regex::new(r"(?:(?:^|[^a-zA-Z0-9_]))([a-zA-Z][a-zA-Z0-9_]*)").unwrap();
-//     let mut parameters = Vec::new();
-
-//     for capture in re.captures_iter(expression) {
-//         let parameter = &capture[1].to_string();
-//         parameters.push(parameter.clone());
-//     }
-
-//     if parameters.is_empty() {
-//         return Err(RoqoqoBackendError::GenericError {
-//             msg: "No parameters have been recognized in the operation.".to_string(),
-//         });
-//     }
-
-//     Ok(parameters)
-// }
-
 #[cfg(test)]
 mod tests {
     use qoqo_calculator::CalculatorFloat;
+    use roqoqo::operations::*;
 
-    use super::CircuitParser;
+    use super::{call_operation, CircuitParser, Qasm3Dialect, QasmVersion};
     #[test]
     fn testing_stuff() {
         let mut cp = CircuitParser::new();
@@ -909,15 +820,31 @@ mod tests {
 
     #[test]
     fn testin_str() {
-        let calc_0 = CalculatorFloat::from("a=3; 2*(a+1);");
-        let calc_1 = CalculatorFloat::from("b=4; a+4");
+        let calc_0 = CalculatorFloat::from("2*(a+1);");
+        let calc_1 = CalculatorFloat::from("cos(b)+4");
         let mut cp = CircuitParser::new();
-        let res = cp.parse_str_assign(&calc_0.to_string()).unwrap();
+        let res = cp.parse(&calc_0.to_string()).unwrap();
         println!("{:?}", res);
-        let res = cp.parse_str_assign(&calc_1.to_string()).unwrap();
+        let res = cp.parse(&calc_1.to_string()).unwrap();
         println!("{:?}", res);
         println!("{:?}", cp.get_variable("a"));
         println!("{:?}", cp.variables);
-        println!("{:?}", cp.variables_values.keys().collect::<Vec<&String>>());
+        println!("{:?}", cp.variables.keys().collect::<Vec<&String>>());
+    }
+
+    #[test]
+    fn tests_int() {
+        let rotz_0 = Operation::from(RotateZ::new(0, CalculatorFloat::from("a=3; 2*(a+1);")));
+        let mut cp = CircuitParser::new();
+        let res = call_operation(
+            &rotz_0,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
+            &mut Some(&mut cp),
+        )
+        .unwrap();
+
+        println!("{:?}", res);
+        println!("{:?}", cp.variables);
     }
 }

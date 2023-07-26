@@ -17,7 +17,7 @@ use roqoqo::operations::*;
 use roqoqo::Circuit;
 use roqoqo::RoqoqoBackendError;
 
-use crate::extract_parameters_from_calculator_float;
+use crate::CircuitParser;
 use crate::Qasm3Dialect;
 use crate::QasmVersion;
 
@@ -92,7 +92,7 @@ pub fn call_circuit(
 ) -> Result<Vec<String>, RoqoqoBackendError> {
     let mut str_circuit: Vec<String> = Vec::new();
     for op in circuit.iter() {
-        str_circuit.push(call_operation(op, qubit_register_name, qasm_version)?);
+        str_circuit.push(call_operation(op, qubit_register_name, qasm_version, &mut None)?);
     }
     Ok(str_circuit)
 }
@@ -111,31 +111,29 @@ pub fn call_operation(
     operation: &Operation,
     qubit_register_name: &str,
     qasm_version: QasmVersion,
+    circuit_parser: &mut Option<&mut CircuitParser>,
 ) -> Result<String, RoqoqoBackendError> {
     match operation {
-        Operation::RotateZ(op) => match qasm_version {
-            QasmVersion::V3point0(_) => Ok(format!(
+        Operation::RotateZ(op) => {
+            if let Some(cp) = circuit_parser {
+                cp.parse(op.theta().to_string().as_str())?;
+            }
+            Ok(format!(
                 "rz({}) {}[{}];",
-                extract_parameters_from_calculator_float(op.theta()).join(","),
+                op.theta(),
                 qubit_register_name,
                 op.qubit()
-            )),
-            _ => Ok(format!(
-                "rz({}) {}[{}];",
-                op.theta().float()?,
-                qubit_register_name,
-                op.qubit()
-            )),
-        },
+            ))
+        }
         Operation::RotateX(op) => Ok(format!(
             "rx({}) {}[{}];",
-            op.theta().float()?,
+            op.theta(),
             qubit_register_name,
             op.qubit()
         )),
         Operation::RotateY(op) => Ok(format!(
             "ry({}) {}[{}];",
-            op.theta().float()?,
+            op.theta(),
             qubit_register_name,
             op.qubit()
         )),
@@ -148,13 +146,13 @@ pub fn call_operation(
         Operation::PhaseShiftState1(op) => match qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
                 "phaseshift({}) {}[{}];",
-                op.theta().float()?,
+                op.theta(),
                 qubit_register_name,
                 op.qubit()
             )),
             _ => Ok(format!(
                 "p({}) {}[{}];",
-                op.theta().float()?,
+                op.theta(),
                 qubit_register_name,
                 op.qubit()
             )),
@@ -287,9 +285,9 @@ pub fn call_operation(
         )),
         Operation::Fsim(op) => Ok(format!(
             "fsim({},{},{}) {}[{}],{}[{}];",
-            op.t().float()?,
-            op.u().float()?,
-            op.delta().float()?,
+            op.t(),
+            op.u(),
+            op.delta(),
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -297,9 +295,9 @@ pub fn call_operation(
         )),
         Operation::Qsim(op) => Ok(format!(
             "qsim({},{},{}) {}[{}],{}[{}];",
-            op.x().float()?,
-            op.y().float()?,
-            op.z().float()?,
+            op.x(),
+            op.y(),
+            op.z(),
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -307,7 +305,7 @@ pub fn call_operation(
         )),
         Operation::PMInteraction(op) => Ok(format!(
             "pmint({}) {}[{}],{}[{}];",
-            op.t().float()?,
+            op.t(),
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -315,8 +313,8 @@ pub fn call_operation(
         )),
         Operation::GivensRotation(op) => Ok(format!(
             "gvnsrot({},{}) {}[{}],{}[{}];",
-            op.theta().float()?,
-            op.phi().float()?,
+            op.theta(),
+            op.phi(),
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -324,8 +322,8 @@ pub fn call_operation(
         )),
         Operation::GivensRotationLittleEndian(op) => Ok(format!(
             "gvnsrotle({},{}) {}[{}],{}[{}];",
-            op.theta().float()?,
-            op.phi().float()?,
+            op.theta(),
+            op.phi(),
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -333,7 +331,7 @@ pub fn call_operation(
         )),
         Operation::XY(op) => Ok(format!(
             "xy({}) {}[{}],{}[{}];",
-            op.theta().float()?,
+            op.theta(),
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -341,9 +339,9 @@ pub fn call_operation(
         )),
         Operation::SpinInteraction(op) => Ok(format!(
             "spinint({},{},{}) {}[{}],{}[{}];",
-            op.x().float()?,
-            op.y().float()?,
-            op.z().float()?,
+            op.x(),
+            op.y(),
+            op.z(),
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -351,14 +349,14 @@ pub fn call_operation(
         )),
         Operation::RotateXY(op) => Ok(format!(
             "rxy({},{}) {}[{}];",
-            op.theta().float()?,
-            op.phi().float()?,
+            op.theta(),
+            op.phi(),
             qubit_register_name,
             op.qubit(),
         )),
         Operation::PhaseShiftedControlledZ(op) => Ok(format!(
             "pscz({}) {}[{}],{}[{}];",
-            op.phi().float()?,
+            op.phi(),
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -366,8 +364,8 @@ pub fn call_operation(
         )),
         Operation::PhaseShiftedControlledPhase(op) => Ok(format!(
             "pscp({},{}) {}[{}],{}[{}];",
-            op.theta().float()?,
-            op.phi().float()?,
+            op.theta(),
+            op.phi(),
             qubit_register_name,
             op.control(),
             qubit_register_name,
@@ -376,7 +374,7 @@ pub fn call_operation(
         Operation::GPi(op) => match qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
                 "gpi({}) {}[{}];",
-                op.theta().float()?,
+                op.theta(),
                 qubit_register_name,
                 op.qubit()
             )),
@@ -394,7 +392,7 @@ pub fn call_operation(
         Operation::GPi2(op) => match qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
                 "gpi2({}) {}[{}];",
-                op.theta().float()?,
+                op.theta(),
                 qubit_register_name,
                 op.qubit()
             )),
@@ -486,14 +484,24 @@ pub fn call_operation(
                             "if({}[{}]==1) {}",
                             op.condition_register(),
                             op.condition_index(),
-                            call_operation(int_op, qubit_register_name, qasm_version)?
+                            call_operation(
+                                int_op,
+                                qubit_register_name,
+                                qasm_version,
+                                circuit_parser
+                            )?
                         ));
                     } else {
                         data.push_str(&format!(
                             "if({}[{}]==1) {}\n",
                             op.condition_register(),
                             op.condition_index(),
-                            call_operation(int_op, qubit_register_name, qasm_version)?
+                            call_operation(
+                                int_op,
+                                qubit_register_name,
+                                qasm_version,
+                                circuit_parser
+                            )?
                         ));
                     }
                 }
