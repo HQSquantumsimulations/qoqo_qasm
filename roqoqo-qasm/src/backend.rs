@@ -169,13 +169,15 @@ impl Backend {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {}
             _ => qasm_string.push_str(definitions.as_str()),
         };
-        
+
         if let QasmVersion::V3point0(_) = self.qasm_version {
-            qasm_string.push('\n');
-            for var in variable_gatherer.variables {
-                qasm_string.push_str(format!("input angle[32] {};\n", var).as_str());
+            if !variable_gatherer.variables.is_empty() {
+                qasm_string.push('\n');
+                for var in &variable_gatherer.variables {
+                    qasm_string.push_str(format!("input angle[32] {};\n", var).as_str());
+                }
+                qasm_string.push('\n');
             }
-            qasm_string.push('\n');
         }
         match self.qasm_version {
             QasmVersion::V2point0 => qasm_string.push_str(
