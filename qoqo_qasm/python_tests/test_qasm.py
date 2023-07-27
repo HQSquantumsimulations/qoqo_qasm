@@ -23,7 +23,7 @@ def test_qasm() -> None:
 
     backend = QasmBackend(None, "3.0")
     qasm = backend.circuit_to_qasm_str(circuit)
-    assert qasm 
+    assert qasm
 
 
 if __name__ == "__main__":
