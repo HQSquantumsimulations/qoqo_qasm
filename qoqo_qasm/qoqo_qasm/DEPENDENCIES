@@ -9279,7 +9279,7 @@ LICENSE:
 
 
 ====================================================
-qoqo_qasm 0.8.0
+qoqo_qasm 0.9.0
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Python interface of roqoqo mocked backend
@@ -11324,7 +11324,7 @@ LICENSE:
 
 
 ====================================================
-roqoqo-qasm 0.8.0
+roqoqo-qasm 0.9.0
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 QASM interface for roqoqo rust quantum computing toolkit
