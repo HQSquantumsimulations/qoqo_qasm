@@ -532,16 +532,19 @@ pub fn call_operation(
             qubit_register_name,
             op.target(),
         )),
-        Operation::ControlledControlledPhaseShift(op) => Ok(format!(
-            "ccp({}) {}[{}],{}[{}],{}[{}];",
-            op.theta().float()?,
-            qubit_register_name,
-            op.control_0(),
-            qubit_register_name,
-            op.control_1(),
-            qubit_register_name,
-            op.target(),
-        )),
+        Operation::ControlledControlledPhaseShift(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "ccp({}) {}[{}],{}[{}],{}[{}];",
+                op.theta(),
+                qubit_register_name,
+                op.control_0(),
+                qubit_register_name,
+                op.control_1(),
+                qubit_register_name,
+                op.target(),
+            ))
+        }
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
         }
