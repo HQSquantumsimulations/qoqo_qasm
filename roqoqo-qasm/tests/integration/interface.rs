@@ -764,6 +764,7 @@ fn test_call_circuit() {
     );
 }
 
+/// Test that parametric gates are correctly translated
 #[test_case(Operation::from(RotateZ::new(0, "2.44+phi/4*theta".into())), QasmVersion::V3point0(Qasm3Dialect::Vanilla), "rz(2.44+phi/4*theta) q[0];"; "RotateZ3_0")]
 #[test_case(Operation::from(RotateZ::new(1, "3.5".into())), QasmVersion::V2point0, "rz(3.5e0) q[1];"; "RotateZ2_0")]
 #[test_case(Operation::from(RotateX::new(0, "theta/phi".into())), QasmVersion::V3point0(Qasm3Dialect::Vanilla), "rx(theta/phi) q[0];"; "RotateX")]
