@@ -212,12 +212,12 @@ impl VariableGatherer {
     ///
     /// * `expression` - Expression that is parsed
     ///
-    pub fn parse(&mut self, expression: &str) -> Result<f64, CalculatorError> {
+    pub fn parse(&mut self, expression: &str) -> Result<(), CalculatorError> {
         let mut parser = MutableCircuitParser::new_mutable(expression, self);
         let end_value = parser.evaluate_all_tokens()?;
         match end_value {
             None => Err(CalculatorError::NoValueReturnedParsing),
-            Some(x) => Ok(x),
+            Some(_) => Ok(()),
         }
     }
 }
