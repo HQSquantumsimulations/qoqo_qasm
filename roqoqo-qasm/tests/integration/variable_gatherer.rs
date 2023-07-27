@@ -4,6 +4,7 @@ use roqoqo_qasm::VariableGatherer;
 
 use test_case::test_case;
 
+/// Test single CalculatorFloat
 #[test]
 fn test_single_cf() {
     let calc_0 = CalculatorFloat::from("2*(a+1)");
@@ -15,6 +16,7 @@ fn test_single_cf() {
     assert!(cp.variables.contains("a"));
 }
 
+/// Test CalculatorFloat sequence
 #[test]
 fn test_multiple_cf() {
     let calc_0 = CalculatorFloat::from("2*(a+1)");
@@ -34,6 +36,7 @@ fn test_multiple_cf() {
     assert!(cp.variables.contains("c"));
 }
 
+/// Test non-supported mathematical functions
 #[test_case(CalculatorFloat::from("2*abs(a+1)"), "abs")]
 #[test_case(CalculatorFloat::from("2*cosh(a+1)"), "cosh")]
 #[test_case(CalculatorFloat::from("2*sinh(a+1)"), "sinh")]
@@ -72,6 +75,7 @@ fn test_math_functions_errors(cf: CalculatorFloat, name: &str) {
     )));
 }
 
+/// Test supported mathematical functions
 #[test_case(CalculatorFloat::from("2*sin(a+1)"))]
 #[test_case(CalculatorFloat::from("2*cos(a+1)"))]
 #[test_case(CalculatorFloat::from("2*tan(a+1)"))]

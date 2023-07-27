@@ -25,7 +25,7 @@ use test_case::test_case;
 /// Test simple circuit with a Definition, a GateOperation and a PragmaOperation
 #[test_case("2.0", "qreg qr[2]", "creg ro[2]"; "2.0")]
 #[test_case("3.0", "qubit[2] qr", "bit[2] ro"; "3.0")]
-fn run_simple_circuit(qasm_version: &str, qubits: &str, bits: &str) {
+fn test_simple_circuit(qasm_version: &str, qubits: &str, bits: &str) {
     let backend = Backend::new(Some("qr".to_string()), Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, false);
@@ -58,7 +58,7 @@ fn run_simple_circuit(qasm_version: &str, qubits: &str, bits: &str) {
 /// Test simple circuit with a Definition, a GateOperation and a PragmaOperation
 #[test_case("2.0", "qreg q[2]", "creg ro[2]"; "2.0")]
 #[test_case("3.0", "qubit[2] q", "bit[2] ro"; "3.0")]
-fn simple_circuit_iterator_to_file(qasm_version: &str, qubits: &str, bits: &str) {
+fn test_simple_circuit_iterator_to_file(qasm_version: &str, qubits: &str, bits: &str) {
     let backend = Backend::new(None, Some(qasm_version.to_string())).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, false);
@@ -111,7 +111,7 @@ fn test_duplicate_definitions(qasm_version: &str, qubits: &str, bits: &str) {
 
 /// Test that backend returns error when running for a file that exists without overwrite
 #[test]
-fn run_error() {
+fn test_run_error() {
     let backend = Backend::new(None, None).unwrap();
     let mut circuit = Circuit::new();
     circuit += DefinitionBit::new("ro".to_string(), 2, false);
@@ -136,6 +136,23 @@ fn run_error() {
     );
 }
 
+/// Test correct order of qasm elements in output str
+#[test]
+fn test_str_order() {
+    let backend = Backend::new(None, Some("3.0".to_string())).unwrap();
+    let mut circuit = Circuit::new();
+    circuit += RotateZ::new(0, "1/cos(alpha)".into());
+
+    let str = backend.circuit_to_qasm_str(&circuit).unwrap();
+
+    let openqasm_pos = str.find("OPENQASM").unwrap();
+    let def_pos = str.find("gate").unwrap();
+    let input_pos = str.find("input").unwrap();
+    let rz_pos = str.find("rz(1/cos(alpha))").unwrap();
+
+    assert!(openqasm_pos < def_pos && def_pos < input_pos && input_pos < rz_pos)
+}
+
 /// Test Debug, Clone and PartialEq for Backend
 #[test]
 fn test_debug_clone_partialeq() {
@@ -158,6 +175,19 @@ fn test_debug_clone_partialeq() {
     assert!(backend == backend_0);
     assert!(backend_2 != backend);
     assert!(backend != backend_2);
+}
+
+/// Test correct parameters handling
+#[test]
+fn test_parametric_gates() {
+    let backend = Backend::new(None, Some("3.0".to_string())).unwrap();
+    let mut circuit = Circuit::new();
+    circuit += RotateZ::new(0, "1/cos(alpha)".into());
+
+    let str = backend.circuit_to_qasm_str(&circuit).unwrap();
+
+    assert!(str.contains("input angle[32] alpha;"));
+    assert!(str.contains("1/cos(alpha)"));
 }
 
 #[test]
