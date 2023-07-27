@@ -2250,7 +2250,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-itoa 1.0.8
+itoa 1.0.9
 https://github.com/dtolnay/itoa
 by David Tolnay <dtolnay@gmail.com>
 Fast integer primitive to string conversion
@@ -4622,7 +4622,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-num-traits 0.2.15
+num-traits 0.2.16
 https://github.com/rust-num/num-traits
 by The Rust Project Developers
 Numeric traits for generic mathematics
@@ -5620,7 +5620,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-paste 1.0.13
+paste 1.0.14
 https://github.com/dtolnay/paste
 by David Tolnay <dtolnay@gmail.com>
 Macros for all your token pasting needs
@@ -6790,7 +6790,7 @@ SOFTWARE.
 
 
 ====================================================
-proc-macro2 1.0.64
+proc-macro2 1.0.66
 https://github.com/dtolnay/proc-macro2
 by David Tolnay <dtolnay@gmail.com>, Alex Crichton <alex@alexcrichton.com>
 A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.
@@ -9282,7 +9282,7 @@ LICENSE:
 qoqo_qasm 0.9.0
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
-Python interface of roqoqo mocked backend
+Python interface of roqoqo_qasm by HQS Quantum Simulations
 License: Apache-2.0
 ----------------------------------------------------
 LICENSE:
@@ -9491,7 +9491,7 @@ LICENSE:
 
 
 ====================================================
-quote 1.0.29
+quote 1.0.32
 https://github.com/dtolnay/quote
 by David Tolnay <dtolnay@gmail.com>
 Quasi-quoting macro quote!(...)
@@ -11327,7 +11327,7 @@ LICENSE:
 roqoqo-qasm 0.9.0
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
-QASM interface for roqoqo rust quantum computing toolkit
+QASM interface for roqoqo Rust quantum computing toolkit by HQS Quantum Simulations
 License: Apache-2.0
 ----------------------------------------------------
 LICENSE:
@@ -11775,7 +11775,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-ryu 1.0.14
+ryu 1.0.15
 https://github.com/dtolnay/ryu
 by David Tolnay <dtolnay@gmail.com>
 Fast floating point to string conversion
@@ -11989,7 +11989,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-safe_arch 0.7.0
+safe_arch 0.7.1
 https://github.com/Lokathor/safe_arch
 by Lokathor <zefria@gmail.com>
 Crate that exposes `core::arch` safely via `#[cfg()]`.
@@ -12089,7 +12089,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 
 ====================================================
-scopeguard 1.1.0
+scopeguard 1.2.0
 https://github.com/bluss/scopeguard
 by bluss
 A RAII scope guard that will run a given closure when it goes out of scope,
@@ -12098,7 +12098,7 @@ even if the code between panics (assuming unwinding panic).
 Defines the macros `defer!`, `defer_on_unwind!`, `defer_on_success!` as
 shorthands for guards with one of the implemented strategies.
 
-License: MIT/Apache-2.0
+License: MIT OR Apache-2.0
 ----------------------------------------------------
 LICENSE-APACHE:
 
@@ -12335,7 +12335,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde 1.0.171
+serde 1.0.176
 https://serde.rs
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 A generic serialization/deserialization framework
@@ -12549,10 +12549,10 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde_derive 1.0.171
+serde_derive 1.0.176
 https://serde.rs
-by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
-Macros 1.1 implementation of #[derive(Serialize, Deserialize)]
+by David Tolnay <dtolnay@gmail.com>
+Implementation of #[derive(Serialize, Deserialize)]
 License: MIT OR Apache-2.0
 ----------------------------------------------------
 LICENSE-APACHE:
@@ -12763,7 +12763,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde_json 1.0.102
+serde_json 1.0.104
 https://github.com/serde-rs/json
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 A JSON serialization file format
@@ -13669,7 +13669,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-syn 2.0.25
+syn 2.0.27
 https://github.com/dtolnay/syn
 by David Tolnay <dtolnay@gmail.com>
 Parser for Rust source code
@@ -13883,7 +13883,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-target-lexicon 0.12.9
+target-lexicon 0.12.10
 https://github.com/bytecodealliance/target-lexicon
 by Dan Gohman <sunfish@mozilla.com>
 Targeting utilities for compilers and related tools
@@ -14210,7 +14210,7 @@ SOFTWARE.
 
 
 ====================================================
-thiserror 1.0.43
+thiserror 1.0.44
 https://github.com/dtolnay/thiserror
 by David Tolnay <dtolnay@gmail.com>
 derive(Error)
@@ -14424,7 +14424,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-thiserror-impl 1.0.43
+thiserror-impl 1.0.44
 https://github.com/dtolnay/thiserror
 by David Tolnay <dtolnay@gmail.com>
 Implementation detail of the `thiserror` crate
@@ -14881,7 +14881,7 @@ LICENSE:
 MIT OR Apache-2.0
 
 ====================================================
-unicode-ident 1.0.10
+unicode-ident 1.0.11
 https://github.com/dtolnay/unicode-ident
 by David Tolnay <dtolnay@gmail.com>
 Determine whether characters have the XID_Start or XID_Continue properties according to Unicode Standard Annex #31
