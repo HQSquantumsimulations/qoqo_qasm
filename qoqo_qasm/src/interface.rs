@@ -57,7 +57,7 @@ pub fn qasm_call_circuit(
 ///     qubit_register_name (str): The name of the quantum register
 ///
 /// Returns:
-///     str: The translated operation.
+///     str: The translated operation
 ///
 /// Raises:
 ///     TypeError: Operation conversion error
