@@ -157,7 +157,7 @@ impl Backend {
         match self.qasm_version {
             QasmVersion::V2point0 => qasm_string.push_str(
                 format!(
-                    "qreg {}[{}];\n",
+                    "qreg {}[{}];\n\n",
                     self.qubit_register_name,
                     number_qubits_required + 1,
                 )
@@ -165,7 +165,7 @@ impl Backend {
             ),
             QasmVersion::V3point0(_) => qasm_string.push_str(
                 format!(
-                    "qubit[{}] {};\n",
+                    "qubit[{}] {};\n\n",
                     number_qubits_required + 1,
                     self.qubit_register_name,
                 )
@@ -251,6 +251,36 @@ impl Backend {
     ) -> Result<(), RoqoqoBackendError> {
         self.circuit_iterator_to_qasm_file(circuit.iter(), folder_name, filename, overwrite)
     }
+
+    /// Translates a QASM file into a qoqo Circuit instance.
+    ///
+    /// # Arguments
+    ///
+    /// * `file` - The '.qasm' file to translate.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Circuit)` - The translated qoqo Circuit.
+    /// * `RoqoqoBackendError::GenericError` - Error encountered while parsing.
+    #[cfg(feature = "unstable_qasm_import")]
+    pub fn file_to_circuit(&self, file: File) -> Result<Circuit, RoqoqoBackendError> {
+        crate::file_to_circuit(file)
+    }
+
+    /// Translates a QASM string into a qoqo Circuit instance.
+    ///
+    /// # Arguments
+    ///
+    /// * `input` - The QASM string to translate.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Circuit)` - The translated qoqo Circuit.
+    /// * `RoqoqoBackendError::GenericError` - Error encountered while parsing.
+    #[cfg(feature = "unstable_qasm_import")]
+    pub fn string_to_circuit(&self, input: &str) -> Result<Circuit, RoqoqoBackendError> {
+        crate::string_to_circuit(input)
+    }
 }
 
 /// Enum for setting the version of OpenQASM used
@@ -265,15 +295,13 @@ pub enum QasmVersion {
 /// Enum for setting the version of OpenQASM used
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Qasm3Dialect {
-    /// OpenQASM 2.0 FIX
+    /// No Pragma operations
     Vanilla,
-    /// OpenQASM 3.0 FIX
+    /// With Pragma operations
     Roqoqo,
-    /// OpenQASM 3.0 FIX
+    /// With Braket's Pragma operations
     Braket,
 }
-
-// v3point0 => vanilla, no pragmas; roqoqo, our pragmas; braket, braket pragmas
 
 impl FromStr for QasmVersion {
     type Err = RoqoqoBackendError;

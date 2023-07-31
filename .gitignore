@@ -2,9 +2,10 @@ target/*
 qoqo_qasm/target/*
 roqoqo-qasm/target/*
 *__pycache__*
+*/docs/_build*
+*/docs/generated*
 .mypy_cache*
 *.egg-info*
-*.qasm
 *.profraw
 *.DS_Store*
 coverage.lcov

@@ -17,3 +17,9 @@ pub use backend::*;
 #[cfg(test)]
 mod interface;
 pub use interface::*;
+
+#[cfg(test)]
+#[cfg(feature = "unstable_qasm_import")]
+mod parser;
+#[cfg(feature = "unstable_qasm_import")]
+pub use parser::*;
