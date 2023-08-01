@@ -659,7 +659,8 @@ pub fn call_operation(
             }
         },
         Operation::PragmaGlobalPhase(op) => match qasm_version {
-            QasmVersion::V3point0(_) => Ok(format!("gphase {};", op.phase(),)),
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!("gphase {};", op.phase(),)),
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla) => Ok(format!("gphase {};", op.phase(),)),
             _ => {
                 if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                     Ok("".to_string())

@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.8.2
+
+* Bugfix for PragmaGlobalPhase in 3.0Braket
+
 ### 0.8.1
 
 * Updated to qoqo 1.5.1

@@ -98,7 +98,6 @@ fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) 
 #[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro_re;\noutput float[1] ro_im;"; "DefinitionComplex output")]
 #[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "", "input float other;"; "InputSymbolic")]
-#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;"; "PragmaGlobalPhase")]
 fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
@@ -194,6 +193,35 @@ fn test_call_operation_different_2_3_braket_dialect(
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
         converted_3.to_string()
+    );
+}
+
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;"; "PragmaGlobalPhase")]
+fn test_call_operation_different_braket_dialect(
+    operation: Operation,
+    converted_2: &str,
+    converted_3: &str,
+) {
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V2point0).unwrap(),
+        converted_2.to_string()
+    );
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Roqoqo)).unwrap(),
+        converted_3.to_string()
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
+        )
+        .unwrap(),
+        converted_3.to_string()
+    );
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
+        converted_2.to_string()
     );
 }
 

@@ -139,7 +139,6 @@ fn test_qasm_call_operation_identical_2_3(operation: Operation, converted: &str)
 #[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro_re;\noutput float[1] ro_im;"; "DefinitionComplex output")]
 #[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "", "input float other;"; "InputSymbolic")]
-#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;"; "PragmaGlobalPhase")]
 fn test_qasm_call_operation_different_2_3(
     operation: Operation,
     converted_2: &str,
@@ -154,6 +153,34 @@ fn test_qasm_call_operation_different_2_3(
         );
         assert_eq!(
             qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            converted_3.to_string()
+        );
+    })
+}
+
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;"; "PragmaGlobalPhase")]
+fn test_qasm_call_operation_different_braket(
+    operation: Operation,
+    converted_2: &str,
+    converted_3: &str,
+) {
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
+            converted_2.to_string()
+        );
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").unwrap(),
+            converted_2.to_string()
+        );
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0Vanilla").unwrap(),
+            converted_3.to_string()
+        );
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0Roqoqo").unwrap(),
             converted_3.to_string()
         );
     })
