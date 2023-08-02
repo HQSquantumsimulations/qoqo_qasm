@@ -36,7 +36,7 @@ const ALLOWED_OPERATIONS: &[&str; 11] = &[
 ];
 
 // Operations that are ignored when looking for a QASM definition
-const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 10] = &[
+const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 11] = &[
     "SingleQubitGate",
     "DefinitionFloat",
     "DefinitionUsize",
@@ -47,6 +47,7 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 10] = &[
     "PragmaGlobalPhase",
     "PragmaRepeatedMeasurement",
     "MeasureQubit",
+    "PragmaLoop",
 ];
 
 /// Translate the qoqo circuit into QASM ouput.
@@ -682,7 +683,7 @@ pub fn call_operation(
                 op.repetitions(),
                 op.circuit()
             )),
-            QasmVersion::V3point0(_) => {
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla) => {
                 let mut data = "".to_string();
                 match op.repetitions() {
                     CalculatorFloat::Float(x) => {
@@ -698,6 +699,16 @@ pub fn call_operation(
                         Ok(data)
                     },
                     CalculatorFloat::Str(x) => Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string {x} for repetitions and a qasm-version that is incompatible: {qasm_version:?}") })
+                }
+            }
+            _ => {
+                if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
+                    Ok("".to_string())
+                } else {
+                    Err(RoqoqoBackendError::OperationNotInBackend {
+                        backend: "QASM",
+                        hqslang: operation.hqslang(),
+                    })
                 }
             }
         },

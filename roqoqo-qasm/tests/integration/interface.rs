@@ -502,11 +502,6 @@ fn test_pragma_loop() {
     let pcond = PragmaLoop::new("test".into(), circuit.clone());
     let qasm = QasmVersion::V3point0(Qasm3Dialect::Vanilla);
     assert_eq!(
-        call_operation(&Operation::from(pcond.clone()), "q", qasm),
-        Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: {qasm:?}") })
-    );
-    let qasm = QasmVersion::V3point0(Qasm3Dialect::Braket);
-    assert_eq!(
         call_operation(&Operation::from(pcond), "q", qasm),
         Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: {qasm:?}") })
     );
@@ -524,12 +519,14 @@ fn test_pragma_loop() {
     );
     assert_eq!(
         call_operation(
-            &Operation::from(pcond),
+            &Operation::from(pcond.clone()),
             "q",
             QasmVersion::V3point0(Qasm3Dialect::Braket)
-        )
-        .unwrap(),
-        data_3
+        ),
+        Err(RoqoqoBackendError::OperationNotInBackend {
+            backend: "QASM",
+            hqslang: pcond.hqslang()
+        })
     );
 
     let mut break_circuit = Circuit::new();
@@ -543,7 +540,7 @@ fn test_pragma_loop() {
         call_operation(
             &Operation::from(pcond),
             "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket)
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla)
         ),
         Err(error)
     );

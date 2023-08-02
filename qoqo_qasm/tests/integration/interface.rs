@@ -236,6 +236,54 @@ fn test_call_operation_different_2_roqoqo_3(
     })
 }
 
+#[test_case(Operation::from(PragmaLoop::new(1.0.into(), Circuit::new() + PauliX::new(0))), "pragma roqoqo PragmaLoop 1e0 PauliX(PauliX { qubit: 0 })\n;", "for uint i in [0:1] {\n    x q[0];\n}"; "PragmaLoop")]
+fn test_call_operation_error_2_different_all_3(
+    operation: Operation,
+    converted_3_roqoqo: &str,
+    converted_3_vanilla: &str,
+) {
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        let new_op: Py<PyAny> = convert_operation_to_pyobject(operation.clone()).unwrap();
+
+        let result: Result<String, PyErr> = qasm_call_operation(new_op.as_ref(py), "q", "2.0");
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            PyValueError::new_err(format!(
+                "Error during QASM translation: {:?}",
+                RoqoqoBackendError::GenericError {
+                    msg: "PragmaLoop not allowed with qasm_version 2.0".to_string(),
+                }
+            ))
+            .to_string()
+        );
+        let result: Result<String, PyErr> =
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket");
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            PyValueError::new_err(format!(
+                "Error during QASM translation: {:?}",
+                RoqoqoBackendError::OperationNotInBackend {
+                    backend: "QASM",
+                    hqslang: operation.hqslang(),
+                }
+            ))
+            .to_string()
+        );
+
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0Roqoqo").unwrap(),
+            converted_3_roqoqo.to_string()
+        );
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            converted_3_vanilla.to_string()
+        );
+    })
+}
+
 #[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())), "pragma roqoqo PragmaBoostNoise 1.5e0;"; "PragmaBoostNoise")]
 #[test_case(Operation::from(PragmaDamping::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDamping 0 1e0 1.5e0;"; "PragmaDamping")]
 #[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;"; "PragmaDephasing")]

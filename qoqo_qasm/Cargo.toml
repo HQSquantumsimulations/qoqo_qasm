@@ -1,6 +1,6 @@
 [package]
 name = "qoqo_qasm"
-version = "0.8.2"
+version = "0.8.3"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 license = "Apache-2.0"
 edition = "2018"
@@ -29,7 +29,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 qoqo = { version = "1.5.1", default-features = false }
 roqoqo = { version = "1.5.1", features = ["serialize"] }
-roqoqo-qasm = { version = "0.8", path = "../roqoqo-qasm" }
+roqoqo-qasm = { version = "0.8.3", path = "../roqoqo-qasm" }
 
 [dependencies.pyo3]
 version = "0.19"
