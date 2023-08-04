@@ -4,7 +4,7 @@ This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
 ### 0.8.3
 
-* Bugfix for PragmaLoop in 3.0Braket
+* Bugfix for PragmaLoop in 3.0Braket and 2.0
 
 ### 0.8.2
 

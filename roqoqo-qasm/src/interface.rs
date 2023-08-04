@@ -674,9 +674,6 @@ pub fn call_operation(
             }
         },
         Operation::PragmaLoop(op) => match qasm_version {
-            QasmVersion::V2point0 => Err(RoqoqoBackendError::GenericError {
-                msg: "PragmaLoop not allowed with qasm_version 2.0".to_string(),
-            }),
             QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!(
                 "pragma roqoqo {} {} {};",
                 op.hqslang(),
@@ -702,13 +699,22 @@ pub fn call_operation(
                 }
             }
             _ => {
-                if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
-                    Ok("".to_string())
-                } else {
-                    Err(RoqoqoBackendError::OperationNotInBackend {
-                        backend: "QASM",
-                        hqslang: operation.hqslang(),
-                    })
+                let mut data = "".to_string();
+                match op.repetitions() {
+                    CalculatorFloat::Float(x) => {
+                        for _ in 0_usize..(*x as usize) {
+                            let circuit_vec = match call_circuit(op.circuit(), qubit_register_name, qasm_version) {
+                                Ok(vec_str) => vec_str,
+                                Err(x) => return Err(x)
+                            };
+                            for string in circuit_vec {
+                                data.push_str(string.as_str());
+                                data.push('\n');
+                            }
+                        }
+                        Ok(data)
+                    },
+                    CalculatorFloat::Str(x) => Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string {x} for repetitions and a qasm-version that is incompatible: {qasm_version:?}") })
                 }
             }
         },
