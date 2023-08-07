@@ -236,7 +236,7 @@ fn test_call_operation_different_2_roqoqo_3(
     })
 }
 
-#[test_case(Operation::from(PragmaLoop::new(1.0.into(), Circuit::new() + PauliX::new(0))), "pragma roqoqo PragmaLoop 1e0 PauliX(PauliX { qubit: 0 })\n;", "for uint i in [0:1] {\n    x q[0];\n}", "x q[0];\n"; "PragmaLoop")]
+#[test_case(Operation::from(PragmaLoop::new(2.0.into(), Circuit::new() + PauliX::new(0))), "pragma roqoqo PragmaLoop 2e0 PauliX(PauliX { qubit: 0 })\n;", "for uint i in [0:2] {\n    x q[0];\n}", "x q[0];\nx q[0];\n"; "PragmaLoop")]
 fn test_call_operation_error_different_all(
     operation: Operation,
     converted_3_roqoqo: &str,
