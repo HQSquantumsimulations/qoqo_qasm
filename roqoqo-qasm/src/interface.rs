@@ -36,7 +36,7 @@ const ALLOWED_OPERATIONS: &[&str; 11] = &[
 ];
 
 // Operations that are ignored when looking for a QASM definition
-const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 10] = &[
+const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 11] = &[
     "SingleQubitGate",
     "DefinitionFloat",
     "DefinitionUsize",
@@ -47,6 +47,7 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 10] = &[
     "PragmaGlobalPhase",
     "PragmaRepeatedMeasurement",
     "MeasureQubit",
+    "PragmaLoop",
 ];
 
 /// Translate the qoqo circuit into QASM ouput.
@@ -673,16 +674,13 @@ pub fn call_operation(
             }
         },
         Operation::PragmaLoop(op) => match qasm_version {
-            QasmVersion::V2point0 => Err(RoqoqoBackendError::GenericError {
-                msg: "PragmaLoop not allowed with qasm_version 2.0".to_string(),
-            }),
             QasmVersion::V3point0(Qasm3Dialect::Roqoqo) => Ok(format!(
                 "pragma roqoqo {} {} {};",
                 op.hqslang(),
                 op.repetitions(),
                 op.circuit()
             )),
-            QasmVersion::V3point0(_) => {
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla) => {
                 let mut data = "".to_string();
                 match op.repetitions() {
                     CalculatorFloat::Float(x) => {
@@ -695,6 +693,25 @@ pub fn call_operation(
                             data.push_str(format!("    {string}").as_str());
                         }
                         data.push_str("\n}");
+                        Ok(data)
+                    },
+                    CalculatorFloat::Str(x) => Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string {x} for repetitions and a qasm-version that is incompatible: {qasm_version:?}") })
+                }
+            }
+            _ => {
+                let mut data = "".to_string();
+                match op.repetitions() {
+                    CalculatorFloat::Float(x) => {
+                        for _ in 0_usize..(*x as usize) {
+                            let circuit_vec = match call_circuit(op.circuit(), qubit_register_name, qasm_version) {
+                                Ok(vec_str) => vec_str,
+                                Err(x) => return Err(x)
+                            };
+                            for string in circuit_vec {
+                                data.push_str(string.as_str());
+                                data.push('\n');
+                            }
+                        }
                         Ok(data)
                     },
                     CalculatorFloat::Str(x) => Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string {x} for repetitions and a qasm-version that is incompatible: {qasm_version:?}") })

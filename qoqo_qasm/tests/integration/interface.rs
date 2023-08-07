@@ -236,6 +236,37 @@ fn test_call_operation_different_2_roqoqo_3(
     })
 }
 
+#[test_case(Operation::from(PragmaLoop::new(2.0.into(), Circuit::new() + PauliX::new(0))), "pragma roqoqo PragmaLoop 2e0 PauliX(PauliX { qubit: 0 })\n;", "for uint i in [0:2] {\n    x q[0];\n}", "x q[0];\nx q[0];\n"; "PragmaLoop")]
+fn test_call_operation_error_different_all(
+    operation: Operation,
+    converted_3_roqoqo: &str,
+    converted_3_vanilla: &str,
+    converted_2_converted_3_braket: &str,
+) {
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        let new_op: Py<PyAny> = convert_operation_to_pyobject(operation.clone()).unwrap();
+
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").unwrap(),
+            converted_2_converted_3_braket.to_string()
+        );
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
+            converted_2_converted_3_braket.to_string()
+        );
+
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0Roqoqo").unwrap(),
+            converted_3_roqoqo.to_string()
+        );
+        assert_eq!(
+            qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            converted_3_vanilla.to_string()
+        );
+    })
+}
+
 #[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())), "pragma roqoqo PragmaBoostNoise 1.5e0;"; "PragmaBoostNoise")]
 #[test_case(Operation::from(PragmaDamping::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDamping 0 1e0 1.5e0;"; "PragmaDamping")]
 #[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;"; "PragmaDephasing")]
