@@ -111,7 +111,6 @@ fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) 
 #[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro_re;\noutput float[1] ro_im;"; "DefinitionComplex output")]
 #[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "", "input float other;"; "InputSymbolic")]
-#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;"; "PragmaGlobalPhase")]
 fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
@@ -246,6 +245,48 @@ fn test_call_operation_different_2_3_braket_dialect(
         )
         .unwrap(),
         converted_3.to_string()
+    );
+}
+
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;"; "PragmaGlobalPhase")]
+fn test_call_operation_different_braket_dialect(
+    operation: Operation,
+    converted_2: &str,
+    converted_3: &str,
+) {
+    assert_eq!(
+        call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
+        converted_2.to_string()
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
+            &mut None
+        )
+        .unwrap(),
+        converted_3.to_string()
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap(),
+        converted_3.to_string()
+    );
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Braket),
+            &mut None
+        )
+        .unwrap(),
+        converted_2.to_string()
     );
 }
 
@@ -555,21 +596,30 @@ fn test_pragma_loop() {
     let mut circuit = Circuit::new();
     circuit += Hadamard::new(0);
 
-    let pcond = PragmaLoop::new("test".into(), circuit.clone());
-
+    let pcond = PragmaLoop::new(2.0.into(), circuit.clone());
+    let data_3 = "h q[0];\nh q[0];\n";
     assert_eq!(
         call_operation(
             &Operation::from(pcond.clone()),
             "q",
             QasmVersion::V2point0,
             &mut None
-        ),
-        Err(RoqoqoBackendError::GenericError {
-            msg: "PragmaLoop not allowed with qasm_version 2.0".into()
-        })
+        )
+        .unwrap(),
+        data_3
+    );
+    assert_eq!(
+        call_operation(
+            &Operation::from(pcond.clone()),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Braket),
+            &mut None
+        )
+        .unwrap(),
+        data_3
     );
 
-    let data_3_roqoqo = "pragma roqoqo PragmaLoop test Hadamard(Hadamard { qubit: 0 })\n;";
+    let data_3_roqoqo = "pragma roqoqo PragmaLoop 2e0 Hadamard(Hadamard { qubit: 0 })\n;";
     assert_eq!(
         call_operation(
             &Operation::from(pcond),
@@ -581,35 +631,27 @@ fn test_pragma_loop() {
         data_3_roqoqo
     );
 
-    let pcond = PragmaLoop::new("test".into(), circuit.clone());
-    let qasm = QasmVersion::V3point0(Qasm3Dialect::Vanilla);
+    let pcond_error = PragmaLoop::new("test".into(), circuit.clone());
     assert_eq!(
-        call_operation(&Operation::from(pcond.clone()), "q", qasm, &mut None),
-        Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: {qasm:?}") })
+        call_operation(&Operation::from(pcond_error.clone()), "q", QasmVersion::V3point0(Qasm3Dialect::Vanilla), &mut None),
+        Err(RoqoqoBackendError::GenericError { msg: "Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: V3point0(Vanilla)".into() })
     );
-    let qasm = QasmVersion::V3point0(Qasm3Dialect::Braket);
     assert_eq!(
-        call_operation(&Operation::from(pcond), "q", qasm, &mut None),
-        Err(RoqoqoBackendError::GenericError { msg: format!("Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: {qasm:?}") })
+        call_operation(&Operation::from(pcond_error.clone()), "q", QasmVersion::V3point0(Qasm3Dialect::Braket), &mut None),
+        Err(RoqoqoBackendError::GenericError { msg: "Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: V3point0(Braket)".into() })
+    );
+    assert_eq!(
+        call_operation(&Operation::from(pcond_error), "q", QasmVersion::V2point0, &mut None),
+        Err(RoqoqoBackendError::GenericError { msg: "Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: V2point0".into() })
     );
 
     let pcond = PragmaLoop::new(2.0.into(), circuit);
     let data_3 = "for uint i in [0:2] {\n    h q[0];\n}";
     assert_eq!(
         call_operation(
-            &Operation::from(pcond.clone()),
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        data_3
-    );
-    assert_eq!(
-        call_operation(
             &Operation::from(pcond),
             "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket),
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
             &mut None
         )
         .unwrap(),
@@ -627,7 +669,7 @@ fn test_pragma_loop() {
         call_operation(
             &Operation::from(pcond),
             "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket),
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
             &mut None
         ),
         Err(error)
