@@ -1,13 +1,13 @@
 [package]
 name = "roqoqo-qasm"
-version = "0.8.3"
+version = "0.9.0"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 license = "Apache-2.0"
 edition = "2018"
 categories = ["science", "simulation"]
 readme = "README.md"
 repository = "https://github.com/HQSquantumsimulations/qoqo_qasm"
-description = "QASM interface for roqoqo rust quantum computing toolkit"
+description = "QASM interface for roqoqo Rust quantum computing toolkit by HQS Quantum Simulations"
 include = ["src*", "LICENSE", "README.md"]
 
 [lib]

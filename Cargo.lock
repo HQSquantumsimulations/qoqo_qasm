@@ -528,7 +528,7 @@ dependencies = [
 
 [[package]]
 name = "qoqo_qasm"
-version = "0.8.3"
+version = "0.9.0"
 dependencies = [
  "ndarray",
  "pyo3",
@@ -639,7 +639,7 @@ dependencies = [
 
 [[package]]
 name = "roqoqo-qasm"
-version = "0.8.3"
+version = "0.9.0"
 dependencies = [
  "ndarray",
  "num-complex",

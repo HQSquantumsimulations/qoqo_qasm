@@ -75,6 +75,7 @@ pub fn qasm_call_operation(
         &operation,
         qubit_register_name,
         QasmVersion::from_str(qasm_version).map_err(|x| PyValueError::new_err(format!("{x}")))?,
+        &mut None,
     )
     .map_err(|x| PyValueError::new_err(format!("Error during QASM translation: {x:?}")))
 }
