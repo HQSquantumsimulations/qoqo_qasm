@@ -206,6 +206,9 @@ pub fn call_operation(
         Operation::InvSqrtPauliX(op) => {
             Ok(format!("sxdg {}[{}];", qubit_register_name, op.qubit()))
         }
+        Operation::Identity(op) => {
+            Ok(format!("id {}[{}];", qubit_register_name, op.qubit()))
+        },
         Operation::CNOT(op) => match qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
                 "cnot {}[{}],{}[{}];",
@@ -1192,6 +1195,9 @@ pub fn gate_definition(
         )),
         Operation::InvSqrtPauliX(_) => Ok(String::from(
             "gate sxdg a { u1(pi/2) a; u2(0,pi) a; u1(pi/2) a; }"
+        )),
+        Operation::Identity(_) => Ok(String::from(
+            "gate id a { U(0,0,0) a; }"
         )),
         Operation::MolmerSorensenXX(_) | Operation::VariableMSXX(_) => Ok(String::from(
             "gate rxx(theta) a,b { u3(pi/2,theta,0) a; u2(0,pi) b; cx a,b; u1(-theta) b; cx a,b; u2(0,pi) b; u2(-pi,pi-theta) a; }"
