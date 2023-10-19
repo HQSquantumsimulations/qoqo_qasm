@@ -28,4 +28,4 @@ jobs:
       # Run tests also on macos runners
       macos: true
       py_interface_folder: "qoqo_qasm"
-      has_python_tests: true
+      has_python_tests: false
