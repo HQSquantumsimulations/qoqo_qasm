@@ -206,9 +206,7 @@ pub fn call_operation(
         Operation::InvSqrtPauliX(op) => {
             Ok(format!("sxdg {}[{}];", qubit_register_name, op.qubit()))
         }
-        Operation::Identity(op) => {
-            Ok(format!("id {}[{}];", qubit_register_name, op.qubit()))
-        },
+        Operation::Identity(op) => Ok(format!("id {}[{}];", qubit_register_name, op.qubit())),
         Operation::CNOT(op) => match qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
                 "cnot {}[{}],{}[{}];",
