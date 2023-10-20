@@ -4,18 +4,18 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>qoqo_qasm &mdash; qoqo_qasm 0.9.0 documentation</title>
+  <title>qoqo_qasm &mdash; qoqo_qasm 0.9.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=b9dd8080"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -36,7 +36,7 @@
             qoqo_qasm
           </a>
               <div class="version">
-                0.9.0
+                0.9.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -88,7 +88,7 @@
            <div itemprop="articleBody">
              
   <section id="module-qoqo_qasm">
-<span id="qoqo-qasm"></span><h1>qoqo_qasm<a class="headerlink" href="#module-qoqo_qasm" title="Permalink to this heading"></a></h1>
+<span id="qoqo-qasm"></span><h1>qoqo_qasm<a class="headerlink" href="#module-qoqo_qasm" title="Link to this heading"></a></h1>
 <p>QASM interface and backend for qoqo.</p>
 <p>Translates qoqo operations and circuits to QASM operations via the interface,
 and Create a Qasm file with QasmBackend.</p>
@@ -126,7 +126,7 @@ and Create a Qasm file with QasmBackend.</p>
 </table>
 <dl class="py class">
 <dt class="sig sig-object py" id="qoqo_qasm.QasmBackend">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qoqo_qasm.</span></span><span class="sig-name descname"><span class="pre">QasmBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_register_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qasm_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qoqo_qasm.</span></span><span class="sig-name descname"><span class="pre">QasmBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_register_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qasm_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend" title="Link to this definition"></a></dt>
 <dd><p>Backend to qoqo that produces QASM output which can be imported.</p>
 <p>This backend takes a qoqo circuit to be run on a certain device and returns a QASM file
 containing the translated circuit. The circuit itself is translated using the qoqo_qasm
@@ -136,12 +136,12 @@ user on whatever platform they see fit. QASM input is widely supported on variou
 computing platforms.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qoqo_qasm.QasmBackend.__new__">
-<span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend.__new__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend.__new__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qoqo_qasm.QasmBackend.circuit_to_qasm_file">
-<span class="sig-name descname"><span class="pre">circuit_to_qasm_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend.circuit_to_qasm_file" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">circuit_to_qasm_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend.circuit_to_qasm_file" title="Link to this definition"></a></dt>
 <dd><p>Translates a Circuit to a QASM file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -169,7 +169,7 @@ computing platforms.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qoqo_qasm.QasmBackend.circuit_to_qasm_str">
-<span class="sig-name descname"><span class="pre">circuit_to_qasm_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend.circuit_to_qasm_str" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">circuit_to_qasm_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend.circuit_to_qasm_str" title="Link to this definition"></a></dt>
 <dd><p>Translates a Circuit to a valid QASM string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -194,7 +194,7 @@ computing platforms.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qoqo_qasm.qasm_call_circuit">
-<span class="sig-prename descclassname"><span class="pre">qoqo_qasm.</span></span><span class="sig-name descname"><span class="pre">qasm_call_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_register_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qasm_version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.qasm_call_circuit" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">qoqo_qasm.</span></span><span class="sig-name descname"><span class="pre">qasm_call_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_register_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qasm_version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.qasm_call_circuit" title="Link to this definition"></a></dt>
 <dd><p>Translate the qoqo circuit into QASM ouput</p>
 <p>The qoqo_qasm interface iterates through the qoqo circuit and translates each qoqo operation
 to QASM output (strings).</p>
@@ -222,7 +222,7 @@ to QASM output (strings).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qoqo_qasm.qasm_call_operation">
-<span class="sig-prename descclassname"><span class="pre">qoqo_qasm.</span></span><span class="sig-name descname"><span class="pre">qasm_call_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_register_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qasm_version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.qasm_call_operation" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">qoqo_qasm.</span></span><span class="sig-name descname"><span class="pre">qasm_call_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_register_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qasm_version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.qasm_call_operation" title="Link to this definition"></a></dt>
 <dd><p>Translate a qoqo operation to QASM text</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
