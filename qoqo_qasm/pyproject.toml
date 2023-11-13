@@ -1,6 +1,6 @@
 [project]
 name = "qoqo_qasm"
-version = "0.9.1"
+version = "0.9.2"
 dependencies = [
   'qoqo>=1.7',
   'qoqo_calculator_pyo3>=1.1',

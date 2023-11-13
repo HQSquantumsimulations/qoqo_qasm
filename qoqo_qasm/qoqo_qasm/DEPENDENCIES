@@ -1071,7 +1071,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-dyn-clone 1.0.14
+dyn-clone 1.0.16
 https://github.com/dtolnay/dyn-clone
 by David Tolnay <dtolnay@gmail.com>
 Clone trait that is object-safe
@@ -2009,7 +2009,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-getrandom 0.2.10
+getrandom 0.2.11
 https://github.com/rust-random/getrandom
 by The Rand Project Developers
 A small cross-platform library for retrieving random data from system source
@@ -2251,7 +2251,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-hashbrown 0.14.1
+hashbrown 0.14.2
 https://github.com/rust-lang/hashbrown
 by Amanieu d'Antras <amanieu@gmail.com>
 A Rust port of Google's SwissTable hash map
@@ -2492,7 +2492,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-indexmap 2.0.2
+indexmap 2.1.0
 https://github.com/bluss/indexmap
 by 
 A hash table with consistent order and fast iteration.
@@ -2947,7 +2947,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-inventory 0.3.12
+inventory 0.3.13
 https://github.com/dtolnay/inventory
 by David Tolnay <dtolnay@gmail.com>
 Typed distributed plugin registration
@@ -3616,7 +3616,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-libc 0.2.149
+libc 0.2.150
 https://github.com/rust-lang/libc
 by The Rust Project Developers
 Raw FFI bindings to platform libraries like libc.
@@ -10007,7 +10007,7 @@ LICENSE:
 
 
 ====================================================
-qoqo_calculator 1.1.3
+qoqo_calculator 1.1.4
 https://github.com/HQSquantumsimulations/qoqo_calculator
 by HQS Quantum Simulations <info@quantumsimulations.de>
 qoqo-calculator is the calculator backend of the qoqo quantum computing toolkit by HQS Quantum Simulations
@@ -10219,7 +10219,7 @@ LICENSE:
 
 
 ====================================================
-qoqo_calculator_pyo3 1.1.3
+qoqo_calculator_pyo3 1.1.4
 https://github.com/HQSquantumsimulations/qoqo_calculator_pyo3
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Python interface to qoqo calculator, the calculator backend of the qoqo quantum computing toolkit by HQS Quantum Simulations
@@ -10431,7 +10431,7 @@ LICENSE:
 
 
 ====================================================
-qoqo_qasm 0.9.1
+qoqo_qasm 0.9.2
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Python interface of roqoqo_qasm by HQS Quantum Simulations
@@ -12476,7 +12476,7 @@ LICENSE:
 
 
 ====================================================
-roqoqo-qasm 0.9.1
+roqoqo-qasm 0.9.2
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 QASM interface for roqoqo Rust quantum computing toolkit by HQS Quantum Simulations
@@ -13241,7 +13241,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 
 ====================================================
-schemars 0.8.15
+schemars 0.8.16
 https://graham.cool/schemars/
 by Graham Esau <gesau@hotmail.co.uk>
 Generate JSON Schemas from Rust code
@@ -13273,7 +13273,7 @@ SOFTWARE.
 
 
 ====================================================
-schemars_derive 0.8.15
+schemars_derive 0.8.16
 https://graham.cool/schemars/
 by Graham Esau <gesau@hotmail.co.uk>
 Macros for #[derive(JsonSchema)], for use with schemars
@@ -13551,7 +13551,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde 1.0.189
+serde 1.0.192
 https://serde.rs
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 A generic serialization/deserialization framework
@@ -13765,7 +13765,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde_derive 1.0.189
+serde_derive 1.0.192
 https://serde.rs
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 Macros 1.1 implementation of #[derive(Serialize, Deserialize)]
@@ -14218,7 +14218,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde_json 1.0.107
+serde_json 1.0.108
 https://github.com/serde-rs/json
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 A JSON serialization file format
@@ -14644,7 +14644,7 @@ LICENSE:
 
 
 ====================================================
-smallvec 1.11.1
+smallvec 1.11.2
 https://github.com/servo/rust-smallvec
 by The Servo Project Developers
 'Small vector' optimization: store up to a small number of items on the stack
@@ -15552,7 +15552,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-syn 2.0.38
+syn 2.0.39
 https://github.com/dtolnay/syn
 by David Tolnay <dtolnay@gmail.com>
 Parser for Rust source code
@@ -15766,7 +15766,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-target-lexicon 0.12.11
+target-lexicon 0.12.12
 https://github.com/bytecodealliance/target-lexicon
 by Dan Gohman <sunfish@mozilla.com>
 Targeting utilities for compilers and related tools
@@ -16093,7 +16093,7 @@ SOFTWARE.
 
 
 ====================================================
-thiserror 1.0.49
+thiserror 1.0.50
 https://github.com/dtolnay/thiserror
 by David Tolnay <dtolnay@gmail.com>
 derive(Error)
@@ -16307,7 +16307,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-thiserror-impl 1.0.49
+thiserror-impl 1.0.50
 https://github.com/dtolnay/thiserror
 by David Tolnay <dtolnay@gmail.com>
 Implementation detail of the `thiserror` crate
