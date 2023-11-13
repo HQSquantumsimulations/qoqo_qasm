@@ -493,6 +493,15 @@ fn test_gate_definition(operation: Operation, converted: &str) {
     )
 }
 
+#[test_case(Operation::from(GPi::new(0, 0.0.into())), "gate gpi(theta) a { u3(pi,-pi/2,pi/2) a; u1(2*phi) a; gphase pi/2; }"; "GPi")]
+#[test_case(Operation::from(GPi2::new(0, 0.0.into())), "gate gpi2(theta) a { u1(-phi) a; u3(pi/2,-pi/2,pi/2) a; u1(phi) a; }"; "GPi2")]
+fn test_gate_definition_braket(operation: Operation, converted: &str) {
+    assert_eq!(
+        gate_definition(&operation, QasmVersion::V3point0(Qasm3Dialect::Braket)).unwrap(),
+        converted.to_string()
+    )
+}
+
 /// Test that operations return the correct gate definition error
 #[test_case(Operation::from(Bogoliubov::new(0, 1, 0.1.into(), 0.2.into())); "Bogoliubov")]
 #[test_case(Operation::from(GPi::new(0, 0.1.into())); "GPi")]
