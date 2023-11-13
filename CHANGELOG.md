@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.9.2
+
+* Added GPi and GPi2 QASM definitions
+
 ### 0.9.1
 
 * Updated to qoqo 1.7
