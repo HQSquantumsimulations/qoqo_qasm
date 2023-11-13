@@ -1263,6 +1263,14 @@ pub fn gate_definition(
         Operation::ControlledControlledPhaseShift(_) => Ok(String::from(
             "gate ccp(theta) a,b,c { U(0,0,theta/4) b; cx b,c; U(0,0,-theta/4) c; cx b,c; U(0,0,theta/4) c; cx a,b; U(0,0,-theta/4) b; cx b,c; U(0,0,theta/4) c; cx b,c; U(0,0,-theta/4) c; cx a,b; U(0,0,theta/4) a; cx a,c; U(0,0,-theta/4) c; cx a,c; U(0,0,theta/4) c; }"
         )),
+        Operation::GPi(_) => match qasm_version {
+            QasmVersion::V2point0 => Ok(String::from(
+                "gate gpi(theta) a { u3(pi,-pi/2,pi/2) a; u1(2*phi) a; }"
+            )),
+            QasmVersion::V3point0(_) => Ok(String::from(
+                "gate gpi(theta) a { u3(pi,-pi/2,pi/2) a; u1(2*phi) a; gphase pi/2; }"
+            ))
+        },
         _ => {
             if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())
