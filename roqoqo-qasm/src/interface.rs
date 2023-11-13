@@ -1265,7 +1265,7 @@ pub fn gate_definition(
         )),
         Operation::GPi(_) => match qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(String::from(
-                "gate gpi(theta) a { u3(pi,-pi/2,pi/2) a; u1(2*phi) a; gphase pi/2; }"
+                "gate gpi(theta) a { u3(pi,-pi/2,pi/2) a; u1(2*theta) a; gphase pi/2; }"
             )),
             _ => Err(RoqoqoBackendError::OperationNotInBackend {
                 backend: "QASM",
@@ -1274,7 +1274,7 @@ pub fn gate_definition(
         },
         Operation::GPi2(_) => match qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(String::from(
-                "gate gpi2(theta) a { u1(-phi) a; u3(pi/2,-pi/2,pi/2) a; u1(phi) a; }"
+                "gate gpi2(theta) a { u1(-theta) a; u3(pi/2,-pi/2,pi/2) a; u1(theta) a; }"
             )),
             _ => Err(RoqoqoBackendError::OperationNotInBackend {
                 backend: "QASM",
