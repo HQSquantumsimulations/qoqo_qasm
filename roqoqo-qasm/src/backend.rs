@@ -232,8 +232,7 @@ impl Backend {
         } else {
             let f = File::create(output_path).expect("Unable to create file");
             let mut f = BufWriter::new(f);
-            f.write_all(data.as_bytes())
-                .expect("Unable to write file")
+            f.write_all(data.as_bytes()).expect("Unable to write file")
         }
 
         Ok(())
