@@ -11,7 +11,7 @@ This repository contains two components:
 
 ## qoqo-qasm
 
-[![Documentation Status](https://img.shields.io/badge/docs-read-blue)](https://qoqo-qasm.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://img.shields.io/badge/docs-read-blue)](https://hqsquantumsimulations.github.io/qoqo_qasm/)
 [![GitHub Workflow Status](https://github.com/HQSquantumsimulations/qoqo_qasm/workflows/ci_tests/badge.svg)](https://github.com/HQSquantumsimulations/qoqo_qasm/actions)
 [![PyPI](https://img.shields.io/pypi/v/qoqo_qasm)](https://pypi.org/project/qoqo_qasm/)
 [![PyPI - Format](https://img.shields.io/pypi/format/qoqo_qasm)](https://pypi.org/project/qoqo_qasm/)
