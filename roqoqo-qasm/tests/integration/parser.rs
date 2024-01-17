@@ -153,7 +153,12 @@ fn test_comments() {
 
 #[test]
 fn test_gate_definitions() {
-    let file = File::open(std::env::current_dir().unwrap().join("tests/gate_defs.qasm")).unwrap();
+    let file = File::open(
+        std::env::current_dir()
+            .unwrap()
+            .join("tests/gate_defs.qasm"),
+    )
+    .unwrap();
 
     let circuit_from_file = file_to_circuit(file).unwrap();
 
