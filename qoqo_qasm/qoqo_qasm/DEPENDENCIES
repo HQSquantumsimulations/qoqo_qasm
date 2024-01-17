@@ -2009,7 +2009,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-getrandom 0.2.11
+getrandom 0.2.12
 https://github.com/rust-random/getrandom
 by The Rand Project Developers
 A small cross-platform library for retrieving random data from system source
@@ -2222,7 +2222,7 @@ limitations under the License.
 ----------------------------------------------------
 LICENSE-MIT:
 
-Copyright 2018 Developers of the Rand project
+Copyright (c) 2018-2024 The rust-random Project Developers
 Copyright (c) 2014 The Rust Project Developers
 
 Permission is hereby granted, free of charge, to any
@@ -3188,7 +3188,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-inventory 0.3.13
+inventory 0.3.14
 https://github.com/dtolnay/inventory
 by David Tolnay <dtolnay@gmail.com>
 Typed distributed plugin registration
@@ -3857,7 +3857,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-libc 0.2.151
+libc 0.2.152
 https://github.com/rust-lang/libc
 by The Rust Project Developers
 Raw FFI bindings to platform libraries like libc.
@@ -7709,7 +7709,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-proc-macro2 1.0.70
+proc-macro2 1.0.76
 https://github.com/dtolnay/proc-macro2
 by David Tolnay <dtolnay@gmail.com>, Alex Crichton <alex@alexcrichton.com>
 A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.
@@ -7923,7 +7923,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-pyo3 0.20.0
+pyo3 0.20.2
 https://github.com/pyo3/pyo3
 by PyO3 Project and Contributors <https://github.com/PyO3>
 Bindings to Python interpreter
@@ -8152,7 +8152,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-pyo3-build-config 0.20.0
+pyo3-build-config 0.20.2
 https://github.com/pyo3/pyo3
 by PyO3 Project and Contributors <https://github.com/PyO3>
 Build configuration for the PyO3 ecosystem
@@ -8381,7 +8381,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-pyo3-ffi 0.20.0
+pyo3-ffi 0.20.2
 https://github.com/pyo3/pyo3
 by PyO3 Project and Contributors <https://github.com/PyO3>
 Python-API bindings for the PyO3 ecosystem
@@ -8610,7 +8610,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-pyo3-macros 0.20.0
+pyo3-macros 0.20.2
 https://github.com/pyo3/pyo3
 by PyO3 Project and Contributors <https://github.com/PyO3>
 Proc macros for PyO3 package
@@ -8839,7 +8839,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-pyo3-macros-backend 0.20.0
+pyo3-macros-backend 0.20.2
 https://github.com/pyo3/pyo3
 by PyO3 Project and Contributors <https://github.com/PyO3>
 Code generation for PyO3 package
@@ -9068,7 +9068,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-qoqo 1.8.0
+qoqo 1.9.1
 https://github.com/HQSquantumsimulations/qoqo
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Quantum computing circuit toolkit. Python interface of roqoqo
@@ -9280,7 +9280,7 @@ LICENSE:
 
 
 ====================================================
-qoqo-macros 1.8.0
+qoqo-macros 1.9.1
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Macros for the qoqo crate
 License: Apache-2.0
@@ -9915,7 +9915,7 @@ LICENSE:
 
 
 ====================================================
-qoqo_qasm 0.9.3
+qoqo_qasm 0.9.4
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Python interface of roqoqo_qasm by HQS Quantum Simulations
@@ -10127,7 +10127,7 @@ LICENSE:
 
 
 ====================================================
-quote 1.0.33
+quote 1.0.35
 https://github.com/dtolnay/quote
 by David Tolnay <dtolnay@gmail.com>
 Quasi-quoting macro quote!(...)
@@ -11537,7 +11537,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-roqoqo 1.8.0
+roqoqo 1.9.1
 https://github.com/HQSquantumsimulations/qoqo
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Rust Quantum Computing Toolkit by HQS
@@ -11749,7 +11749,7 @@ LICENSE:
 
 
 ====================================================
-roqoqo-derive 1.8.0
+roqoqo-derive 1.9.1
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Macros for the roqoqo crate
 License: Apache-2.0
@@ -11960,7 +11960,7 @@ LICENSE:
 
 
 ====================================================
-roqoqo-qasm 0.9.3
+roqoqo-qasm 0.9.4
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 QASM interface for roqoqo Rust quantum computing toolkit by HQS Quantum Simulations
@@ -13035,7 +13035,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde 1.0.193
+serde 1.0.195
 https://serde.rs
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 A generic serialization/deserialization framework
@@ -13249,7 +13249,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde_derive 1.0.193
+serde_derive 1.0.195
 https://serde.rs
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 Macros 1.1 implementation of #[derive(Serialize, Deserialize)]
@@ -13702,7 +13702,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde_json 1.0.108
+serde_json 1.0.111
 https://github.com/serde-rs/json
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 A JSON serialization file format
@@ -14128,7 +14128,7 @@ LICENSE:
 
 
 ====================================================
-smallvec 1.11.2
+smallvec 1.12.0
 https://github.com/servo/rust-smallvec
 by The Servo Project Developers
 'Small vector' optimization: store up to a small number of items on the stack
@@ -15036,7 +15036,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-syn 2.0.40
+syn 2.0.48
 https://github.com/dtolnay/syn
 by David Tolnay <dtolnay@gmail.com>
 Parser for Rust source code
@@ -15250,7 +15250,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-target-lexicon 0.12.12
+target-lexicon 0.12.13
 https://github.com/bytecodealliance/target-lexicon
 by Dan Gohman <sunfish@mozilla.com>
 Targeting utilities for compilers and related tools
@@ -15577,7 +15577,7 @@ SOFTWARE.
 
 
 ====================================================
-thiserror 1.0.50
+thiserror 1.0.56
 https://github.com/dtolnay/thiserror
 by David Tolnay <dtolnay@gmail.com>
 derive(Error)
@@ -15791,7 +15791,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-thiserror-impl 1.0.50
+thiserror-impl 1.0.56
 https://github.com/dtolnay/thiserror
 by David Tolnay <dtolnay@gmail.com>
 Implementation detail of the `thiserror` crate
