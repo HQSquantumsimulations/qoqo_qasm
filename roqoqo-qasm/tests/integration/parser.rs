@@ -150,3 +150,20 @@ fn test_comments() {
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
+
+#[test]
+fn test_gate_definitions() {
+    let file = File::open(
+        std::env::current_dir()
+            .unwrap()
+            .join("tests/gate_defs.qasm"),
+    )
+    .unwrap();
+
+    let circuit_from_file = file_to_circuit(file).unwrap();
+
+    let mut circuit_qoqo = Circuit::new();
+    circuit_qoqo += Hadamard::new(0);
+
+    assert_eq!(circuit_from_file, circuit_qoqo);
+}
