@@ -2,10 +2,14 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.9.5
+
+* Updated QASM parsing feature to skip include files lines
+
 ### 0.9.4
 
 * Updated to qoqo 1.9
-* Updated parsing feature to skip QASM gate definitions
+* Updated QASM parsing feature to skip gate definitions
 
 ### 0.9.3
 
