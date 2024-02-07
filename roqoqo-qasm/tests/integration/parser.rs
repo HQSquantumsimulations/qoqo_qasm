@@ -167,3 +167,20 @@ fn test_gate_definitions() {
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
+
+#[test]
+fn test_include_line_skip() {
+    let file = File::open(std::env::current_dir().unwrap().join("tests/include.qasm")).unwrap();
+
+    let circuit_from_file = file_to_circuit(file).unwrap();
+
+    let mut circuit_qoqo = Circuit::new();
+    circuit_qoqo += DefinitionBit::new("c".into(), 2, true);
+    circuit_qoqo += PauliX::new(0);
+    circuit_qoqo += Hadamard::new(1);
+    circuit_qoqo += RotateX::new(2, 2.3.into());
+    circuit_qoqo += CNOT::new(0, 1);
+    circuit_qoqo += MeasureQubit::new(0, "c".into(), 0);
+
+    assert_eq!(circuit_from_file, circuit_qoqo);
+}
