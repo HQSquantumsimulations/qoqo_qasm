@@ -12,4 +12,3 @@
 
 #[cfg(test)]
 mod test_acceptance;
-pub use test_acceptance::*;

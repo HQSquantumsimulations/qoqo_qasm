@@ -727,7 +727,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-bytemuck 1.14.0
+bytemuck 1.14.2
 https://github.com/Lokathor/bytemuck
 by Lokathor <zefria@gmail.com>
 A crate for mucking around with piles of bytes.
@@ -2733,8 +2733,8 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-indexmap 2.1.0
-https://github.com/bluss/indexmap
+indexmap 2.2.2
+https://github.com/indexmap-rs/indexmap
 by 
 A hash table with consistent order and fast iteration.
 License: Apache-2.0 OR MIT
@@ -3188,7 +3188,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-inventory 0.3.14
+inventory 0.3.15
 https://github.com/dtolnay/inventory
 by David Tolnay <dtolnay@gmail.com>
 Typed distributed plugin registration
@@ -3402,7 +3402,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-itertools 0.12.0
+itertools 0.12.1
 https://github.com/rust-itertools/itertools
 by bluss
 Extra iterator adaptors, iterator methods, free functions, and macros.
@@ -3857,7 +3857,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-libc 0.2.152
+libc 0.2.153
 https://github.com/rust-lang/libc
 by The Rust Project Developers
 Raw FFI bindings to platform libraries like libc.
@@ -5292,7 +5292,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-num-complex 0.4.4
+num-complex 0.4.5
 https://github.com/rust-num/num-complex
 by The Rust Project Developers
 Complex numbers implementation for Rust
@@ -7709,7 +7709,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-proc-macro2 1.0.76
+proc-macro2 1.0.78
 https://github.com/dtolnay/proc-macro2
 by David Tolnay <dtolnay@gmail.com>, Alex Crichton <alex@alexcrichton.com>
 A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.
@@ -9915,7 +9915,7 @@ LICENSE:
 
 
 ====================================================
-qoqo_qasm 0.9.4
+qoqo_qasm 0.9.5
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Python interface of roqoqo_qasm by HQS Quantum Simulations
@@ -11960,7 +11960,7 @@ LICENSE:
 
 
 ====================================================
-roqoqo-qasm 0.9.4
+roqoqo-qasm 0.9.5
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 QASM interface for roqoqo Rust quantum computing toolkit by HQS Quantum Simulations
@@ -13035,7 +13035,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde 1.0.195
+serde 1.0.196
 https://serde.rs
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 A generic serialization/deserialization framework
@@ -13249,7 +13249,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde_derive 1.0.195
+serde_derive 1.0.196
 https://serde.rs
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 Macros 1.1 implementation of #[derive(Serialize, Deserialize)]
@@ -13702,7 +13702,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde_json 1.0.111
+serde_json 1.0.113
 https://github.com/serde-rs/json
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 A JSON serialization file format
@@ -14128,7 +14128,7 @@ LICENSE:
 
 
 ====================================================
-smallvec 1.12.0
+smallvec 1.13.1
 https://github.com/servo/rust-smallvec
 by The Servo Project Developers
 'Small vector' optimization: store up to a small number of items on the stack
@@ -14369,7 +14369,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-struqture 1.5.2
+struqture 1.6.0
 by HQS Quantum Simulations <info@quantumsimulations.de>
 HQS tool for representing operators, Hamiltonians and open systems.
 License: Apache-2.0
@@ -14580,13 +14580,13 @@ LICENSE:
 
 
 ====================================================
-struqture-py 1.5.2
+struqture-py 1.6.0
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Python interface of struqture, the HQS tool for representing operators, Hamiltonians and open systems.
 License: Apache-2.0
 
 ====================================================
-struqture-py-macros 1.5.2
+struqture-py-macros 1.6.0
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Macros for struqture-py crate.
 License: Apache-2.0
@@ -17688,7 +17688,7 @@ Software.
 
 
 ====================================================
-wide 0.7.13
+wide 0.7.15
 https://github.com/Lokathor/wide
 by Lokathor <zefria@gmail.com>
 A crate to help you go wide.
