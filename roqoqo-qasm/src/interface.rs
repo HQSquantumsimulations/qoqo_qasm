@@ -977,6 +977,24 @@ pub fn call_operation(
                 op.qubits(),
                 op.sleep_time()
             )),
+            QasmVersion::V2point0 => {
+                let mut output_string = "".to_string();
+                for (ind, qbt) in op.qubits().iter().enumerate() {
+                    output_string.push_str(
+                        format!(
+                            "delay({}) {}[{}];",
+                            op.sleep_time(),
+                            qubit_register_name,
+                            qbt
+                        )
+                        .as_str(),
+                    );
+                    if ind != op.qubits().len() - 1 {
+                        output_string.push('\n');
+                    }
+                }
+                Ok(output_string)
+            }
             _ => {
                 if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                     Ok("".to_string())
@@ -1281,6 +1299,9 @@ pub fn gate_definition(
                 hqslang: operation.hqslang(),
             }),
         },
+        Operation::PragmaSleep(_) => Ok(String::from(
+            "opaque delay(param) a;"
+        )),
         _ => {
             if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())
