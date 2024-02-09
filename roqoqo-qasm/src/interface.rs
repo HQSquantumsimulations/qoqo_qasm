@@ -982,7 +982,7 @@ pub fn call_operation(
                 for (ind, qbt) in op.qubits().iter().enumerate() {
                     output_string.push_str(
                         format!(
-                            "delay({}) {}[{}];",
+                            "pragmasleep({}) {}[{}];",
                             op.sleep_time(),
                             qubit_register_name,
                             qbt
@@ -1300,7 +1300,7 @@ pub fn gate_definition(
             }),
         },
         Operation::PragmaSleep(_) => Ok(String::from(
-            "opaque delay(param) a;"
+            "opaque pragmasleep(param) a;"
         )),
         _ => {
             if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
