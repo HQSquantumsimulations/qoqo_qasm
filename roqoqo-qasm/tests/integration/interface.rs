@@ -150,7 +150,6 @@ fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, co
 }
 
 /// Test that all operations return the correct String: 2.0 vs. 3.0 differences (Roqoqo dialect)
-#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), "", "pragma roqoqo PragmaSleep [0, 1] 3e-1;"; "PragmaSleep")]
 #[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), "", "pragma roqoqo PragmaStopDecompositionBlock [0, 1];"; "PragmaStopDecompositionBlock")]
 #[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), "", "pragma roqoqo PragmaStopParallelBlock [] 0e0;"; "PragmaStopParallelBlock")]
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), "", "pragma roqoqo PragmaSetNumberOfMeasurements 20 ro;"; "PragmaSetNumberOfMeasurements")]
@@ -476,7 +475,7 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
 #[test_case(Operation::from(SpinInteraction::new(0, 1, CalculatorFloat::from(0.3), CalculatorFloat::from(0.3), CalculatorFloat::from(0.3))), "gate spinint(xc,yc,zc) a,b { rz(-pi/2) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; cx a,b; u2(0,pi) b; ry(-2*xc) a; rx(pi) a; ry(-pi/2) b; rz(2*zc-pi/2) b; u2(0,pi) b; cx a,b; u2(0,pi) b; rz(pi) a; ry(2*yc+pi) a; rz(pi) b; ry(pi/2) b; u2(0,pi) b; cx a,b; u2(0,pi) b; rz(-pi/2) b; rx(-pi/2) b; }"; "SpinInteraction")]
 #[test_case(Operation::from(PhaseShiftedControlledZ::new(0, 1, CalculatorFloat::from(0.2))), "gate pscz(phi) a,b { rz(pi/2) a; rz(pi/2) b; ry(pi/2) b; cx a,b; rx(-pi/2) b; rz(-pi/2) a; ry(-pi/2) b; rz(phi) a; rz(phi) b; }"; "PhaseShiftedControlledZ")]
 #[test_case(Operation::from(PhaseShiftedControlledPhase::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "gate pscp(theta,phi) a,b { rz(theta/2) a; rz(theta/2) b; cx a,b; rz(-theta/2) b; cx a,b; rz(phi) a; rz(phi) b; }"; "PhaseShiftedControlledPhase")]
-#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), ""; "PragmaSleep")]
+#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), "opaque pragmasleep(param) a;"; "PragmaSleep")]
 #[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(0.3))), ""; "PragmaGlobalPhase")]
 #[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), ""; "PragmaStopDecompositionBlock")]
 #[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), ""; "PragmaStopParallelBlock")]
@@ -684,6 +683,67 @@ fn test_pragma_loop() {
             &mut None
         ),
         Err(error)
+    );
+}
+
+#[test]
+fn test_pragma_sleep() {
+    let p_sleep_single = PragmaSleep::new(vec![5], CalculatorFloat::from(0.05));
+    let p_sleep_double = PragmaSleep::new(vec![0, 1], CalculatorFloat::from(1.0));
+
+    assert_eq!(
+        call_operation(
+            &Operation::from(p_sleep_single.clone()),
+            "q",
+            QasmVersion::V2point0,
+            &mut None
+        )
+        .unwrap(),
+        "pragmasleep(5e-2) q[5];"
+    );
+
+    assert_eq!(
+        call_operation(
+            &Operation::from(p_sleep_double.clone()),
+            "q",
+            QasmVersion::V2point0,
+            &mut None
+        )
+        .unwrap(),
+        "pragmasleep(1e0) q[0];\npragmasleep(1e0) q[1];"
+    );
+
+    assert_eq!(
+        call_operation(
+            &Operation::from(p_sleep_double.clone()),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
+            &mut None
+        )
+        .unwrap(),
+        "pragma roqoqo PragmaSleep [0, 1] 1e0;"
+    );
+
+    assert_eq!(
+        call_operation(
+            &Operation::from(p_sleep_double.clone()),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Braket),
+            &mut None
+        )
+        .unwrap(),
+        ""
+    );
+
+    assert_eq!(
+        call_operation(
+            &Operation::from(p_sleep_double.clone()),
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap(),
+        ""
     );
 }
 

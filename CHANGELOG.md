@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.9.6
+
+* Modified QASM 2.0 `PragmaSleep` gate definition
+
 ### 0.9.5
 
 * Updated QASM parsing feature to skip include files lines
