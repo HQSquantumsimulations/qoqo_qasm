@@ -16,6 +16,7 @@ use std::convert::TryInto;
 use std::fs::File;
 
 use num_complex::Complex64;
+use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::Circuit;
 
@@ -181,6 +182,22 @@ fn test_include_line_skip() {
     circuit_qoqo += RotateX::new(2, 2.3.into());
     circuit_qoqo += CNOT::new(0, 1);
     circuit_qoqo += MeasureQubit::new(0, "c".into(), 0);
+
+    assert_eq!(circuit_from_file, circuit_qoqo);
+}
+
+#[test]
+fn test_symbols() {
+    let file = File::open(std::env::current_dir().unwrap().join("tests/symbols.qasm")).unwrap();
+
+    let circuit_from_file = file_to_circuit(file).unwrap();
+
+    let mut circuit_qoqo = Circuit::new();
+    circuit_qoqo += DefinitionBit::new("c".into(), 3, true);
+    circuit_qoqo += RotateZ::new(0, CalculatorFloat::PI);
+    circuit_qoqo += RotateX::new(1, CalculatorFloat::FRAC_PI_2);
+    circuit_qoqo += RotateY::new(2, CalculatorFloat::FRAC_PI_4);
+    circuit_qoqo += ControlledRotateX::new(0, 1, CalculatorFloat::Str("cos(0.3)".to_string()));
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
