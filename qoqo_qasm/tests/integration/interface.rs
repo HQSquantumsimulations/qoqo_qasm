@@ -200,7 +200,6 @@ fn test_qasm_call_operation_error_2_3(operation: Operation, converted_3: &str) {
     })
 }
 
-#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), "", "pragma roqoqo PragmaSleep [0, 1] 3e-1;"; "PragmaSleep")]
 #[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), "", "pragma roqoqo PragmaStopDecompositionBlock [0, 1];"; "PragmaStopDecompositionBlock")]
 #[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), "", "pragma roqoqo PragmaStopParallelBlock [] 0e0;"; "PragmaStopParallelBlock")]
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), "", "pragma roqoqo PragmaSetNumberOfMeasurements 20 ro;"; "PragmaSetNumberOfMeasurements")]
@@ -237,12 +236,14 @@ fn test_call_operation_different_2_roqoqo_3(
     })
 }
 
-#[test_case(Operation::from(PragmaLoop::new(2.0.into(), Circuit::new() + PauliX::new(0))), "pragma roqoqo PragmaLoop 2e0 PauliX(PauliX { qubit: 0 })\n;", "for uint i in [0:2] {\n    x q[0];\n}", "x q[0];\nx q[0];\n"; "PragmaLoop")]
+#[test_case(Operation::from(PragmaLoop::new(2.0.into(), Circuit::new() + PauliX::new(0))), "pragma roqoqo PragmaLoop 2e0 PauliX(PauliX { qubit: 0 })\n;", "for uint i in [0:2] {\n    x q[0];\n}", "x q[0];\nx q[0];\n", "x q[0];\nx q[0];\n"; "PragmaLoop")]
+#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), "pragma roqoqo PragmaSleep [0, 1] 3e-1;", "", "", "pragmasleep(3e-1) q[0];\npragmasleep(3e-1) q[1];"; "PragmaSleep")]
 fn test_call_operation_error_different_all(
     operation: Operation,
     converted_3_roqoqo: &str,
     converted_3_vanilla: &str,
-    converted_2_converted_3_braket: &str,
+    converted_3_braket: &str,
+    converted_2: &str,
 ) {
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
@@ -250,11 +251,11 @@ fn test_call_operation_error_different_all(
 
         assert_eq!(
             qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").unwrap(),
-            converted_2_converted_3_braket.to_string()
+            converted_3_braket.to_string()
         );
         assert_eq!(
             qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
-            converted_2_converted_3_braket.to_string()
+            converted_2.to_string()
         );
 
         assert_eq!(
