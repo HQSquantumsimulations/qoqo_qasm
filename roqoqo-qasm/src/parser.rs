@@ -13,6 +13,7 @@
 //! The roqoqo-qasm Parser translates qasm files in Qoqo Circuit instances.
 
 use num_complex::Complex64;
+use qoqo_calculator::Calculator;
 use roqoqo::RoqoqoBackendError;
 use std::fs::File;
 use std::io::BufRead;
@@ -32,19 +33,19 @@ use pest::Parser;
 struct QoqoQASMParser;
 
 /// Dispatch function for qoqo operations.
-fn gate_dispatch(name: &str, params: &[f64], qubits: &[usize]) -> Option<Operation> {
+fn gate_dispatch(name: &str, params: &[String], qubits: &[usize]) -> Option<Operation> {
     match name {
         "rz" => Some(Operation::from(RotateZ::new(
             qubits[0],
-            CalculatorFloat::from(params[0]),
+            CalculatorFloat::from(params[0].clone()),
         ))),
         "ry" => Some(Operation::from(RotateY::new(
             qubits[0],
-            CalculatorFloat::from(params[0]),
+            CalculatorFloat::from(params[0].clone()),
         ))),
         "rx" => Some(Operation::from(RotateX::new(
             qubits[0],
-            CalculatorFloat::from(params[0]),
+            CalculatorFloat::from(params[0].clone()),
         ))),
         "h" => Some(Operation::from(Hadamard::new(qubits[0]))),
         "x" => Some(Operation::from(PauliX::new(qubits[0]))),
@@ -54,31 +55,29 @@ fn gate_dispatch(name: &str, params: &[f64], qubits: &[usize]) -> Option<Operati
         "t" => Some(Operation::from(TGate::new(qubits[0]))),
         "p" => Some(Operation::from(PhaseShiftState1::new(
             qubits[0],
-            CalculatorFloat::from(params[0]),
+            CalculatorFloat::from(params[0].clone()),
         ))),
         "sx" => Some(Operation::from(SqrtPauliX::new(qubits[0]))),
         "sxdg" => Some(Operation::from(InvSqrtPauliX::new(qubits[0]))),
         "cx" => Some(Operation::from(CNOT::new(qubits[0], qubits[1]))),
         "rxx" => {
-            if is_close(
-                params[0].into(),
-                CalculatorFloat::PI.float().unwrap().into(),
-            ) {
-                Some(Operation::from(MolmerSorensenXX::new(qubits[0], qubits[1])))
-            } else {
-                Some(Operation::from(VariableMSXX::new(
-                    qubits[0],
-                    qubits[1],
-                    CalculatorFloat::from(params[0]),
-                )))
+            if let Ok(float) = CalculatorFloat::from(params[0].clone()).float() {
+                if is_close(float.into(), CalculatorFloat::PI.float().unwrap().into()) {
+                    return Some(Operation::from(MolmerSorensenXX::new(qubits[0], qubits[1])));
+                }
             }
+            Some(Operation::from(VariableMSXX::new(
+                qubits[0],
+                qubits[1],
+                CalculatorFloat::from(params[0].clone()),
+            )))
         }
         "cy" => Some(Operation::from(ControlledPauliY::new(qubits[0], qubits[1]))),
         "cz" => Some(Operation::from(ControlledPauliZ::new(qubits[0], qubits[1]))),
         "cp" => Some(Operation::from(ControlledPhaseShift::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
+            CalculatorFloat::from(params[0].clone()),
         ))),
         "swap" => Some(Operation::from(SWAP::new(qubits[0], qubits[1]))),
         "iswap" => Some(Operation::from(ISwap::new(qubits[0], qubits[1]))),
@@ -88,71 +87,72 @@ fn gate_dispatch(name: &str, params: &[f64], qubits: &[usize]) -> Option<Operati
         "fsim" => Some(Operation::from(Fsim::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
-            CalculatorFloat::from(params[1]),
-            CalculatorFloat::from(params[2]),
+            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(params[1].clone()),
+            CalculatorFloat::from(params[2].clone()),
         ))),
         "qsim" => Some(Operation::from(Qsim::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
-            CalculatorFloat::from(params[1]),
-            CalculatorFloat::from(params[2]),
+            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(params[1].clone()),
+            CalculatorFloat::from(params[2].clone()),
         ))),
         "pmint" => Some(Operation::from(PMInteraction::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
+            CalculatorFloat::from(params[0].clone()),
         ))),
         "gvnsrot" => Some(Operation::from(GivensRotation::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
-            CalculatorFloat::from(params[1]),
+            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(params[1].clone()),
         ))),
         "gvnsrotle" => Some(Operation::from(GivensRotationLittleEndian::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
-            CalculatorFloat::from(params[1]),
+            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(params[1].clone()),
         ))),
         "xy" => Some(Operation::from(XY::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
+            CalculatorFloat::from(params[0].clone()),
         ))),
         "spintint" => Some(Operation::from(SpinInteraction::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
-            CalculatorFloat::from(params[1]),
-            CalculatorFloat::from(params[2]),
+            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(params[1].clone()),
+            CalculatorFloat::from(params[2].clone()),
         ))),
         "rxy" => Some(Operation::from(RotateXY::new(
             qubits[0],
-            CalculatorFloat::from(params[0]),
-            CalculatorFloat::from(params[1]),
+            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(params[1].clone()),
         ))),
         "pscz" => Some(Operation::from(PhaseShiftedControlledZ::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
+            CalculatorFloat::from(params[0].clone()),
         ))),
         "pscp" => Some(Operation::from(PhaseShiftedControlledPhase::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0]),
-            CalculatorFloat::from(params[1]),
+            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(params[1].clone()),
         ))),
         "u3" => {
-            let theta = params[0];
-            let phi = params[1];
-            let lambda = params[2];
-            let alpha_r = CalculatorFloat::from(((phi + lambda) / 2.0).cos() * (theta / 2.0).cos());
+            let theta = CalculatorFloat::from(params[0].clone());
+            let phi = CalculatorFloat::from(params[1].clone());
+            let lambda = CalculatorFloat::from(params[2].clone());
+            let alpha_r =
+                ((phi.clone() + lambda.clone()) / 2.0).cos() * (theta.clone() / 2.0).cos();
             let alpha_i =
-                CalculatorFloat::from((-(phi + lambda) / 2.0).sin() * (theta / 2.0).cos());
-            let beta_r = CalculatorFloat::from(((phi - lambda) / 2.0).cos() * (theta / 2.0).sin());
-            let beta_i = CalculatorFloat::from(((phi - lambda) / 2.0).sin() * (theta / 2.0).sin());
+                (-(phi.clone() + lambda.clone()) / 2.0).sin() * (theta.clone() / 2.0).cos();
+            let beta_r = ((phi.clone() - lambda.clone()) / 2.0).cos() * (theta.clone() / 2.0).sin();
+            let beta_i = ((phi - lambda) / 2.0).sin() * (theta / 2.0).sin();
             Some(Operation::from(SingleQubitGate::new(
                 qubits[0],
                 alpha_r,
@@ -172,7 +172,7 @@ fn gate_dispatch(name: &str, params: &[f64], qubits: &[usize]) -> Option<Operati
             qubits[0],
             qubits[1],
             qubits[2],
-            CalculatorFloat::from(params[0]),
+            CalculatorFloat::from(params[0].clone()),
         ))),
         _ => None,
     }
@@ -206,15 +206,20 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
             Rule::gate => {
                 let mut inner_pairs = pair.into_inner();
                 let id = inner_pairs.next().unwrap().as_str();
-                let mut params: Vec<f64> = vec![];
+                let mut params: Vec<String> = vec![];
                 let mut qubits: Vec<usize> = vec![];
                 for pair in inner_pairs.clone() {
                     match pair.as_rule() {
                         Rule::parameter_list => {
                             let params_list = inner_pairs.next().unwrap().into_inner().clone();
-                            for real in params_list {
-                                let real_f64 = real.as_str().parse::<f64>().unwrap();
-                                params.push(real_f64);
+                            for param in params_list {
+                                // Handle 'pi' constant
+                                let param_str = param.as_str().replace("pi", "3.141592653589793");
+                                // Parse the mathematical expression
+                                let calc = Calculator::new();
+                                let parsed = calc.parse_str(&param_str).unwrap();
+                                // Pass the parsed expression (now float) as String
+                                params.push(parsed.to_string());
                             }
                         }
                         Rule::qubit_list => {

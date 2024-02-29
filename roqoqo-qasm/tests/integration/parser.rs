@@ -16,7 +16,6 @@ use std::convert::TryInto;
 use std::fs::File;
 
 use num_complex::Complex64;
-use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::Circuit;
 
@@ -186,18 +185,24 @@ fn test_include_line_skip() {
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
 
+#[allow(clippy::approx_constant)]
 #[test]
 fn test_symbols() {
-    let file = File::open(std::env::current_dir().unwrap().join("tests/symbols.qasm")).unwrap();
+    let file = File::open(
+        std::env::current_dir()
+            .unwrap()
+            .join("tests/symbols_math_expr.qasm"),
+    )
+    .unwrap();
 
     let circuit_from_file = file_to_circuit(file).unwrap();
 
     let mut circuit_qoqo = Circuit::new();
     circuit_qoqo += DefinitionBit::new("c".into(), 3, true);
-    circuit_qoqo += RotateZ::new(0, CalculatorFloat::PI);
-    circuit_qoqo += RotateX::new(1, CalculatorFloat::FRAC_PI_2);
-    circuit_qoqo += RotateY::new(2, CalculatorFloat::FRAC_PI_4);
-    circuit_qoqo += ControlledRotateX::new(0, 1, CalculatorFloat::Str("cos(0.3)".to_string()));
+    circuit_qoqo += RotateZ::new(0, 3.141592653589793.into());
+    circuit_qoqo += RotateX::new(1, 1.5707963267948966.into());
+    circuit_qoqo += RotateY::new(2, 0.7853981633974483.into());
+    circuit_qoqo += PhaseShiftState1::new(2, 3.5.into());
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
