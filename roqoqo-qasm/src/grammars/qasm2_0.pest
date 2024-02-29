@@ -1,9 +1,11 @@
 openqasm = _{ "OPENQASM" ~ real ~ ";" ~ NEWLINE ~ maincontent }
-maincontent = _{ ((q_decl | c_decl | comment | reset | measurement | gate) ~ NEWLINE | NEWLINE)* }
+maincontent = _{ ((q_decl | c_decl | gate_def | include | comment | reset | measurement | gate) ~ NEWLINE | NEWLINE)* }
+gate_def = { "gate" ~ (!NEWLINE ~ ANY)* }
 q_decl = { "qreg" ~ id ~ "[" ~ integer ~ "]" ~ ";" }
 c_decl = { "creg" ~ id ~ "[" ~ integer ~ "]" ~ ";" }
 gate = { id ~ parameter_list? ~ qubit_list ~ ";" }
 measurement = { "measure" ~ argument ~ "->" ~ argument ~ ";" }
+include = { "include" ~ (!NEWLINE ~ ANY)* }
 comment = { "//" ~ (!NEWLINE ~ ANY)* }
 reset = { "reset" ~ argument ~ ";" }
 

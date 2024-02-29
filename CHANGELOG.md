@@ -2,6 +2,36 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.9.6
+
+* Modified QASM 2.0 `PragmaSleep` gate definition
+
+### 0.9.5
+
+* Updated QASM parsing feature to skip include files lines
+
+### 0.9.4
+
+* Updated to qoqo 1.9
+* Updated QASM parsing feature to skip gate definitions
+
+### 0.9.3
+
+* Updated to qoqo 1.8
+* Updated to Pyo3 0.20
+
+### 0.9.2
+
+* Added GPi and GPi2 QASM definitions
+
+### 0.9.1
+
+* Updated to qoqo 1.7
+
+### 0.9.0
+
+* Added support for parametric gates using OpenQASM 3.0
+
 ### 0.8.3
 
 * Bugfix for PragmaLoop in 3.0Braket and 2.0

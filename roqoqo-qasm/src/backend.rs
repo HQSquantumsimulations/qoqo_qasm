@@ -10,7 +10,7 @@
 // express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{call_operation, gate_definition};
+use crate::{call_operation, gate_definition, VariableGatherer};
 use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::{Circuit, RoqoqoBackendError};
@@ -71,6 +71,7 @@ impl Backend {
             qasm_version: qasm_v,
         })
     }
+
     /// Translates an iterator over operations to a valid QASM string.
     ///
     ///
@@ -86,14 +87,9 @@ impl Backend {
         &self,
         circuit: impl Iterator<Item = &'a Operation>,
     ) -> Result<String, RoqoqoBackendError> {
+        // Initializing data structures
         let mut definitions: String = "".to_string();
         let mut data: String = "".to_string();
-        let mut qasm_string = String::from("OPENQASM ");
-        match self.qasm_version {
-            QasmVersion::V2point0 => qasm_string.push_str("2.0;\n\n"),
-            QasmVersion::V3point0(_) => qasm_string.push_str("3.0;\n\n"),
-        }
-
         let mut number_qubits_required: usize = 0;
         let mut already_seen_definitions: Vec<String> = vec![
             "RotateX".to_string(),
@@ -101,6 +97,16 @@ impl Backend {
             "RotateZ".to_string(),
             "CNOT".to_string(),
         ];
+        let mut variable_gatherer = VariableGatherer::new();
+
+        // Appending QASM version
+        let mut qasm_string = String::from("OPENQASM ");
+        match self.qasm_version {
+            QasmVersion::V2point0 => qasm_string.push_str("2.0;\n\n"),
+            QasmVersion::V3point0(_) => qasm_string.push_str("3.0;\n\n"),
+        }
+
+        // Appending definitions that are always needed (some depend on QASM version)
         definitions.push_str("gate u3(theta,phi,lambda) q { U(theta,phi,lambda) q; }\n");
         definitions.push_str("gate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }\n");
         definitions.push_str("gate u1(lambda) q { U(0,0,lambda) q; }\n");
@@ -125,7 +131,9 @@ impl Backend {
         )?);
         definitions.push('\n');
 
+        // Main loop over the circuit
         for op in circuit {
+            // Taking note of the maximum number of qubits involved in the circuit for registers definition
             if let InvolvedQubits::Set(involved_qubits) = op.involved_qubits() {
                 number_qubits_required =
                     number_qubits_required.max(match involved_qubits.iter().max() {
@@ -133,6 +141,8 @@ impl Backend {
                         Some(n) => *n,
                     })
             }
+
+            // Appending gate definition if not already seen before
             if !already_seen_definitions.contains(&op.hqslang().to_string()) {
                 already_seen_definitions.push(op.hqslang().to_string());
                 definitions.push_str(&gate_definition(op, self.qasm_version)?);
@@ -140,20 +150,35 @@ impl Backend {
                     definitions.push('\n');
                 }
             }
+
+            // Appending operation QASM instruction
             data.push_str(&call_operation(
                 op,
                 &self.qubit_register_name,
                 self.qasm_version,
+                &mut Some(&mut variable_gatherer),
             )?);
+
             if !data.is_empty() {
                 data.push('\n');
             }
         }
+
+        // Building the final string: QASM version + definitions + parameters + registers + circuit data
         match self.qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {}
             _ => qasm_string.push_str(definitions.as_str()),
         };
 
+        if let QasmVersion::V3point0(_) = self.qasm_version {
+            if !variable_gatherer.variables.is_empty() {
+                qasm_string.push('\n');
+                for var in &variable_gatherer.variables {
+                    qasm_string.push_str(format!("input angle[32] {};\n", var).as_str());
+                }
+                qasm_string.push('\n');
+            }
+        }
         match self.qasm_version {
             QasmVersion::V2point0 => qasm_string.push_str(
                 format!(
@@ -207,8 +232,7 @@ impl Backend {
         } else {
             let f = File::create(output_path).expect("Unable to create file");
             let mut f = BufWriter::new(f);
-            f.write_all(data.as_str().as_bytes())
-                .expect("Unable to write file")
+            f.write_all(data.as_bytes()).expect("Unable to write file")
         }
 
         Ok(())

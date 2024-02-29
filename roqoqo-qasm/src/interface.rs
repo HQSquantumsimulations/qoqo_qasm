@@ -19,6 +19,7 @@ use roqoqo::RoqoqoBackendError;
 
 use crate::Qasm3Dialect;
 use crate::QasmVersion;
+use crate::VariableGatherer;
 
 // Operations that are ignored by backend and do not throw an error
 const ALLOWED_OPERATIONS: &[&str; 11] = &[
@@ -49,6 +50,30 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 11] = &[
     "MeasureQubit",
     "PragmaLoop",
 ];
+
+/// Calls the parsing function of the VariableGatherer, if present.
+///
+/// # Arguments:
+///
+/// * `calculator_float` - The CalculatorFloat to gather from.
+/// * `qasm_version` - The QASM version to use.
+/// * `variable_gatherer` - Optional VariableParser to call.
+///     
+#[inline]
+fn variable_gathering(
+    calculator_float: &CalculatorFloat,
+    qasm_version: QasmVersion,
+    variable_gatherer: &mut Option<&mut VariableGatherer>,
+) {
+    if let Some(cp) = variable_gatherer {
+        match qasm_version {
+            QasmVersion::V3point0(_) => {
+                let _ = cp.parse(calculator_float.to_string().as_str());
+            }
+            QasmVersion::V2point0 => (),
+        }
+    }
+}
 
 /// Translate the qoqo circuit into QASM ouput.
 ///
@@ -92,7 +117,12 @@ pub fn call_circuit(
 ) -> Result<Vec<String>, RoqoqoBackendError> {
     let mut str_circuit: Vec<String> = Vec::new();
     for op in circuit.iter() {
-        str_circuit.push(call_operation(op, qubit_register_name, qasm_version)?);
+        str_circuit.push(call_operation(
+            op,
+            qubit_register_name,
+            qasm_version,
+            &mut None,
+        )?);
     }
     Ok(str_circuit)
 }
@@ -102,6 +132,9 @@ pub fn call_circuit(
 /// # Arguments
 ///
 /// * `operation` - The qoqo Operation that is executed.
+/// * `qubtit_register_name` - Name of the quantum register used for the roqoqo address.
+/// * `qasm_version` - The QASM version to use.
+/// * `variable_gatherer` - Optional VariableParser to call.
 ///
 /// # Returns
 ///
@@ -111,46 +144,59 @@ pub fn call_operation(
     operation: &Operation,
     qubit_register_name: &str,
     qasm_version: QasmVersion,
+    variable_gatherer: &mut Option<&mut VariableGatherer>,
 ) -> Result<String, RoqoqoBackendError> {
     match operation {
-        Operation::RotateZ(op) => Ok(format!(
-            "rz({}) {}[{}];",
-            op.theta().float()?,
-            qubit_register_name,
-            op.qubit()
-        )),
-        Operation::RotateX(op) => Ok(format!(
-            "rx({}) {}[{}];",
-            op.theta().float()?,
-            qubit_register_name,
-            op.qubit()
-        )),
-        Operation::RotateY(op) => Ok(format!(
-            "ry({}) {}[{}];",
-            op.theta().float()?,
-            qubit_register_name,
-            op.qubit()
-        )),
+        Operation::RotateZ(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "rz({}) {}[{}];",
+                op.theta(),
+                qubit_register_name,
+                op.qubit()
+            ))
+        }
+        Operation::RotateX(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "rx({}) {}[{}];",
+                op.theta(),
+                qubit_register_name,
+                op.qubit()
+            ))
+        }
+        Operation::RotateY(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "ry({}) {}[{}];",
+                op.theta(),
+                qubit_register_name,
+                op.qubit()
+            ))
+        }
         Operation::Hadamard(op) => Ok(format!("h {}[{}];", qubit_register_name, op.qubit())),
         Operation::PauliX(op) => Ok(format!("x {}[{}];", qubit_register_name, op.qubit())),
         Operation::PauliY(op) => Ok(format!("y {}[{}];", qubit_register_name, op.qubit())),
         Operation::PauliZ(op) => Ok(format!("z {}[{}];", qubit_register_name, op.qubit())),
         Operation::SGate(op) => Ok(format!("s {}[{}];", qubit_register_name, op.qubit())),
         Operation::TGate(op) => Ok(format!("t {}[{}];", qubit_register_name, op.qubit())),
-        Operation::PhaseShiftState1(op) => match qasm_version {
-            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
-                "phaseshift({}) {}[{}];",
-                op.theta().float()?,
-                qubit_register_name,
-                op.qubit()
-            )),
-            _ => Ok(format!(
-                "p({}) {}[{}];",
-                op.theta().float()?,
-                qubit_register_name,
-                op.qubit()
-            )),
-        },
+        Operation::PhaseShiftState1(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            match qasm_version {
+                QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                    "phaseshift({}) {}[{}];",
+                    op.theta(),
+                    qubit_register_name,
+                    op.qubit()
+                )),
+                _ => Ok(format!(
+                    "p({}) {}[{}];",
+                    op.theta(),
+                    qubit_register_name,
+                    op.qubit()
+                )),
+            }
+        }
         Operation::SqrtPauliX(op) => match qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {
                 Ok(format!("v {}[{}];", qubit_register_name, op.qubit()))
@@ -160,6 +206,7 @@ pub fn call_operation(
         Operation::InvSqrtPauliX(op) => {
             Ok(format!("sxdg {}[{}];", qubit_register_name, op.qubit()))
         }
+        Operation::Identity(op) => Ok(format!("id {}[{}];", qubit_register_name, op.qubit())),
         Operation::CNOT(op) => match qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
                 "cnot {}[{}],{}[{}];",
@@ -192,24 +239,27 @@ pub fn call_operation(
                 op.target()
             )),
         },
-        Operation::VariableMSXX(op) => match qasm_version {
-            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
-                "xx({}) {}[{}],{}[{}];",
-                op.theta(),
-                qubit_register_name,
-                op.control(),
-                qubit_register_name,
-                op.target()
-            )),
-            _ => Ok(format!(
-                "rxx({}) {}[{}],{}[{}];",
-                op.theta(),
-                qubit_register_name,
-                op.control(),
-                qubit_register_name,
-                op.target()
-            )),
-        },
+        Operation::VariableMSXX(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            match qasm_version {
+                QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                    "xx({}) {}[{}],{}[{}];",
+                    op.theta(),
+                    qubit_register_name,
+                    op.control(),
+                    qubit_register_name,
+                    op.target()
+                )),
+                _ => Ok(format!(
+                    "rxx({}) {}[{}],{}[{}];",
+                    op.theta(),
+                    qubit_register_name,
+                    op.control(),
+                    qubit_register_name,
+                    op.target()
+                )),
+            }
+        }
         Operation::ControlledPauliY(op) => Ok(format!(
             "cy {}[{}],{}[{}];",
             qubit_register_name,
@@ -224,24 +274,27 @@ pub fn call_operation(
             qubit_register_name,
             op.target()
         )),
-        Operation::ControlledPhaseShift(op) => match qasm_version {
-            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
-                "cphaseshift({}) {}[{}],{}[{}];",
-                op.theta(),
-                qubit_register_name,
-                op.control(),
-                qubit_register_name,
-                op.target()
-            )),
-            _ => Ok(format!(
-                "cp({}) {}[{}],{}[{}];",
-                op.theta(),
-                qubit_register_name,
-                op.control(),
-                qubit_register_name,
-                op.target()
-            )),
-        },
+        Operation::ControlledPhaseShift(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            match qasm_version {
+                QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                    "cphaseshift({}) {}[{}],{}[{}];",
+                    op.theta(),
+                    qubit_register_name,
+                    op.control(),
+                    qubit_register_name,
+                    op.target()
+                )),
+                _ => Ok(format!(
+                    "cp({}) {}[{}],{}[{}];",
+                    op.theta(),
+                    qubit_register_name,
+                    op.control(),
+                    qubit_register_name,
+                    op.target()
+                )),
+            }
+        }
         Operation::SWAP(op) => Ok(format!(
             "swap {}[{}],{}[{}];",
             qubit_register_name,
@@ -277,130 +330,176 @@ pub fn call_operation(
             qubit_register_name,
             op.target()
         )),
-        Operation::Fsim(op) => Ok(format!(
-            "fsim({},{},{}) {}[{}],{}[{}];",
-            op.t().float()?,
-            op.u().float()?,
-            op.delta().float()?,
-            qubit_register_name,
-            op.control(),
-            qubit_register_name,
-            op.target()
-        )),
-        Operation::Qsim(op) => Ok(format!(
-            "qsim({},{},{}) {}[{}],{}[{}];",
-            op.x().float()?,
-            op.y().float()?,
-            op.z().float()?,
-            qubit_register_name,
-            op.control(),
-            qubit_register_name,
-            op.target()
-        )),
-        Operation::PMInteraction(op) => Ok(format!(
-            "pmint({}) {}[{}],{}[{}];",
-            op.t().float()?,
-            qubit_register_name,
-            op.control(),
-            qubit_register_name,
-            op.target()
-        )),
-        Operation::GivensRotation(op) => Ok(format!(
-            "gvnsrot({},{}) {}[{}],{}[{}];",
-            op.theta().float()?,
-            op.phi().float()?,
-            qubit_register_name,
-            op.control(),
-            qubit_register_name,
-            op.target()
-        )),
-        Operation::GivensRotationLittleEndian(op) => Ok(format!(
-            "gvnsrotle({},{}) {}[{}],{}[{}];",
-            op.theta().float()?,
-            op.phi().float()?,
-            qubit_register_name,
-            op.control(),
-            qubit_register_name,
-            op.target()
-        )),
-        Operation::XY(op) => Ok(format!(
-            "xy({}) {}[{}],{}[{}];",
-            op.theta().float()?,
-            qubit_register_name,
-            op.control(),
-            qubit_register_name,
-            op.target()
-        )),
-        Operation::SpinInteraction(op) => Ok(format!(
-            "spinint({},{},{}) {}[{}],{}[{}];",
-            op.x().float()?,
-            op.y().float()?,
-            op.z().float()?,
-            qubit_register_name,
-            op.control(),
-            qubit_register_name,
-            op.target()
-        )),
-        Operation::RotateXY(op) => Ok(format!(
-            "rxy({},{}) {}[{}];",
-            op.theta().float()?,
-            op.phi().float()?,
-            qubit_register_name,
-            op.qubit(),
-        )),
-        Operation::PhaseShiftedControlledZ(op) => Ok(format!(
-            "pscz({}) {}[{}],{}[{}];",
-            op.phi().float()?,
-            qubit_register_name,
-            op.control(),
-            qubit_register_name,
-            op.target()
-        )),
-        Operation::PhaseShiftedControlledPhase(op) => Ok(format!(
-            "pscp({},{}) {}[{}],{}[{}];",
-            op.theta().float()?,
-            op.phi().float()?,
-            qubit_register_name,
-            op.control(),
-            qubit_register_name,
-            op.target()
-        )),
-        Operation::GPi(op) => match qasm_version {
-            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
-                "gpi({}) {}[{}];",
-                op.theta().float()?,
+        Operation::Fsim(op) => {
+            variable_gathering(op.t(), qasm_version, variable_gatherer);
+            variable_gathering(op.u(), qasm_version, variable_gatherer);
+            variable_gathering(op.delta(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "fsim({},{},{}) {}[{}],{}[{}];",
+                op.t(),
+                op.u(),
+                op.delta(),
                 qubit_register_name,
-                op.qubit()
-            )),
-            _ => {
-                if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
-                    Ok("".to_string())
-                } else {
-                    Err(RoqoqoBackendError::OperationNotInBackend {
-                        backend: "QASM",
-                        hqslang: operation.hqslang(),
-                    })
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::Qsim(op) => {
+            variable_gathering(op.x(), qasm_version, variable_gatherer);
+            variable_gathering(op.y(), qasm_version, variable_gatherer);
+            variable_gathering(op.z(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "qsim({},{},{}) {}[{}],{}[{}];",
+                op.x(),
+                op.y(),
+                op.z(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::PMInteraction(op) => {
+            variable_gathering(op.t(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "pmint({}) {}[{}],{}[{}];",
+                op.t(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::GivensRotation(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            variable_gathering(op.phi(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "gvnsrot({},{}) {}[{}],{}[{}];",
+                op.theta(),
+                op.phi(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::GivensRotationLittleEndian(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            variable_gathering(op.phi(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "gvnsrotle({},{}) {}[{}],{}[{}];",
+                op.theta(),
+                op.phi(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::XY(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "xy({}) {}[{}],{}[{}];",
+                op.theta(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::SpinInteraction(op) => {
+            variable_gathering(op.x(), qasm_version, variable_gatherer);
+            variable_gathering(op.y(), qasm_version, variable_gatherer);
+            variable_gathering(op.z(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "spinint({},{},{}) {}[{}],{}[{}];",
+                op.x(),
+                op.y(),
+                op.z(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::RotateXY(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            variable_gathering(op.phi(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "rxy({},{}) {}[{}];",
+                op.theta(),
+                op.phi(),
+                qubit_register_name,
+                op.qubit(),
+            ))
+        }
+        Operation::PhaseShiftedControlledZ(op) => {
+            variable_gathering(op.phi(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "pscz({}) {}[{}],{}[{}];",
+                op.phi(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::PhaseShiftedControlledPhase(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            variable_gathering(op.phi(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "pscp({},{}) {}[{}],{}[{}];",
+                op.theta(),
+                op.phi(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::GPi(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            match qasm_version {
+                QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                    "gpi({}) {}[{}];",
+                    op.theta(),
+                    qubit_register_name,
+                    op.qubit()
+                )),
+                _ => {
+                    if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
+                        Ok("".to_string())
+                    } else {
+                        Err(RoqoqoBackendError::OperationNotInBackend {
+                            backend: "QASM",
+                            hqslang: operation.hqslang(),
+                        })
+                    }
                 }
             }
-        },
-        Operation::GPi2(op) => match qasm_version {
-            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
-                "gpi2({}) {}[{}];",
-                op.theta().float()?,
-                qubit_register_name,
-                op.qubit()
-            )),
-            _ => {
-                if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
-                    Ok("".to_string())
-                } else {
-                    Err(RoqoqoBackendError::OperationNotInBackend {
-                        backend: "QASM",
-                        hqslang: operation.hqslang(),
-                    })
+        }
+        Operation::GPi2(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            match qasm_version {
+                QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                    "gpi2({}) {}[{}];",
+                    op.theta(),
+                    qubit_register_name,
+                    op.qubit()
+                )),
+                _ => {
+                    if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
+                        Ok("".to_string())
+                    } else {
+                        Err(RoqoqoBackendError::OperationNotInBackend {
+                            backend: "QASM",
+                            hqslang: operation.hqslang(),
+                        })
+                    }
                 }
             }
-        },
+        }
         Operation::SingleQubitGate(op) => {
             let alpha = CalculatorComplex::new(op.alpha_r(), op.alpha_i());
             let beta = CalculatorComplex::new(op.beta_r(), op.beta_i());
@@ -435,16 +534,19 @@ pub fn call_operation(
             qubit_register_name,
             op.target(),
         )),
-        Operation::ControlledControlledPhaseShift(op) => Ok(format!(
-            "ccp({}) {}[{}],{}[{}],{}[{}];",
-            op.theta().float()?,
-            qubit_register_name,
-            op.control_0(),
-            qubit_register_name,
-            op.control_1(),
-            qubit_register_name,
-            op.target(),
-        )),
+        Operation::ControlledControlledPhaseShift(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "ccp({}) {}[{}],{}[{}],{}[{}];",
+                op.theta(),
+                qubit_register_name,
+                op.control_0(),
+                qubit_register_name,
+                op.control_1(),
+                qubit_register_name,
+                op.target(),
+            ))
+        }
         Operation::PragmaActiveReset(op) => {
             Ok(format!("reset {}[{}];", qubit_register_name, op.qubit(),))
         }
@@ -478,14 +580,24 @@ pub fn call_operation(
                             "if({}[{}]==1) {}",
                             op.condition_register(),
                             op.condition_index(),
-                            call_operation(int_op, qubit_register_name, qasm_version)?
+                            call_operation(
+                                int_op,
+                                qubit_register_name,
+                                qasm_version,
+                                variable_gatherer
+                            )?
                         ));
                     } else {
                         data.push_str(&format!(
                             "if({}[{}]==1) {}\n",
                             op.condition_register(),
                             op.condition_index(),
-                            call_operation(int_op, qubit_register_name, qasm_version)?
+                            call_operation(
+                                int_op,
+                                qubit_register_name,
+                                qasm_version,
+                                variable_gatherer
+                            )?
                         ));
                     }
                 }
@@ -865,6 +977,24 @@ pub fn call_operation(
                 op.qubits(),
                 op.sleep_time()
             )),
+            QasmVersion::V2point0 => {
+                let mut output_string = "".to_string();
+                for (ind, qbt) in op.qubits().iter().enumerate() {
+                    output_string.push_str(
+                        format!(
+                            "pragmasleep({}) {}[{}];",
+                            op.sleep_time(),
+                            qubit_register_name,
+                            qbt
+                        )
+                        .as_str(),
+                    );
+                    if ind != op.qubits().len() - 1 {
+                        output_string.push('\n');
+                    }
+                }
+                Ok(output_string)
+            }
             _ => {
                 if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                     Ok("".to_string())
@@ -1082,6 +1212,9 @@ pub fn gate_definition(
         Operation::InvSqrtPauliX(_) => Ok(String::from(
             "gate sxdg a { u1(pi/2) a; u2(0,pi) a; u1(pi/2) a; }"
         )),
+        Operation::Identity(_) => Ok(String::from(
+            "gate id a { U(0,0,0) a; }"
+        )),
         Operation::MolmerSorensenXX(_) | Operation::VariableMSXX(_) => Ok(String::from(
             "gate rxx(theta) a,b { u3(pi/2,theta,0) a; u2(0,pi) b; cx a,b; u1(-theta) b; cx a,b; u2(0,pi) b; u2(-pi,pi-theta) a; }"
         )),
@@ -1147,6 +1280,27 @@ pub fn gate_definition(
         )),
         Operation::ControlledControlledPhaseShift(_) => Ok(String::from(
             "gate ccp(theta) a,b,c { U(0,0,theta/4) b; cx b,c; U(0,0,-theta/4) c; cx b,c; U(0,0,theta/4) c; cx a,b; U(0,0,-theta/4) b; cx b,c; U(0,0,theta/4) c; cx b,c; U(0,0,-theta/4) c; cx a,b; U(0,0,theta/4) a; cx a,c; U(0,0,-theta/4) c; cx a,c; U(0,0,theta/4) c; }"
+        )),
+        Operation::GPi(_) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(String::from(
+                "gate gpi(theta) a { u3(pi,-pi/2,pi/2) a; u1(2*theta) a; gphase pi/2; }"
+            )),
+            _ => Err(RoqoqoBackendError::OperationNotInBackend {
+                backend: "QASM",
+                hqslang: operation.hqslang(),
+            }),
+        },
+        Operation::GPi2(_) => match qasm_version {
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(String::from(
+                "gate gpi2(theta) a { u1(-theta) a; u3(pi/2,-pi/2,pi/2) a; u1(theta) a; }"
+            )),
+            _ => Err(RoqoqoBackendError::OperationNotInBackend {
+                backend: "QASM",
+                hqslang: operation.hqslang(),
+            }),
+        },
+        Operation::PragmaSleep(_) => Ok(String::from(
+            "opaque pragmasleep(param) a;"
         )),
         _ => {
             if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {

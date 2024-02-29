@@ -1,14 +1,15 @@
 [package]
 name = "qoqo_qasm"
-version = "0.8.3"
+version = "0.9.6"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 license = "Apache-2.0"
-edition = "2018"
+edition = "2021"
+rust-version = "1.56"
 categories = ["science", "simulation"]
 readme = "README.md"
 homepage = "https://github.com/HQSquantumsimulations/qoqo_qasm"
 repository = "https://github.com/HQSquantumsimulations/qoqo_qasm"
-description = "Python interface of roqoqo mocked backend"
+description = "Python interface of roqoqo_qasm by HQS Quantum Simulations"
 include = [
     "src*",
     "build.rs",
@@ -27,12 +28,12 @@ crate-type = ["cdylib", "rlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-qoqo = { version = "1.5.1", default-features = false }
-roqoqo = { version = "1.5.1", features = ["serialize"] }
-roqoqo-qasm = { version = "0.8.3", path = "../roqoqo-qasm" }
+qoqo = { version = "1.9", default-features = false }
+roqoqo = { version = "1.9", features = ["serialize"] }
+roqoqo-qasm = { version = "0.9", path = "../roqoqo-qasm" }
 
 [dependencies.pyo3]
-version = "0.19"
+version = "0.20"
 features = ["num-complex"]
 
 [dev-dependencies]
@@ -41,7 +42,7 @@ qoqo_calculator = "1.1"
 ndarray = "0.15"
 
 [build-dependencies]
-pyo3-build-config = "0.19"
+pyo3-build-config = "0.20"
 
 [features]
 extension-module = ["pyo3/extension-module"]

@@ -85,11 +85,12 @@ fn test_qasm_call_circuit(qasm_version: &str, _qubits: &str, bits: &str) {
 #[test_case(Operation::from(Hadamard::new(0)), "h q[0];"; "Hadamard")]
 #[test_case(Operation::from(SGate::new(0)), "s q[0];"; "SGate")]
 #[test_case(Operation::from(TGate::new(0)), "t q[0];"; "TGate")]
-#[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "rx(-3.141592653589793) q[0];"; "RotateX")]
-#[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "ry(-3.141592653589793) q[0];"; "RotateY")]
-#[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "rz(-3.141592653589793) q[0];"; "RotateZ")]
+#[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "rx(-3.141592653589793e0) q[0];"; "RotateX")]
+#[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "ry(-3.141592653589793e0) q[0];"; "RotateY")]
+#[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "rz(-3.141592653589793e0) q[0];"; "RotateZ")]
 #[test_case(Operation::from(SqrtPauliX::new(0)), "sx q[0];"; "SqrtPauliX")]
 #[test_case(Operation::from(InvSqrtPauliX::new(0)), "sxdg q[0];"; "InvSqrtPauliX")]
+#[test_case(Operation::from(Identity::new(0)), "id q[0];"; "Identity")]
 #[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];"; "CNOT")]
 #[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1];"; "ControlledPauliY")]
 #[test_case(Operation::from(ControlledPauliZ::new(0, 1)), "cz q[0],q[1];"; "ControlledPauliZ")]
@@ -99,21 +100,21 @@ fn test_qasm_call_circuit(qasm_version: &str, _qubits: &str, bits: &str) {
 #[test_case(Operation::from(InvSqrtISwap::new(0, 1)), "siswapdg q[0],q[1];"; "InvSqrtISwap")]
 #[test_case(Operation::from(PragmaActiveReset::new(0)), "reset q[0];"; "PragmaActiveReset")]
 #[test_case(Operation::from(FSwap::new(0, 1)), "fswap q[0],q[1];"; "FSwap")]
-#[test_case(Operation::from(Fsim::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "fsim(0.2,0.2,0.2) q[0],q[1];"; "Fsim")]
-#[test_case(Operation::from(Qsim::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "qsim(0.1,0.1,0.1) q[0],q[1];"; "Qsim")]
-#[test_case(Operation::from(PMInteraction::new(0, 1, CalculatorFloat::from(0.2))), "pmint(0.2) q[0],q[1];"; "PMInteraction")]
-#[test_case(Operation::from(GivensRotation::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrot(0.1,0.1) q[0],q[1];"; "GivensRotation")]
-#[test_case(Operation::from(GivensRotationLittleEndian::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrotle(0.1,0.1) q[0],q[1];"; "GivensRotationLittleEndian")]
-#[test_case(Operation::from(SpinInteraction::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "spinint(0.1,0.1,0.1) q[0],q[1];"; "SpinInteraction")]
-#[test_case(Operation::from(XY::new(0, 1, CalculatorFloat::from(0.2))), "xy(0.2) q[0],q[1];"; "XY")]
-#[test_case(Operation::from(RotateXY::new(0, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "rxy(0.2,0.2) q[0];"; "RotateXY")]
-#[test_case(Operation::from(PhaseShiftedControlledZ::new(0, 1, CalculatorFloat::from(0.1))), "pscz(0.1) q[0],q[1];"; "PhaseShiftedControlledZ")]
-#[test_case(Operation::from(PhaseShiftedControlledPhase::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.2))), "pscp(0.1,0.2) q[0],q[1];"; "PhaseShiftedControlledPhase")]
+#[test_case(Operation::from(Fsim::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "fsim(2e-1,2e-1,2e-1) q[0],q[1];"; "Fsim")]
+#[test_case(Operation::from(Qsim::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "qsim(1e-1,1e-1,1e-1) q[0],q[1];"; "Qsim")]
+#[test_case(Operation::from(PMInteraction::new(0, 1, CalculatorFloat::from(0.2))), "pmint(2e-1) q[0],q[1];"; "PMInteraction")]
+#[test_case(Operation::from(GivensRotation::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrot(1e-1,1e-1) q[0],q[1];"; "GivensRotation")]
+#[test_case(Operation::from(GivensRotationLittleEndian::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrotle(1e-1,1e-1) q[0],q[1];"; "GivensRotationLittleEndian")]
+#[test_case(Operation::from(SpinInteraction::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "spinint(1e-1,1e-1,1e-1) q[0],q[1];"; "SpinInteraction")]
+#[test_case(Operation::from(XY::new(0, 1, CalculatorFloat::from(0.2))), "xy(2e-1) q[0],q[1];"; "XY")]
+#[test_case(Operation::from(RotateXY::new(0, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "rxy(2e-1,2e-1) q[0];"; "RotateXY")]
+#[test_case(Operation::from(PhaseShiftedControlledZ::new(0, 1, CalculatorFloat::from(0.1))), "pscz(1e-1) q[0],q[1];"; "PhaseShiftedControlledZ")]
+#[test_case(Operation::from(PhaseShiftedControlledPhase::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.2))), "pscp(1e-1,2e-1) q[0],q[1];"; "PhaseShiftedControlledPhase")]
 #[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
 #[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
 #[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "ccz q[0],q[1],q[2];"; "ControlledControlledPauliZ")]
-#[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(0.3) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
+#[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(3e-1) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
 #[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
 fn test_qasm_call_operation_identical_2_3(operation: Operation, converted: &str) {
     pyo3::prepare_freethreaded_python();
@@ -199,7 +200,6 @@ fn test_qasm_call_operation_error_2_3(operation: Operation, converted_3: &str) {
     })
 }
 
-#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), "", "pragma roqoqo PragmaSleep [0, 1] 3e-1;"; "PragmaSleep")]
 #[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), "", "pragma roqoqo PragmaStopDecompositionBlock [0, 1];"; "PragmaStopDecompositionBlock")]
 #[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), "", "pragma roqoqo PragmaStopParallelBlock [] 0e0;"; "PragmaStopParallelBlock")]
 #[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), "", "pragma roqoqo PragmaSetNumberOfMeasurements 20 ro;"; "PragmaSetNumberOfMeasurements")]
@@ -236,12 +236,14 @@ fn test_call_operation_different_2_roqoqo_3(
     })
 }
 
-#[test_case(Operation::from(PragmaLoop::new(2.0.into(), Circuit::new() + PauliX::new(0))), "pragma roqoqo PragmaLoop 2e0 PauliX(PauliX { qubit: 0 })\n;", "for uint i in [0:2] {\n    x q[0];\n}", "x q[0];\nx q[0];\n"; "PragmaLoop")]
+#[test_case(Operation::from(PragmaLoop::new(2.0.into(), Circuit::new() + PauliX::new(0))), "pragma roqoqo PragmaLoop 2e0 PauliX(PauliX { qubit: 0 })\n;", "for uint i in [0:2] {\n    x q[0];\n}", "x q[0];\nx q[0];\n", "x q[0];\nx q[0];\n"; "PragmaLoop")]
+#[test_case(Operation::from(PragmaSleep::new(vec![0,1], CalculatorFloat::from(0.3))), "pragma roqoqo PragmaSleep [0, 1] 3e-1;", "", "", "pragmasleep(3e-1) q[0];\npragmasleep(3e-1) q[1];"; "PragmaSleep")]
 fn test_call_operation_error_different_all(
     operation: Operation,
     converted_3_roqoqo: &str,
     converted_3_vanilla: &str,
-    converted_2_converted_3_braket: &str,
+    converted_3_braket: &str,
+    converted_2: &str,
 ) {
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
@@ -249,11 +251,11 @@ fn test_call_operation_error_different_all(
 
         assert_eq!(
             qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").unwrap(),
-            converted_2_converted_3_braket.to_string()
+            converted_3_braket.to_string()
         );
         assert_eq!(
             qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
-            converted_2_converted_3_braket.to_string()
+            converted_2.to_string()
         );
 
         assert_eq!(
