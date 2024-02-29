@@ -1066,6 +1066,9 @@ pub fn call_operation(
         )),
         Operation::DefinitionFloat(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => {
+                Ok(format!("float[{}] {};", op.length(), op.name(),))
+            }
             QasmVersion::V3point0(_) => {
                 if *op.is_output() {
                     Ok(format!("output float[{}] {};", op.length(), op.name(),))
@@ -1076,6 +1079,9 @@ pub fn call_operation(
         },
         Operation::DefinitionUsize(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => {
+                Ok(format!("uint[{}] {};", op.length(), op.name(),))
+            }
             QasmVersion::V3point0(_) => {
                 if *op.is_output() {
                     Ok(format!("output uint[{}] {};", op.length(), op.name(),))
@@ -1086,6 +1092,9 @@ pub fn call_operation(
         },
         Operation::DefinitionBit(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => {
+                Ok(format!("bit[{}] {};", op.length(), op.name(),))
+            }
             QasmVersion::V3point0(_) => {
                 if *op.is_output() {
                     Ok(format!("output bit[{}] {};", op.length(), op.name(),))
@@ -1096,6 +1105,12 @@ pub fn call_operation(
         },
         Operation::DefinitionComplex(op) => match qasm_version {
             QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => {
+                let mut data = "".to_string();
+                data.push_str(&format!("float[{}] {}_re;\n", op.length(), op.name(),));
+                data.push_str(&format!("float[{}] {}_im;", op.length(), op.name(),));
+                Ok(data)
+            }
             QasmVersion::V3point0(_) => {
                 let mut data = "".to_string();
                 if *op.is_output() {

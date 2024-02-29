@@ -103,14 +103,6 @@ fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) 
 }
 
 /// Test that all operations return the correct String: 2.0 vs. 3.0 differences
-#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro;"; "DefinitionFloat output")]
-#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro;"; "DefinitionFloat")]
-#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];", "output uint[1] ro;"; "DefinitionUsize ouput")]
-#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, false)), "creg ro[1];", "uint[1] ro;"; "DefinitionUsize")]
-#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg ro[1];", "output bit[1] ro;"; "DefinitionBit output")]
-#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, false)), "creg ro[1];", "bit[1] ro;"; "DefinitionBit")]
-#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro_re;\noutput float[1] ro_im;"; "DefinitionComplex output")]
-#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "", "input float other;"; "InputSymbolic")]
 fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
     assert_eq!(
@@ -248,11 +240,20 @@ fn test_call_operation_different_2_3_braket_dialect(
     );
 }
 
-#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;"; "PragmaGlobalPhase")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro;", "float[1] ro;"; "DefinitionFloat output")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro;", "float[1] ro;"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];", "output uint[1] ro;", "uint[1] ro;"; "DefinitionUsize output")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, false)), "creg ro[1];", "uint[1] ro;", "uint[1] ro;"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg ro[1];", "output bit[1] ro;", "bit[1] ro;"; "DefinitionBit output")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, false)), "creg ro[1];", "bit[1] ro;", "bit[1] ro;"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro_re;\noutput float[1] ro_im;", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex output")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro_re;\nfloat[1] ro_im;", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;", ""; "PragmaGlobalPhase")]
 fn test_call_operation_different_braket_dialect(
     operation: Operation,
     converted_2: &str,
     converted_3: &str,
+    converted_3_braket: &str,
 ) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
@@ -286,7 +287,7 @@ fn test_call_operation_different_braket_dialect(
             &mut None
         )
         .unwrap(),
-        converted_2.to_string()
+        converted_3_braket.to_string()
     );
 }
 
