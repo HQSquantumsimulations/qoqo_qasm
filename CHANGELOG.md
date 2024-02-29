@@ -2,6 +2,11 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.9.7
+
+* Removed `output` keyword from qasm string for 3.0Braket when the Definition has
+`is_output=True` as AWS Braket does not support this functionality.
+
 ### 0.9.6
 
 * Modified QASM 2.0 `PragmaSleep` gate definition
