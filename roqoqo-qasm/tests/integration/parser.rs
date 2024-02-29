@@ -203,6 +203,12 @@ fn test_symbols() {
     circuit_qoqo += RotateX::new(1, 1.5707963267948966.into());
     circuit_qoqo += RotateY::new(2, 0.7853981633974483.into());
     circuit_qoqo += PhaseShiftState1::new(2, 3.5.into());
+    circuit_qoqo += PhaseShiftState1::new(1, (-1.0).into());
+    circuit_qoqo += ControlledPhaseShift::new(0, 1, 2.5.into());
+    circuit_qoqo += RotateZ::new(2, 1.7320508075688767.into());
+    circuit_qoqo += RotateZ::new(1, 2.718281828459045.into());
+    circuit_qoqo += RotateZ::new(0, 1.0.into());
+    circuit_qoqo += RotateX::new(1, 4.0.into());
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }

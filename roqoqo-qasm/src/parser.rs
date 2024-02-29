@@ -213,8 +213,10 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                         Rule::parameter_list => {
                             let params_list = inner_pairs.next().unwrap().into_inner().clone();
                             for param in params_list {
-                                // Handle 'pi' constant
-                                let param_str = param.as_str().replace("pi", "3.141592653589793");
+                                // Handle 'pi' constant and math functions renames (Calculator)
+                                let mut param_str =
+                                    param.as_str().replace("pi", "3.141592653589793");
+                                param_str = param_str.replace("ln", "log");
                                 // Parse the mathematical expression
                                 let calc = Calculator::new();
                                 let parsed = calc.parse_str(&param_str).unwrap();

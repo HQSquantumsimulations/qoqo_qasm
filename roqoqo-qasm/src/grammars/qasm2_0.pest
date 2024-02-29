@@ -14,7 +14,7 @@ qubit_list = { argument ~ ("," ~ argument)* }
 argument = { id ~ "[" ~ integer ~ "]" }
 expr = { atom ~ (bin_op ~ atom)* }
 atom = _{ unary_minus? ~ primary }
-primary = _{ real | integer | "pi" | "(" ~ expr ~ ")" }
+primary = _{ real | integer | "pi" | "(" ~ expr ~ ")" | unary_op ~ "(" ~ expr ~ ")" }
 
 id = @{ ASCII_ALPHA_LOWER ~ (ASCII_ALPHANUMERIC | "_")* }
 real = @{ "-"? ~ ((ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*) | (ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+)) ~ (("e" | "E") ~ ("-" | "+")? ~ ASCII_DIGIT+)? }
