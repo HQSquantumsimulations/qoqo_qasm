@@ -2733,7 +2733,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-indexmap 2.2.3
+indexmap 2.2.4
 https://github.com/indexmap-rs/indexmap
 by 
 A hash table with consistent order and fast iteration.
@@ -15252,7 +15252,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-syn 2.0.51
+syn 2.0.52
 https://github.com/dtolnay/syn
 by David Tolnay <dtolnay@gmail.com>
 Parser for Rust source code
