@@ -208,7 +208,7 @@ fn test_symbols() {
     circuit_qoqo += RotateZ::new(2, 1.7320508075688767.into());
     circuit_qoqo += RotateZ::new(1, 2.718281828459045.into());
     circuit_qoqo += RotateZ::new(0, 1.0.into());
-    circuit_qoqo += RotateX::new(1, 4.0.into());
+    circuit_qoqo += RotateXY::new(1, 4.0.into(), 1.0.into());
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }

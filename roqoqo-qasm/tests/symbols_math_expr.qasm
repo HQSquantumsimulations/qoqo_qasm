@@ -11,4 +11,4 @@ cp(1+sin(-pi/2)+2.5) q[0],q[1];
 rz(tan(pi/3)) q[2];
 rz(exp(0.5+0.5)) q[1];
 rz(ln(exp(1))) q[0];
-rx(2*sqrt(4)) q[1];
+rxy(2*sqrt(4),1.0) q[1];
