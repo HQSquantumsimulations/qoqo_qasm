@@ -22,12 +22,11 @@ doctest = false
 roqoqo = { version = "1.9", features = ["serialize"] }
 qoqo_calculator = { version = "1.1" }
 ndarray = "0.15"
-pest = { version = "2.5", optional = true }
-pest_derive = { version = "2.5", optional = true }
+pest = "2.5"
+pest_derive ="2.5"
 num-complex = "0.4"
 
 [dev-dependencies]
 test-case = "3.0"
 
 [features]
-unstable_qasm_import = ["pest", "pest_derive"]

@@ -14,14 +14,12 @@
 
 use std::env::temp_dir;
 use std::fs;
-#[cfg(feature = "unstable_qasm_import")]
 use std::fs::File;
 use std::path::Path;
 
 use qoqo_calculator::CalculatorFloat;
 use roqoqo::{operations::*, Circuit};
 
-#[cfg(feature = "unstable_qasm_import")]
 use roqoqo_qasm::file_to_circuit;
 use roqoqo_qasm::Backend;
 
@@ -77,7 +75,6 @@ fn test_acceptance_with_qasmbackend() {
 
 /// Test generating a circuit from QASM file.
 #[test]
-#[cfg(feature = "unstable_qasm_import")]
 fn test_acceptance_with_parser() {
     let path = std::env::current_dir().unwrap().join("tests/input.qasm");
     let file = File::open(path).unwrap();

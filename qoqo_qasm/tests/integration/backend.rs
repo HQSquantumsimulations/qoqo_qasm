@@ -241,7 +241,6 @@ fn test_circuit_to_qasm_error(operation: Operation, qasm_version: &str) {
 }
 
 #[test]
-#[cfg(feature = "unstable_qasm_import")]
 fn test_parsing_methods() {
     use std::fs::File;
     use std::io::BufRead;

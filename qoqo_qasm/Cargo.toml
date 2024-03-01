@@ -47,4 +47,3 @@ pyo3-build-config = "0.20"
 [features]
 extension-module = ["pyo3/extension-module"]
 default = ["extension-module"]
-unstable_qasm_import = ["roqoqo-qasm/unstable_qasm_import"]
