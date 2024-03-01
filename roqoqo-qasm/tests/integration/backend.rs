@@ -191,7 +191,6 @@ fn test_parametric_gates() {
 }
 
 #[test]
-#[cfg(feature = "unstable_qasm_import")]
 fn test_parsing_methods() {
     use std::fs::File;
     use std::io::BufRead;

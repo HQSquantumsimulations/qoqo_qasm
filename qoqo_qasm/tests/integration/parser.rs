@@ -63,13 +63,17 @@ fn test_qasm_file_to_circuit_correct() {
 /// Test file error
 #[test]
 fn test_qasm_file_to_circuit_file_error() {
-    let result = qasm_file_to_circuit("test");
-    assert!(result.is_err());
-    assert_eq!(
-        result.unwrap_err().to_string(),
-        PyFileNotFoundError::new_err(
-            "Error during File opening: No such file or directory (os error 2)"
-        )
-        .to_string()
-    );
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        let result = qasm_file_to_circuit("test");
+        assert!(result.is_err());
+        assert!(result
+            .as_ref()
+            .unwrap_err()
+            .to_string()
+            .contains("Error during File opening:"));
+        assert!(result
+            .unwrap_err()
+            .is_instance_of::<PyFileNotFoundError>(py));
+    })
 }

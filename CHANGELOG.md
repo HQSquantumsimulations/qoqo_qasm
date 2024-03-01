@@ -2,6 +2,11 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.10.0
+
+* Updated QASM parsing feature to handle mathematical expressions and symbols correctly
+* QASM files/strings parsing feature is now stable
+
 ### 0.9.7
 
 * Removed `output` keyword from qasm string for 3.0Braket when the Definition has

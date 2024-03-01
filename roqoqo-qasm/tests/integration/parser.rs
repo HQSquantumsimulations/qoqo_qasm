@@ -184,3 +184,31 @@ fn test_include_line_skip() {
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
+
+#[allow(clippy::approx_constant)]
+#[test]
+fn test_symbols() {
+    let file = File::open(
+        std::env::current_dir()
+            .unwrap()
+            .join("tests/symbols_math_expr.qasm"),
+    )
+    .unwrap();
+
+    let circuit_from_file = file_to_circuit(file).unwrap();
+
+    let mut circuit_qoqo = Circuit::new();
+    circuit_qoqo += DefinitionBit::new("c".into(), 3, true);
+    circuit_qoqo += RotateZ::new(0, 3.141592653589793.into());
+    circuit_qoqo += RotateX::new(1, 1.5707963267948966.into());
+    circuit_qoqo += RotateY::new(2, 0.7853981633974483.into());
+    circuit_qoqo += PhaseShiftState1::new(2, 3.5.into());
+    circuit_qoqo += PhaseShiftState1::new(1, (-1.0).into());
+    circuit_qoqo += ControlledPhaseShift::new(0, 1, 2.5.into());
+    circuit_qoqo += RotateZ::new(2, 1.7320508075688767.into());
+    circuit_qoqo += RotateZ::new(1, 2.718281828459045.into());
+    circuit_qoqo += RotateZ::new(0, 1.0.into());
+    circuit_qoqo += RotateXY::new(1, 4.0.into(), 1.0.into());
+
+    assert_eq!(circuit_from_file, circuit_qoqo);
+}

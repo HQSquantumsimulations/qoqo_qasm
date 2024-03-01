@@ -286,7 +286,6 @@ impl Backend {
     ///
     /// * `Ok(Circuit)` - The translated qoqo Circuit.
     /// * `RoqoqoBackendError::GenericError` - Error encountered while parsing.
-    #[cfg(feature = "unstable_qasm_import")]
     pub fn file_to_circuit(&self, file: File) -> Result<Circuit, RoqoqoBackendError> {
         crate::file_to_circuit(file)
     }
@@ -301,7 +300,6 @@ impl Backend {
     ///
     /// * `Ok(Circuit)` - The translated qoqo Circuit.
     /// * `RoqoqoBackendError::GenericError` - Error encountered while parsing.
-    #[cfg(feature = "unstable_qasm_import")]
     pub fn string_to_circuit(&self, input: &str) -> Result<Circuit, RoqoqoBackendError> {
         crate::string_to_circuit(input)
     }
