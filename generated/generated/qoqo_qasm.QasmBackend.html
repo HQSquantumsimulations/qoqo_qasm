@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>qoqo_qasm.QasmBackend &mdash; qoqo_qasm 0.9.7 documentation</title>
+  <title>qoqo_qasm.QasmBackend &mdash; qoqo_qasm 0.10.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=4cb0f75e"></script>
+        <script src="../../_static/documentation_options.js?v=572de344"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -37,7 +37,7 @@
             qoqo_qasm
           </a>
               <div class="version">
-                0.9.7
+                0.10.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -57,6 +57,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#qoqo_qasm.QasmBackend.__new__"><code class="docutils literal notranslate"><span class="pre">QasmBackend.__new__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#qoqo_qasm.QasmBackend.circuit_to_qasm_file"><code class="docutils literal notranslate"><span class="pre">QasmBackend.circuit_to_qasm_file()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#qoqo_qasm.QasmBackend.circuit_to_qasm_str"><code class="docutils literal notranslate"><span class="pre">QasmBackend.circuit_to_qasm_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#qoqo_qasm.QasmBackend.qasm_file_to_circuit"><code class="docutils literal notranslate"><span class="pre">QasmBackend.qasm_file_to_circuit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#qoqo_qasm.QasmBackend.qasm_str_to_circuit"><code class="docutils literal notranslate"><span class="pre">QasmBackend.qasm_str_to_circuit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -64,6 +66,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.QasmBackend"><code class="docutils literal notranslate"><span class="pre">QasmBackend</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.qasm_call_circuit"><code class="docutils literal notranslate"><span class="pre">qasm_call_circuit()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.qasm_call_operation"><code class="docutils literal notranslate"><span class="pre">qasm_call_operation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.qasm_file_to_circuit"><code class="docutils literal notranslate"><span class="pre">qasm_file_to_circuit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.qasm_str_to_circuit"><code class="docutils literal notranslate"><span class="pre">qasm_str_to_circuit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -122,6 +126,12 @@ computing platforms.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.QasmBackend.circuit_to_qasm_str" title="qoqo_qasm.QasmBackend.circuit_to_qasm_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">circuit_to_qasm_str</span></code></a>(circuit)</p></td>
 <td><p>Translates a Circuit to a valid QASM string.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.QasmBackend.qasm_file_to_circuit" title="qoqo_qasm.QasmBackend.qasm_file_to_circuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">qasm_file_to_circuit</span></code></a>(file)</p></td>
+<td><p>Translates a QASM File to a Circuit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../qoqo_qasm.html#qoqo_qasm.QasmBackend.qasm_str_to_circuit" title="qoqo_qasm.QasmBackend.qasm_str_to_circuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">qasm_str_to_circuit</span></code></a>()</p></td>
+<td><p>Translates a QASM string into a qoqo Circuit instance.</p></td>
+</tr>
 </tbody>
 </table>
 <dl class="py method">
@@ -176,6 +186,49 @@ computing platforms.</p>
 <li><p><strong>TypeError</strong> -- Circuit conversion error</p></li>
 <li><p><strong>ValueError</strong> -- Operation not in QASM backend</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qoqo_qasm.QasmBackend.qasm_file_to_circuit">
+<span class="sig-name descname"><span class="pre">qasm_file_to_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend.qasm_file_to_circuit" title="Link to this definition"></a></dt>
+<dd><p>Translates a QASM File to a Circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>str</em>) -- The path to the QASM file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Circuit that was read from the QASM file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Circuit</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>PyFileNotFoundError</strong> -- The file could not be opened.</p></li>
+<li><p><strong>PyValueError</strong> -- An error occurred while converting the file into a Circuit.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qoqo_qasm.QasmBackend.qasm_str_to_circuit">
+<span class="sig-name descname"><span class="pre">qasm_str_to_circuit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qoqo_qasm.QasmBackend.qasm_str_to_circuit" title="Link to this definition"></a></dt>
+<dd><p>Translates a QASM string into a qoqo Circuit instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input</strong> (<em>str</em>) -- The QASM string to translate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Circuit that was read from the QASM file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Circuit</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>PyValueError</strong> -- An error occurred while converting the file into a Circuit.</p>
 </dd>
 </dl>
 </dd></dl>

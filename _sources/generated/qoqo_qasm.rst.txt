@@ -15,6 +15,8 @@
    
       qasm_call_circuit
       qasm_call_operation
+      qasm_file_to_circuit
+      qasm_str_to_circuit
    
    
 

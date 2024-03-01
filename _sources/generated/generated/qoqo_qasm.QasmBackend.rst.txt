@@ -16,6 +16,8 @@ qoqo\_qasm.QasmBackend
       ~QasmBackend.__init__
       ~QasmBackend.circuit_to_qasm_file
       ~QasmBackend.circuit_to_qasm_str
+      ~QasmBackend.qasm_file_to_circuit
+      ~QasmBackend.qasm_str_to_circuit
    
    
 
