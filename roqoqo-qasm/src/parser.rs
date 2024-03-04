@@ -311,7 +311,8 @@ pub fn file_to_circuit(file: File) -> Result<Circuit, RoqoqoBackendError> {
 /// * `Circuit` - The translated qoqo Circuit.
 /// * `RoqoqoBackendError::GenericError` - Error encountered while parsing.
 pub fn string_to_circuit(input: &str) -> Result<Circuit, RoqoqoBackendError> {
-    parse_qasm_file(input).map_err(|x| RoqoqoBackendError::GenericError {
+    let with_newline = input.to_owned() + "\n";
+    parse_qasm_file(&with_newline).map_err(|x| RoqoqoBackendError::GenericError {
         msg: format!("Error during conversion: {}", x),
     })
 }
