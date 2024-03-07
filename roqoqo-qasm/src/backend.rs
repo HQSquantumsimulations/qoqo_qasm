@@ -145,6 +145,18 @@ impl Backend {
             // Appending gate definition if not already seen before
             if !already_seen_definitions.contains(&op.hqslang().to_string()) {
                 already_seen_definitions.push(op.hqslang().to_string());
+
+                if let Operation::GateDefinition(gate_definition_operation) = op {
+                    for operation in gate_definition_operation.circuit().iter() {
+                        if !already_seen_definitions.contains(&operation.hqslang().to_string()) {
+                            already_seen_definitions.push(op.hqslang().to_string());
+                            definitions.push_str(&gate_definition(operation, self.qasm_version)?);
+                            if !definitions.is_empty() {
+                                definitions.push('\n');
+                            }
+                        }
+                    }
+                }
                 definitions.push_str(&gate_definition(op, self.qasm_version)?);
                 if !definitions.is_empty() {
                     definitions.push('\n');
@@ -159,7 +171,7 @@ impl Backend {
                 &mut Some(&mut variable_gatherer),
             )?);
 
-            if !data.is_empty() {
+            if !data.is_empty() && op.hqslang() != "GateDefinition" {
                 data.push('\n');
             }
         }

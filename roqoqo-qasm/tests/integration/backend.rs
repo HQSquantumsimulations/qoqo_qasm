@@ -16,6 +16,7 @@ use std::env::temp_dir;
 use std::fs;
 use std::path::Path;
 
+use qoqo_calculator::CalculatorFloat;
 use roqoqo::prelude::*;
 use roqoqo::{operations::*, Circuit};
 use roqoqo_qasm::Backend;
@@ -209,4 +210,54 @@ fn test_parsing_methods() {
         .collect::<String>();
     let result_from_string = backend.string_to_circuit(&unparsed_file);
     assert!(result_from_string.is_ok());
+}
+
+/// Test GateDefinition
+#[test_case("2.0", "qreg q[2]", "creg ro[2]"; "2.0")]
+#[test_case("3.0", "qubit[2] q", "bit[2] ro"; "3.0")]
+fn test_gate_definition_circuit(qasm_version: &str, qubits: &str, bits: &str) {
+    let backend = Backend::new(None, Some(qasm_version.to_string())).unwrap();
+
+    let mut circuit_gate = Circuit::new();
+    circuit_gate += PauliX::new(0);
+    circuit_gate += Hadamard::new(0);
+    circuit_gate += CNOT::new(0, 1);
+    circuit_gate += RotateX::new(0, CalculatorFloat::from("theta"));
+    circuit_gate += RotateX::new(1, CalculatorFloat::from("theta*pi/2"));
+    let mut circuit = Circuit::new();
+
+    circuit += DefinitionBit::new("ro".to_string(), 2, false);
+    circuit += PauliY::new(0);
+    circuit += GateDefinition::new(
+        circuit_gate,
+        "rotate_bell".to_owned(),
+        vec![0, 1],
+        vec!["theta".to_owned()],
+    );
+    circuit += PauliZ::new(1);
+    circuit += MeasureQubit::new(0, "ro".to_string(), 0);
+
+    let mut file_name = format!(
+        "test_gate_definition_{}",
+        qasm_version.chars().next().unwrap()
+    );
+    backend
+        .circuit_iterator_to_qasm_file(
+            circuit.iter(),
+            temp_dir().as_path(),
+            Path::new(file_name.as_str()),
+            true,
+        )
+        .unwrap();
+    let cnot = if qasm_version == "2.0" {
+        "CX"
+    } else {
+        "ctrl @ x"
+    };
+    let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ {cnot} c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\ngate h a {{ u2(0,pi) a; }}\ngate rotate_bell(theta) qb_0,qb_1\n{{\n    x qb_0;\n    h qb_0;\n    cx qb_0,qb_1;\n    rx(theta) qb_0;\n    rx(theta*pi/2) qb_1;\n}}\ngate y a {{ u3(pi,pi/2,pi/2) a; }}\ngate z a {{ u1(pi) a; }}\n\n{qubits};\n\n{bits};\ny q[0];\nz q[1];\nmeasure q[0] -> ro[0];\n");
+    file_name.push_str(".qasm");
+    let read_in_path = temp_dir().join(Path::new(file_name.as_str()));
+    let extracted = fs::read_to_string(&read_in_path);
+    fs::remove_file(&read_in_path).unwrap();
+    assert_eq!(lines, extracted.unwrap());
 }

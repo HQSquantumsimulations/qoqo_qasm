@@ -10,3 +10,6 @@ lto = true
 
 [profile.bench]
 lto = true
+
+[patch.crates-io]
+roqoqo ={path = "../qoqo/roqoqo" }

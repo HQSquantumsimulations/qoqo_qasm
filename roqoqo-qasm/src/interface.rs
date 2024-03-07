@@ -22,7 +22,7 @@ use crate::QasmVersion;
 use crate::VariableGatherer;
 
 // Operations that are ignored by backend and do not throw an error
-const ALLOWED_OPERATIONS: &[&str; 11] = &[
+const ALLOWED_OPERATIONS: &[&str; 12] = &[
     "PragmaGetDensityMatrix",
     "PragmaGetOccupationProbability",
     "PragmaGetPauliProduct",
@@ -34,10 +34,11 @@ const ALLOWED_OPERATIONS: &[&str; 11] = &[
     "PragmaStopParallelBlock",
     "InputSymbolic",
     "PragmaGlobalPhase",
+    "GateDefinition",
 ];
 
 // Operations that are ignored when looking for a QASM definition
-const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 11] = &[
+const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 12] = &[
     "SingleQubitGate",
     "DefinitionFloat",
     "DefinitionUsize",
@@ -49,6 +50,7 @@ const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 11] = &[
     "PragmaRepeatedMeasurement",
     "MeasureQubit",
     "PragmaLoop",
+    "CallDefinedGate",
 ];
 
 /// Calls the parsing function of the VariableGatherer, if present.
@@ -1155,6 +1157,20 @@ pub fn call_operation(
                 }
             }
         },
+        Operation::CallDefinedGate(op) => Ok(format!(
+            "{}({}) {}",
+            op.gate_name(),
+            op.free_parameters()
+                .iter()
+                .map(|param| param.to_string())
+                .collect::<Vec<String>>()
+                .join(","),
+            op.qubits()
+                .iter()
+                .map(|qubit| format!("{}[{}]", qubit_register_name, qubit))
+                .collect::<Vec<String>>()
+                .join(",")
+        )),
         _ => {
             if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())
@@ -1317,6 +1333,35 @@ pub fn gate_definition(
         Operation::PragmaSleep(_) => Ok(String::from(
             "opaque pragmasleep(param) a;"
         )),
+        Operation::GateDefinition(gate_definition) => {
+            let mut definition_str = format!(
+                "gate {}({}) {}\n{{\n",
+                gate_definition.name(),
+                gate_definition.free_parameters().join(","),
+                gate_definition
+                    .qubits()
+                    .iter()
+                    .map(|&qubit| format!("qb_{}", qubit).to_owned())
+                    .collect::<Vec<String>>()
+                    .join(",")
+            );
+            for operation in gate_definition.circuit().iter() {
+                definition_str.push_str("    ");
+                definition_str.push_str(&call_operation(
+                    operation,
+                    "replace_me",
+                    qasm_version,
+                    &mut None,
+                )?);
+                definition_str.push_str("\n");
+            }
+            definition_str.push_str("}");
+            for qubit in gate_definition.qubits().iter() {
+                definition_str = definition_str
+                    .replace(&format!("replace_me[{}]", qubit), &format!("qb_{}", qubit));
+            }
+            Ok(definition_str)
+        }
         _ => {
             if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())

@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.10.2
+
+* Added support for GateDefinition and CallDefinedGate
+
 ### 0.10.1
 
 * Fixed missing '\n' character bug for QASM parsing feature

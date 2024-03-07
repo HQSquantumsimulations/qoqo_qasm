@@ -563,7 +563,7 @@ dependencies = [
 
 [[package]]
 name = "qoqo_qasm"
-version = "0.10.1"
+version = "0.11.0"
 dependencies = [
  "ndarray",
  "pyo3",
@@ -641,9 +641,7 @@ dependencies = [
 
 [[package]]
 name = "roqoqo"
-version = "1.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fca877b44047454b7d544ef0124f96232f29fc274ddf98612bbd7ac42c05b973"
+version = "1.10.1"
 dependencies = [
  "bincode",
  "nalgebra",
@@ -664,9 +662,7 @@ dependencies = [
 
 [[package]]
 name = "roqoqo-derive"
-version = "1.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b967f057ea8343811ad3f723a5315efc5ff4760997ab823b9a186f582fc3f24"
+version = "1.10.1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -675,7 +671,7 @@ dependencies = [
 
 [[package]]
 name = "roqoqo-qasm"
-version = "0.10.1"
+version = "0.11.0"
 dependencies = [
  "ndarray",
  "num-complex",
@@ -811,9 +807,9 @@ checksum = "e6ecd384b10a64542d77071bd64bd7b231f4ed5940fba55e98c3de13824cf3d7"
 
 [[package]]
 name = "struqture"
-version = "1.6.0"
+version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be0c8e01ccb1eb5704756651126b09a0eb276fe3d018e87f6490773cefb38359"
+checksum = "b5e6a6fae203fb8098042ab51364cf5ff79020312e68b63038371d627029ab08"
 dependencies = [
  "itertools",
  "ndarray",
@@ -828,9 +824,9 @@ dependencies = [
 
 [[package]]
 name = "struqture-py"
-version = "1.6.0"
+version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09b138454a27864ea7ca9a22eaf0351270c78cb329961e5d46395cc9bcac31b3"
+checksum = "bd549b80a7e8a929b9125c37c8ec8f74916df3ed2fbc427462ee93812c1f450e"
 dependencies = [
  "bincode",
  "num-complex",
@@ -852,9 +848,9 @@ dependencies = [
 
 [[package]]
 name = "struqture-py-macros"
-version = "1.6.0"
+version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9274be85d19e94e55fba30b59ef862d2b11778b099a61449cb381c8965644c79"
+checksum = "3215f75379ad75b4847b3166e5fd39de65ae2723a9cdd382ad92966925a8f48e"
 dependencies = [
  "num-complex",
  "proc-macro2",
