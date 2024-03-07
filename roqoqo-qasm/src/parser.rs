@@ -271,7 +271,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                 for pair in inner_pairs.clone() {
                     match pair.as_rule() {
                         Rule::parameter_list => {
-                            let params_list = inner_pairs.next().unwrap().into_inner().clone();
+                            let params_list = inner_pairs.next().unwrap().into_inner();
                             for param in params_list {
                                 // Handle 'pi' constant and math functions renames (Calculator)
                                 let mut param_str =
@@ -285,7 +285,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                             }
                         }
                         Rule::qubit_list => {
-                            let qbt_list = inner_pairs.next().unwrap().into_inner().clone();
+                            let qbt_list = inner_pairs.next().unwrap().into_inner();
                             for qbt_rule in qbt_list {
                                 let mut inner_pairs = qbt_rule.into_inner();
                                 let _id = inner_pairs.next().unwrap().as_str();
@@ -350,7 +350,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                 for pair in inner_pairs.clone() {
                     match pair.as_rule() {
                         Rule::parameter_list_def => {
-                            let params_list = inner_pairs.next().unwrap().into_inner().clone();
+                            let params_list = inner_pairs.next().unwrap().into_inner();
                             for param in params_list {
                                 params.push(param.as_str().to_owned());
                             }
@@ -360,13 +360,11 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                                 .next()
                                 .unwrap()
                                 .into_inner()
-                                .clone()
                                 .map(|qbt_pair| qbt_pair.as_str().to_owned())
                                 .collect();
                         }
                         Rule::gates_definition => {
-                            let gate_list = inner_pairs.next().unwrap().into_inner().clone();
-                            for gate_pair in gate_list.clone() {
+                            for gate_pair in inner_pairs.next().unwrap().into_inner() {
                                 let mut inner_gate_pairs = gate_pair.into_inner();
                                 let id = inner_gate_pairs.next().unwrap().as_str();
                                 let mut gate_params: Vec<String> = vec![];
@@ -386,9 +384,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                                                 .next()
                                                 .unwrap()
                                                 .into_inner()
-                                                .clone()
                                                 .filter_map(|qbt_pair| {
-                                                    dbg!(qbt_pair.clone());
                                                     qubits.iter().position(|qubit_name| {
                                                         qubit_name.as_str() == qbt_pair.as_str()
                                                     })
