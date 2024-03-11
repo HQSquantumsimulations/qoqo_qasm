@@ -178,7 +178,10 @@ fn test_gate_definitions() {
     circuit_qoqo.add_operation(CallDefinedGate::new(
         "custom_gate".to_owned(),
         vec![0, 1],
-        vec![0.5, 3.141592653589793],
+        vec![
+            CalculatorFloat::from(0.5),
+            CalculatorFloat::from(3.141592653589793),
+        ],
     ));
 
     assert_eq!(circuit_from_file, circuit_qoqo);

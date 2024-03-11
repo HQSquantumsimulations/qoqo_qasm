@@ -227,8 +227,7 @@ fn gate_dispatch(
                     .map(|param| {
                         let mut param_str = param.replace("pi", "3.141592653589793");
                         param_str = param_str.replace("ln", "log");
-                        let calc = Calculator::new();
-                        calc.parse_str(&param_str).unwrap()
+                        CalculatorFloat::from(param_str)
                     })
                     .collect(),
             ))),
