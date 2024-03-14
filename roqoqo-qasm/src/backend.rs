@@ -180,6 +180,12 @@ impl Backend {
                         &mut already_seen_definitions,
                         &mut definitions,
                     )?,
+                    Operation::PragmaLoop(pragma_loop) => process_operation_circuit(
+                        pragma_loop.circuit().iter(),
+                        self.qasm_version,
+                        &mut already_seen_definitions,
+                        &mut definitions,
+                    )?,
                     _ => {}
                 }
                 definitions.push_str(&gate_definition(op, self.qasm_version)?);
