@@ -22,7 +22,7 @@ use crate::QasmVersion;
 use crate::VariableGatherer;
 
 // Operations that are ignored by backend and do not throw an error
-const ALLOWED_OPERATIONS: &[&str; 12] = &[
+pub(crate) const ALLOWED_OPERATIONS: &[&str; 12] = &[
     "PragmaGetDensityMatrix",
     "PragmaGetOccupationProbability",
     "PragmaGetPauliProduct",
@@ -38,7 +38,7 @@ const ALLOWED_OPERATIONS: &[&str; 12] = &[
 ];
 
 // Operations that are ignored when looking for a QASM definition
-const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 12] = &[
+pub(crate) const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 12] = &[
     "SingleQubitGate",
     "DefinitionFloat",
     "DefinitionUsize",

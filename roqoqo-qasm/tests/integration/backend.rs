@@ -213,8 +213,8 @@ fn test_parsing_methods() {
 }
 
 /// Test GateDefinition
-#[test_case("2.0", "qreg q[2]", "creg ro[2]"; "2.0")]
-#[test_case("3.0", "qubit[2] q", "bit[2] ro"; "3.0")]
+#[test_case("2.0", "qreg q[3]", "creg ro[2]"; "2.0")]
+#[test_case("3.0", "qubit[3] q", "bit[2] ro"; "3.0")]
 fn test_gate_definition_circuit(qasm_version: &str, qubits: &str, bits: &str) {
     let backend = Backend::new(None, Some(qasm_version.to_string())).unwrap();
 
@@ -235,6 +235,11 @@ fn test_gate_definition_circuit(qasm_version: &str, qubits: &str, bits: &str) {
         vec!["theta".to_owned()],
     );
     circuit += PauliZ::new(1);
+    circuit += CallDefinedGate::new(
+        "rotate_bell".to_owned(),
+        vec![1, 2],
+        vec![CalculatorFloat::PI],
+    );
     circuit += MeasureQubit::new(0, "ro".to_string(), 0);
 
     let mut file_name = format!(
@@ -254,7 +259,7 @@ fn test_gate_definition_circuit(qasm_version: &str, qubits: &str, bits: &str) {
     } else {
         "ctrl @ x"
     };
-    let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ {cnot} c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\ngate h a {{ u2(0,pi) a; }}\ngate rotate_bell(theta) qb_0,qb_1\n{{\n    x qb_0;\n    h qb_0;\n    cx qb_0,qb_1;\n    rx(theta) qb_0;\n    rx(theta*pi/2) qb_1;\n}}\ngate y a {{ u3(pi,pi/2,pi/2) a; }}\ngate z a {{ u1(pi) a; }}\n\n{qubits};\n\n{bits};\ny q[0];\nz q[1];\nmeasure q[0] -> ro[0];\n");
+    let lines = format!("OPENQASM {qasm_version};\n\ngate u3(theta,phi,lambda) q {{ U(theta,phi,lambda) q; }}\ngate u2(phi,lambda) q {{ U(pi/2,phi,lambda) q; }}\ngate u1(lambda) q {{ U(0,0,lambda) q; }}\ngate rx(theta) a {{ u3(theta,-pi/2,pi/2) a; }}\ngate ry(theta) a {{ u3(theta,0,0) a; }}\ngate rz(phi) a {{ u1(phi) a; }}\ngate cx c,t {{ {cnot} c,t; }}\n\ngate x a {{ u3(pi,0,pi) a; }}\ngate h a {{ u2(0,pi) a; }}\ngate rotate_bell(theta) qb_0,qb_1\n{{\n    x qb_0;\n    h qb_0;\n    cx qb_0,qb_1;\n    rx(theta) qb_0;\n    rx(theta*pi/2) qb_1;\n}}\ngate y a {{ u3(pi,pi/2,pi/2) a; }}\ngate z a {{ u1(pi) a; }}\n\n{qubits};\n\n{bits};\ny q[0];\nz q[1];\nrotate_bell(3.141592653589793e0) q[1],q[2]\nmeasure q[0] -> ro[0];\n");
     file_name.push_str(".qasm");
     let read_in_path = temp_dir().join(Path::new(file_name.as_str()));
     let extracted = fs::read_to_string(&read_in_path);

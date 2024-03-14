@@ -10,7 +10,10 @@
 // express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{call_operation, gate_definition, VariableGatherer};
+use crate::{
+    call_operation, gate_definition, VariableGatherer, ALLOWED_OPERATIONS,
+    NO_DEFINITION_REQUIRED_OPERATIONS,
+};
 use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::{Circuit, RoqoqoBackendError};
@@ -129,7 +132,7 @@ impl Backend {
             &Operation::from(CNOT::new(0, 1)),
             self.qasm_version,
         )?);
-        definitions.push('\n');
+        definitions.push_str("\n\n");
 
         // Main loop over the circuit
         for op in circuit {
@@ -158,7 +161,9 @@ impl Backend {
                     }
                 }
                 definitions.push_str(&gate_definition(op, self.qasm_version)?);
-                if !definitions.is_empty() {
+                if !definitions.is_empty()
+                    && !NO_DEFINITION_REQUIRED_OPERATIONS.contains(&op.hqslang())
+                {
                     definitions.push('\n');
                 }
             }
@@ -171,7 +176,7 @@ impl Backend {
                 &mut Some(&mut variable_gatherer),
             )?);
 
-            if !data.is_empty() && op.hqslang() != "GateDefinition" {
+            if !data.is_empty() && !ALLOWED_OPERATIONS.contains(&op.hqslang()) {
                 data.push('\n');
             }
         }
@@ -194,7 +199,7 @@ impl Backend {
         match self.qasm_version {
             QasmVersion::V2point0 => qasm_string.push_str(
                 format!(
-                    "qreg {}[{}];\n\n",
+                    "\nqreg {}[{}];\n\n",
                     self.qubit_register_name,
                     number_qubits_required + 1,
                 )
@@ -202,7 +207,7 @@ impl Backend {
             ),
             QasmVersion::V3point0(_) => qasm_string.push_str(
                 format!(
-                    "qubit[{}] {};\n\n",
+                    "\nqubit[{}] {};\n\n",
                     number_qubits_required + 1,
                     self.qubit_register_name,
                 )
