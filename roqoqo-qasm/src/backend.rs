@@ -165,37 +165,49 @@ impl Backend {
 
             // Appending gate definition if not already seen before
             if !already_seen_definitions.contains(&op.hqslang().to_string()) {
-                already_seen_definitions.push(op.hqslang().to_string());
-
-                match op {
-                    Operation::GateDefinition(gate_definition) => process_operation_circuit(
-                        gate_definition.circuit().iter(),
-                        self.qasm_version,
-                        &mut already_seen_definitions,
-                        &mut definitions,
-                    )?,
-                    Operation::PragmaConditional(pragma_conditional) => process_operation_circuit(
-                        pragma_conditional.circuit().iter(),
-                        self.qasm_version,
-                        &mut already_seen_definitions,
-                        &mut definitions,
-                    )?,
-                    Operation::PragmaLoop(pragma_loop) => process_operation_circuit(
-                        pragma_loop.circuit().iter(),
-                        self.qasm_version,
-                        &mut already_seen_definitions,
-                        &mut definitions,
-                    )?,
-                    _ => {}
+                let mut continue_process = false;
+                if let Operation::GateDefinition(gate_definition) = op {
+                    if !already_seen_definitions.contains(&gate_definition.name()) {
+                        already_seen_definitions.push(gate_definition.name().to_owned());
+                        continue_process = true;
+                    }
+                } else {
+                    already_seen_definitions.push(op.hqslang().to_string());
+                    continue_process = true;
                 }
-                definitions.push_str(&gate_definition(op, self.qasm_version)?);
-                if !definitions.is_empty()
-                    && !NO_DEFINITION_REQUIRED_OPERATIONS.contains(&op.hqslang())
-                {
-                    definitions.push('\n');
+
+                if continue_process {
+                    match op {
+                        Operation::GateDefinition(gate_definition) => process_operation_circuit(
+                            gate_definition.circuit().iter(),
+                            self.qasm_version,
+                            &mut already_seen_definitions,
+                            &mut definitions,
+                        )?,
+                        Operation::PragmaConditional(pragma_conditional) => {
+                            process_operation_circuit(
+                                pragma_conditional.circuit().iter(),
+                                self.qasm_version,
+                                &mut already_seen_definitions,
+                                &mut definitions,
+                            )?
+                        }
+                        Operation::PragmaLoop(pragma_loop) => process_operation_circuit(
+                            pragma_loop.circuit().iter(),
+                            self.qasm_version,
+                            &mut already_seen_definitions,
+                            &mut definitions,
+                        )?,
+                        _ => {}
+                    }
+                    definitions.push_str(&gate_definition(op, self.qasm_version)?);
+                    if !definitions.is_empty()
+                        && !NO_DEFINITION_REQUIRED_OPERATIONS.contains(&op.hqslang())
+                    {
+                        definitions.push('\n');
+                    }
                 }
             }
-
             // Appending operation QASM instruction
             data.push_str(&call_operation(
                 op,
