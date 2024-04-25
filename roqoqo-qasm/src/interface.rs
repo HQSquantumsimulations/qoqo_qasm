@@ -1158,7 +1158,7 @@ pub fn call_operation(
             }
         },
         Operation::CallDefinedGate(op) => Ok(format!(
-            "{}({}) {}",
+            "{}({}) {};",
             op.gate_name(),
             op.free_parameters()
                 .iter()
