@@ -68,7 +68,7 @@ impl QasmBackendWrapper {
     ///     TypeError: Circuit conversion error
     ///     ValueError: Operation not in QASM backend
     #[pyo3(text_signature = "($self, circuit)")]
-    pub fn circuit_to_qasm_str(&self, circuit: &PyAny) -> PyResult<String> {
+    pub fn circuit_to_qasm_str(&self, circuit: &Bound<PyAny>) -> PyResult<String> {
         let circuit = convert_into_circuit(circuit).map_err(|x| {
             PyTypeError::new_err(format!("Cannot convert python object to Circuit: {x:?}"))
         })?;
@@ -93,7 +93,7 @@ impl QasmBackendWrapper {
     #[pyo3(text_signature = "($self, circuit, folder_name, filename, overwrite)")]
     pub fn circuit_to_qasm_file(
         &self,
-        circuit: &PyAny,
+        circuit: &Bound<PyAny>,
         folder_name: String,
         filename: String,
         overwrite: bool,

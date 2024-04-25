@@ -1,8 +1,5 @@
 [workspace]
-members = [
-    "roqoqo-qasm",
-    "qoqo_qasm",
-]
+members = ["roqoqo-qasm", "qoqo_qasm"]
 resolver = "2"
 
 [profile.release]
