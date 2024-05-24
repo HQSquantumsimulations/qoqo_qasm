@@ -37,7 +37,7 @@ fn gate_dispatch(
     name: &str,
     params: &[String],
     qubits: &[usize],
-    defined_custom_gates: &Vec<(String, usize, usize)>,
+    defined_custom_gates: &[(String, usize, usize)],
 ) -> Option<Operation> {
     match name {
         "rz" => Some(Operation::from(RotateZ::new(
@@ -219,18 +219,20 @@ fn gate_dispatch(
         ))),
         _ => defined_custom_gates
             .contains(&(name.to_owned(), qubits.len(), params.len()))
-            .then_some(Operation::from(CallDefinedGate::new(
-                name.to_owned(),
-                qubits.to_vec(),
-                params
-                    .iter()
-                    .map(|param| {
-                        let mut param_str = param.replace("pi", "3.141592653589793");
-                        param_str = param_str.replace("ln", "log");
-                        CalculatorFloat::from(param_str)
-                    })
-                    .collect(),
-            ))),
+            .then(|| {
+                Operation::from(CallDefinedGate::new(
+                    name.to_owned(),
+                    qubits.to_vec(),
+                    params
+                        .iter()
+                        .map(|param| {
+                            let mut param_str = param.replace("pi", "3.141592653589793");
+                            param_str = param_str.replace("ln", "log");
+                            CalculatorFloat::from(param_str)
+                        })
+                        .collect(),
+                ))
+            }),
     }
 }
 
@@ -300,7 +302,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                         _ => continue,
                     }
                 }
-                gate_dispatch(id, &params, &qubits, &defined_custom_gates)
+                gate_dispatch(id, &params, &qubits, defined_custom_gates)
             }
             Rule::measurement => {
                 let mut inner_pairs = pair.into_inner();
@@ -337,7 +339,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                         "0.0".to_owned(),
                     ],
                     &[0_usize, 1_usize, 2_usize, 3_usize],
-                    &defined_custom_gates,
+                    defined_custom_gates,
                 )
                 .is_some()
                 {
@@ -397,7 +399,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                                     id,
                                     &gate_params,
                                     &gate_qubits,
-                                    &defined_custom_gates,
+                                    defined_custom_gates,
                                 ) {
                                     definition_circuit.add_operation(gate);
                                 }

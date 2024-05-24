@@ -47,7 +47,7 @@ fn process_operation_circuit<'a>(
             already_seen_declarations.push(operation.hqslang().to_string());
             declarations.push_str(&gate_definition(operation, qasm_version)?);
             if !declarations.is_empty() {
-                declarations.push_str("\n");
+                declarations.push('\n');
             }
         }
     }
@@ -167,7 +167,7 @@ impl Backend {
             if !already_seen_definitions.contains(&op.hqslang().to_string()) {
                 let mut continue_process = false;
                 if let Operation::GateDefinition(gate_definition) = op {
-                    if !already_seen_definitions.contains(&gate_definition.name()) {
+                    if !already_seen_definitions.contains(gate_definition.name()) {
                         already_seen_definitions.push(gate_definition.name().to_owned());
                         continue_process = true;
                     }

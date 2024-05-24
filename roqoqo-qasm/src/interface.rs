@@ -1353,9 +1353,9 @@ pub fn gate_definition(
                     qasm_version,
                     &mut None,
                 )?);
-                definition_str.push_str("\n");
+                definition_str.push('\n');
             }
-            definition_str.push_str("}");
+            definition_str.push('}');
             for qubit in gate_definition.qubits().iter() {
                 definition_str = definition_str
                     .replace(&format!("replace_me[{}]", qubit), &format!("qb_{}", qubit));
