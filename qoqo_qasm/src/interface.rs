@@ -35,7 +35,7 @@ use roqoqo_qasm::{call_circuit, call_operation, gate_definition, QasmVersion};
 ///     ValueError: Operation not in QASM backend
 #[pyfunction]
 pub fn qasm_call_circuit(
-    circuit: &PyAny,
+    circuit: &Bound<PyAny>,
     qubit_register_name: &str,
     qasm_version: &str,
 ) -> PyResult<Vec<String>> {
@@ -64,7 +64,7 @@ pub fn qasm_call_circuit(
 ///     ValueError: Operation not in QASM backend
 #[pyfunction]
 pub fn qasm_call_operation(
-    operation: &PyAny,
+    operation: &Bound<PyAny>,
     qubit_register_name: &str,
     qasm_version: &str,
 ) -> PyResult<String> {
@@ -91,7 +91,7 @@ pub fn qasm_call_operation(
 /// Raises:
 ///     ValueError: Operation-specific error or Operation not in QASM backend
 #[pyfunction]
-pub fn qasm_gate_definition(operation: &PyAny, qasm_version: &str) -> PyResult<String> {
+pub fn qasm_gate_definition(operation: &Bound<PyAny>, qasm_version: &str) -> PyResult<String> {
     let operation = convert_pyany_to_operation(operation).map_err(|x| {
         PyTypeError::new_err(format!("Cannot convert python object to Operation: {x:?}"))
     })?;

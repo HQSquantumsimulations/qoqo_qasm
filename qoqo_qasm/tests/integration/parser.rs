@@ -20,18 +20,15 @@ use roqoqo::{operations::*, Circuit};
 use qoqo_qasm::qasm_file_to_circuit;
 
 // helper functions
-fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrapper> {
-    let circuit_type = py.get_type::<CircuitWrapper>();
-    let circuitpy = circuit_type
-        .call0()
-        .unwrap()
-        .downcast::<PyCell<CircuitWrapper>>()
-        .unwrap();
+fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrapper> {
+    let circuit_type = py.get_type_bound::<CircuitWrapper>();
+    let binding = circuit_type.call0().unwrap();
+    let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op).unwrap();
         circuitpy.call_method1("add", (new_op.clone(),)).unwrap();
     }
-    circuitpy
+    circuitpy.to_owned()
 }
 
 /// Test correct functionality with basic circuit
