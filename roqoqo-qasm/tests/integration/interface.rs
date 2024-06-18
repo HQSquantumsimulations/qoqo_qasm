@@ -20,7 +20,6 @@ use roqoqo::Circuit;
 use roqoqo_qasm::{call_circuit, call_operation, gate_definition, Qasm3Dialect, QasmVersion};
 use std::collections::HashMap;
 use std::f64::consts::PI;
-use std::usize;
 use test_case::test_case;
 
 fn tmp_create_map() -> HashMap<usize, usize> {
