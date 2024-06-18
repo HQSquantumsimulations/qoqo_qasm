@@ -22,7 +22,6 @@ use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
-use std::usize;
 
 /// QASM backend to qoqo
 ///
