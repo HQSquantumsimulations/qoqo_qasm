@@ -168,7 +168,7 @@ fn gate_dispatch(
             )))
         }
         "u2" => {
-            let theta = CalculatorFloat::ZERO;
+            let theta = CalculatorFloat::FRAC_PI_2;
             let phi = CalculatorFloat::from(params[0].clone());
             let lambda = CalculatorFloat::from(params[1].clone());
             let alpha_r =

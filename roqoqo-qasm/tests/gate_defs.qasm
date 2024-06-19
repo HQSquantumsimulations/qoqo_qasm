@@ -12,11 +12,11 @@ gate h a { u2(0,pi) a; }
 gate custom_gate(theta, phi) qb1,qb2
 {
     h qb1;
-    rx(theta,phi) qb2;
+    rx(theta) qb2;
     rx(phi*pi/2) qb1;
 }
 
-qreg q[1];
+qreg q[2];
 
 h q[0];
 custom_gate(0.5,pi) q[0],q[1];

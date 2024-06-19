@@ -23,18 +23,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
 
-/// QASM backend to qoqo
-///
-/// This backend to roqoqo produces QASM output which can be exported.
-///
-/// This backend takes a roqoqo circuit and returns a QASM String or writes a QASM file
-/// containing the translated circuit. The circuit itself is translated using the roqoqo-qasm
-/// interface. In this backend, the initialization sets up the relevant parameters and the run
-/// function calls the QASM interface and writes the QASM file, which is saved to be used by the
-/// user on whatever platform they see fit. QASM input is widely supported on various quantum
-/// computing platforms.
-///
-///
+/// Checks for new declarations in the circuit.
 fn process_operation_circuit<'a>(
     circuit: impl Iterator<Item = &'a Operation>,
     qasm_version: QasmVersion,
@@ -53,6 +42,18 @@ fn process_operation_circuit<'a>(
     Ok(())
 }
 
+/// QASM backend to qoqo
+///
+/// This backend to roqoqo produces QASM output which can be exported.
+///
+/// This backend takes a roqoqo circuit and returns a QASM String or writes a QASM file
+/// containing the translated circuit. The circuit itself is translated using the roqoqo-qasm
+/// interface. In this backend, the initialization sets up the relevant parameters and the run
+/// function calls the QASM interface and writes the QASM file, which is saved to be used by the
+/// user on whatever platform they see fit. QASM input is widely supported on various quantum
+/// computing platforms.
+///
+///
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Backend {
     /// Name of the qubit_register assigned to the roqoqo qubits.
