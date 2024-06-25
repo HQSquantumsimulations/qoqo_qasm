@@ -8,6 +8,15 @@ gate ry(theta) a { u3(theta,0,0) a; }
 gate rz(phi) a { u1(phi) a; }
 gate cx c,t { CX c,t; }
 gate h a { u2(0,pi) a; }
-qreg q[1];
+
+gate custom_gate(theta, phi) qb1,qb2
+{
+    h qb1;
+    rx(theta) qb2;
+    rx(phi*pi/2) qb1;
+}
+
+qreg q[2];
 
 h q[0];
+custom_gate(0.5,pi) q[0],q[1];

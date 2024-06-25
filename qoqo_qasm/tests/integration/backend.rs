@@ -35,31 +35,29 @@ use roqoqo::Circuit;
 use test_case::test_case;
 
 // helper functions
-fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrapper> {
-    let circuit_type = py.get_type::<CircuitWrapper>();
-    let circuitpy = circuit_type
-        .call0()
-        .unwrap()
-        .downcast::<PyCell<CircuitWrapper>>()
-        .unwrap();
+fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrapper> {
+    let circuit_type = py.get_type_bound::<CircuitWrapper>();
+    let binding = circuit_type.call0().unwrap();
+    let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op).unwrap();
         circuitpy.call_method1("add", (new_op.clone(),)).unwrap();
     }
-    circuitpy
+    circuitpy.to_owned()
 }
 
 fn new_qasmbackend(
     py: Python,
     qubit_register_name: Option<String>,
     qasm_version: Option<String>,
-) -> &PyCell<QasmBackendWrapper> {
-    let backend_type = py.get_type::<QasmBackendWrapper>();
+) -> Bound<QasmBackendWrapper> {
+    let backend_type = py.get_type_bound::<QasmBackendWrapper>();
     backend_type
         .call1((qubit_register_name, qasm_version))
         .unwrap()
-        .downcast::<PyCell<QasmBackendWrapper>>()
+        .downcast::<QasmBackendWrapper>()
         .unwrap()
+        .to_owned()
 }
 
 /// Test circuit_to_qasm_str on a simple Circuit
@@ -188,7 +186,7 @@ fn test_circuit_to_qasm_error(operation: Operation, qasm_version: &str) {
             .to_string()
         );
 
-        let result = backendpy.call_method1("circuit_to_qasm_str", (wrongcircuitpy,));
+        let result = backendpy.call_method1("circuit_to_qasm_str", (&wrongcircuitpy,));
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),

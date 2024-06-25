@@ -16,6 +16,7 @@ use std::convert::TryInto;
 use std::fs::File;
 
 use num_complex::Complex64;
+use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::Circuit;
 
@@ -162,8 +163,23 @@ fn test_gate_definitions() {
 
     let circuit_from_file = file_to_circuit(file).unwrap();
 
+    let mut circuit_gate = Circuit::new();
+    circuit_gate.add_operation(Hadamard::new(0));
+    circuit_gate.add_operation(RotateX::new(1, CalculatorFloat::from("theta")));
+    circuit_gate.add_operation(RotateX::new(0, CalculatorFloat::from("phi*pi/2")));
     let mut circuit_qoqo = Circuit::new();
+    circuit_qoqo.add_operation(GateDefinition::new(
+        circuit_gate,
+        "custom_gate".to_owned(),
+        vec![0, 1],
+        vec!["theta".to_owned(), "phi".to_owned()],
+    ));
     circuit_qoqo += Hadamard::new(0);
+    circuit_qoqo.add_operation(CallDefinedGate::new(
+        "custom_gate".to_owned(),
+        vec![0, 1],
+        vec![CalculatorFloat::from(0.5), CalculatorFloat::PI],
+    ));
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }

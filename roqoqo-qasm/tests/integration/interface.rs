@@ -20,7 +20,6 @@ use roqoqo::Circuit;
 use roqoqo_qasm::{call_circuit, call_operation, gate_definition, Qasm3Dialect, QasmVersion};
 use std::collections::HashMap;
 use std::f64::consts::PI;
-use std::usize;
 use test_case::test_case;
 
 fn tmp_create_map() -> HashMap<usize, usize> {
@@ -65,6 +64,8 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "ccz q[0],q[1],q[2];"; "ControlledControlledPauliZ")]
 #[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(3e-1) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
 #[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
+#[test_case(Operation::from(GateDefinition::new(Circuit::new(), "test_gate".to_owned(), vec![0,1], vec!["theta".to_owned()])), ""; "GateDefinition")]
+#[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::FRAC_PI_2])), "gate_name(1.5707963267948966e0) q[0],q[1];"; "CallDefinedGate")]
 fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
@@ -486,6 +487,8 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
 #[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "gate ccz a,b,c { U(0,0,pi/4) b; cx b,c; U(0,0,-pi/4) c; cx b,c; U(0,0,pi/4) c; cx a,b; U(0,0,-pi/4) b; cx b,c; U(0,0,pi/4) c; cx b,c; U(0,0,-pi/4) c; cx a,b; U(0,0,pi/4) a; cx a,c; U(0,0,-pi/4) c; cx a,c; U(0,0,pi/4) c; }"; "ControlledControlledPauliZ")]
 #[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "gate ccp(theta) a,b,c { U(0,0,theta/4) b; cx b,c; U(0,0,-theta/4) c; cx b,c; U(0,0,theta/4) c; cx a,b; U(0,0,-theta/4) b; cx b,c; U(0,0,theta/4) c; cx b,c; U(0,0,-theta/4) c; cx a,b; U(0,0,theta/4) a; cx a,c; U(0,0,-theta/4) c; cx a,c; U(0,0,theta/4) c; }"; "ControlledControlledPhaseShift")]
 #[test_case(Operation::from(Toffoli::new(0, 1, 2)), "gate ccx a,b,c { u2(0,pi) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) b; u1(pi/4) c; u2(0,pi) c; cx a,b; u1(pi/4) a; u1(-pi/4) b; cx a,b; }"; "Toffoli")]
+#[test_case(Operation::from(GateDefinition::new(vec![Operation::from(RotateX::new(0,CalculatorFloat::from("theta"))), Operation::from(RotateX::new(1,CalculatorFloat::from("pi")))].into_iter().collect(), "test_gate".to_owned(), vec![0,1], vec!["theta".to_owned()])), "gate test_gate(theta) qb_0,qb_1\n{\n    rx(theta) qb_0;\n    rx(pi) qb_1;\n}"; "GateDefinition")]
+#[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::from(0.5)])), ""; "CallDefinedGate")]
 fn test_gate_definition(operation: Operation, converted: &str) {
     assert_eq!(
         gate_definition(&operation, QasmVersion::V2point0).unwrap(),

@@ -2,6 +2,12 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.11.0
+
+* Added support for GateDefinition and CallDefinedGate
+* Updated to pyo3 0.21
+* Updated to qoqo 1.14
+
 ### 0.10.1
 
 * Fixed missing '\n' character bug for QASM parsing feature

@@ -33,7 +33,12 @@ use pest::Parser;
 struct QoqoQASMParser;
 
 /// Dispatch function for qoqo operations.
-fn gate_dispatch(name: &str, params: &[String], qubits: &[usize]) -> Option<Operation> {
+fn gate_dispatch(
+    name: &str,
+    params: &[String],
+    qubits: &[usize],
+    defined_custom_gates: &[(String, usize, usize)],
+) -> Option<Operation> {
     match name {
         "rz" => Some(Operation::from(RotateZ::new(
             qubits[0],
@@ -162,6 +167,44 @@ fn gate_dispatch(name: &str, params: &[String], qubits: &[usize]) -> Option<Oper
                 CalculatorFloat::ZERO,
             )))
         }
+        "u2" => {
+            let theta = CalculatorFloat::FRAC_PI_2;
+            let phi = CalculatorFloat::from(params[0].clone());
+            let lambda = CalculatorFloat::from(params[1].clone());
+            let alpha_r =
+                ((phi.clone() + lambda.clone()) / 2.0).cos() * (theta.clone() / 2.0).cos();
+            let alpha_i =
+                (-(phi.clone() + lambda.clone()) / 2.0).sin() * (theta.clone() / 2.0).cos();
+            let beta_r = ((phi.clone() - lambda.clone()) / 2.0).cos() * (theta.clone() / 2.0).sin();
+            let beta_i = ((phi - lambda) / 2.0).sin() * (theta / 2.0).sin();
+            Some(Operation::from(SingleQubitGate::new(
+                qubits[0],
+                alpha_r,
+                alpha_i,
+                beta_r,
+                beta_i,
+                CalculatorFloat::ZERO,
+            )))
+        }
+        "u1" => {
+            let theta = CalculatorFloat::ZERO;
+            let phi = CalculatorFloat::ZERO;
+            let lambda = CalculatorFloat::from(params[0].clone());
+            let alpha_r =
+                ((phi.clone() + lambda.clone()) / 2.0).cos() * (theta.clone() / 2.0).cos();
+            let alpha_i =
+                (-(phi.clone() + lambda.clone()) / 2.0).sin() * (theta.clone() / 2.0).cos();
+            let beta_r = ((phi.clone() - lambda.clone()) / 2.0).cos() * (theta.clone() / 2.0).sin();
+            let beta_i = ((phi - lambda) / 2.0).sin() * (theta / 2.0).sin();
+            Some(Operation::from(SingleQubitGate::new(
+                qubits[0],
+                alpha_r,
+                alpha_i,
+                beta_r,
+                beta_i,
+                CalculatorFloat::ZERO,
+            )))
+        }
         "ccx" => Some(Operation::from(Toffoli::new(
             qubits[0], qubits[1], qubits[2],
         ))),
@@ -174,7 +217,22 @@ fn gate_dispatch(name: &str, params: &[String], qubits: &[usize]) -> Option<Oper
             qubits[2],
             CalculatorFloat::from(params[0].clone()),
         ))),
-        _ => None,
+        _ => defined_custom_gates
+            .contains(&(name.to_owned(), qubits.len(), params.len()))
+            .then(|| {
+                Operation::from(CallDefinedGate::new(
+                    name.to_owned(),
+                    qubits.to_vec(),
+                    params
+                        .iter()
+                        .map(|param| {
+                            let mut param_str = param.replace("pi", "3.141592653589793");
+                            param_str = param_str.replace("ln", "log");
+                            CalculatorFloat::from(param_str)
+                        })
+                        .collect(),
+                ))
+            }),
     }
 }
 
@@ -182,11 +240,14 @@ fn gate_dispatch(name: &str, params: &[String], qubits: &[usize]) -> Option<Oper
 fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
     let pairs = QoqoQASMParser::parse(Rule::openqasm, file)?;
     let mut circuit = Circuit::new();
-
+    let mut defined_custom_gates: Vec<(String, usize, usize)> = vec![];
     /// The parsing works like an AST traversal. The structure is defined by the grammar.
     ///     - pair.as_rule() represents the rule itself, to get into the inner ones, `.into_inner()` is called
     ///     - from the new inner instance we can further move to the right in the rule by calling `.next().unwrap()[.as_str()]`
-    fn parse_single_rule(pair: Pair<Rule>) -> Option<Operation> {
+    fn parse_single_rule(
+        pair: Pair<Rule>,
+        defined_custom_gates: &mut Vec<(String, usize, usize)>,
+    ) -> Option<Operation> {
         match pair.as_rule() {
             Rule::c_decl => {
                 let mut inner_pairs = pair.into_inner();
@@ -211,7 +272,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                 for pair in inner_pairs.clone() {
                     match pair.as_rule() {
                         Rule::parameter_list => {
-                            let params_list = inner_pairs.next().unwrap().into_inner().clone();
+                            let params_list = inner_pairs.next().unwrap().into_inner();
                             for param in params_list {
                                 // Handle 'pi' constant and math functions renames (Calculator)
                                 let mut param_str =
@@ -225,7 +286,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                             }
                         }
                         Rule::qubit_list => {
-                            let qbt_list = inner_pairs.next().unwrap().into_inner().clone();
+                            let qbt_list = inner_pairs.next().unwrap().into_inner();
                             for qbt_rule in qbt_list {
                                 let mut inner_pairs = qbt_rule.into_inner();
                                 let _id = inner_pairs.next().unwrap().as_str();
@@ -241,7 +302,7 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                         _ => continue,
                     }
                 }
-                gate_dispatch(id, &params, &qubits)
+                gate_dispatch(id, &params, &qubits, defined_custom_gates)
             }
             Rule::measurement => {
                 let mut inner_pairs = pair.into_inner();
@@ -266,12 +327,101 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                     first_integer.parse::<usize>().unwrap(),
                 )))
             }
+            Rule::gate_def => {
+                let mut inner_pairs = pair.into_inner();
+                let id = inner_pairs.next().unwrap().as_str();
+                if gate_dispatch(
+                    id,
+                    &[
+                        "0.0".to_owned(),
+                        "0.0".to_owned(),
+                        "0.0".to_owned(),
+                        "0.0".to_owned(),
+                    ],
+                    &[0_usize, 1_usize, 2_usize, 3_usize],
+                    defined_custom_gates,
+                )
+                .is_some()
+                {
+                    return None;
+                }
+                let mut params: Vec<String> = vec![];
+                let mut qubits: Vec<String> = vec![];
+                let mut definition_circuit = Circuit::new();
+                for pair in inner_pairs.clone() {
+                    match pair.as_rule() {
+                        Rule::parameter_list_def => {
+                            let params_list = inner_pairs.next().unwrap().into_inner();
+                            for param in params_list {
+                                params.push(param.as_str().to_owned());
+                            }
+                        }
+                        Rule::qubit_list_def => {
+                            qubits = inner_pairs
+                                .next()
+                                .unwrap()
+                                .into_inner()
+                                .map(|qbt_pair| qbt_pair.as_str().to_owned())
+                                .collect();
+                        }
+                        Rule::gates_definition => {
+                            for gate_pair in inner_pairs.next().unwrap().into_inner() {
+                                let mut inner_gate_pairs = gate_pair.into_inner();
+                                let id = inner_gate_pairs.next().unwrap().as_str();
+                                let mut gate_params: Vec<String> = vec![];
+                                let mut gate_qubits: Vec<usize> = vec![];
+                                for gate_token in inner_gate_pairs.clone() {
+                                    match gate_token.as_rule() {
+                                        Rule::argument_list_def => {
+                                            gate_params = inner_gate_pairs
+                                                .next()
+                                                .unwrap()
+                                                .into_inner()
+                                                .map(|param| param.as_str().to_owned())
+                                                .collect();
+                                        }
+                                        Rule::qubit_list_def => {
+                                            gate_qubits = inner_gate_pairs
+                                                .next()
+                                                .unwrap()
+                                                .into_inner()
+                                                .filter_map(|qbt_pair| {
+                                                    qubits.iter().position(|qubit_name| {
+                                                        qubit_name.as_str() == qbt_pair.as_str()
+                                                    })
+                                                })
+                                                .collect();
+                                        }
+                                        _ => continue,
+                                    }
+                                }
+                                if let Some(gate) = gate_dispatch(
+                                    id,
+                                    &gate_params,
+                                    &gate_qubits,
+                                    defined_custom_gates,
+                                ) {
+                                    definition_circuit.add_operation(gate);
+                                }
+                            }
+                        }
+                        _ => continue,
+                    }
+                }
+                defined_custom_gates.push((id.to_owned(), qubits.len(), params.len()));
+                Some(Operation::from(GateDefinition::new(
+                    definition_circuit,
+                    id.to_owned(),
+                    (0..qubits.len()).collect::<Vec<usize>>(),
+                    params,
+                )))
+            }
             _ => None,
         }
     }
 
     for pair in pairs {
-        if let Some(op) = parse_single_rule(pair) {
+        if let Some(op) = parse_single_rule(pair, &mut defined_custom_gates) {
             circuit.add_operation(op);
         }
     }
