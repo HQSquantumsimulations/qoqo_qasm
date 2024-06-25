@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.11.1
+
+* Fixed outdated dependencies
+
 ### 0.11.0
 
 * Added support for GateDefinition and CallDefinedGate
