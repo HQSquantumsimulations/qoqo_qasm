@@ -7,16 +7,16 @@ jobs:
   deploy_cratesio:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3.1.0
-    # - uses: Swatinem/rust-cache@v2
-    - uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        default: true
-    - name: setup cargo
-      run: |
-        # Authentication at crates.io with HQS organizational token
-        cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
-        # Publish package
-        cargo publish --manifest-path=qoqo_qasm/Cargo.toml
+      - uses: actions/checkout@v3.5.2
+      # - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          default: true
+      - name: setup cargo
+        run: |
+          # Authentication at crates.io with HQS organizational token
+          cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
+          # Publish package
+          cargo publish --manifest-path=qoqo_qasm/Cargo.toml
