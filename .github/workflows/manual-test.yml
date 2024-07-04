@@ -19,13 +19,13 @@ jobs:
             default: true
         - uses: actions/setup-python@v5
           with:
-            python-version: '3.12'
+            python-version: '3.10'
         - name: linux wheels
           uses: PyO3/maturin-action@v1
           with:
             maturin-version: latest
             command: build
-            manylinux: 2014
+            # manylinux: 2014
             args: -i python3.10 --out wheels -m qoqo_qasm/Cargo.toml --release --locked
 
   build_maturin_builds_linux_arm:
