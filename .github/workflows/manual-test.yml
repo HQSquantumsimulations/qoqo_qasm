@@ -26,7 +26,7 @@ jobs:
             maturin-version: latest
             command: build
             manylinux: 2014
-            args: --find-interpreter --out wheels -m qoqo_qasm/Cargo.toml --release --locked
+            args: -i python3.10 --out wheels -m qoqo_qasm/Cargo.toml --release --locked
 
   build_maturin_builds_linux_arm:
     name: maturin_build-linux-arm
