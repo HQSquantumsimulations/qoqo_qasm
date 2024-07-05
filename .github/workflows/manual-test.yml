@@ -23,7 +23,7 @@ jobs:
         - name: linux wheels
           uses: PyO3/maturin-action@v1
           with:
-            maturin-version: latest
+            maturin-version: v1.0
             command: build
             # manylinux: 2014
             # target: x86_64-unknown-linux-gnu
