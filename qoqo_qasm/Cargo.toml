@@ -34,7 +34,7 @@ roqoqo-qasm = { version = "~0.11", path = "../roqoqo-qasm" }
 
 [dependencies.pyo3]
 version = "0.21"
-features = ["num-complex", "multiple-pymethods"]
+features = ["num-complex"]
 
 [dev-dependencies]
 test-case = "3.0"
