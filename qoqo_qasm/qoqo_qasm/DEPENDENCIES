@@ -16298,7 +16298,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde 1.0.203
+serde 1.0.204
 https://serde.rs
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 A generic serialization/deserialization framework
@@ -16512,7 +16512,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-serde_derive 1.0.203
+serde_derive 1.0.204
 https://serde.rs
 by Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
 Macros 1.1 implementation of #[derive(Serialize, Deserialize)]
@@ -18280,7 +18280,7 @@ LICENSE:
 
 
 ====================================================
-syn 2.0.68
+syn 2.0.69
 https://github.com/dtolnay/syn
 by David Tolnay <dtolnay@gmail.com>
 Parser for Rust source code
@@ -18494,7 +18494,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-target-lexicon 0.12.14
+target-lexicon 0.12.15
 https://github.com/bytecodealliance/target-lexicon
 by Dan Gohman <sunfish@mozilla.com>
 Targeting utilities for compilers and related tools
@@ -19249,7 +19249,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-tinyvec 1.6.1
+tinyvec 1.7.0
 https://github.com/Lokathor/tinyvec
 by Lokathor <zefria@gmail.com>
 `tinyvec` provides 100% safe vec-like data structures.
