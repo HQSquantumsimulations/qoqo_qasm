@@ -43,6 +43,7 @@ ndarray = "0.15"
 
 [build-dependencies]
 pyo3-build-config = "0.21"
+pyo3 = "0.21"
 
 [features]
 extension-module = ["pyo3/extension-module"]
