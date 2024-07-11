@@ -12453,7 +12453,7 @@ LICENSE:
 
 
 ====================================================
-qoqo_qasm 0.11.2
+qoqo_qasm 0.12.0
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Python interface of roqoqo_qasm by HQS Quantum Simulations
@@ -15223,7 +15223,7 @@ LICENSE:
 
 
 ====================================================
-roqoqo-qasm 0.11.2
+roqoqo-qasm 0.12.0
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 QASM interface for roqoqo Rust quantum computing toolkit by HQS Quantum Simulations
@@ -18280,7 +18280,7 @@ LICENSE:
 
 
 ====================================================
-syn 2.0.69
+syn 2.0.70
 https://github.com/dtolnay/syn
 by David Tolnay <dtolnay@gmail.com>
 Parser for Rust source code
@@ -19249,7 +19249,7 @@ DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-tinyvec 1.7.0
+tinyvec 1.8.0
 https://github.com/Lokathor/tinyvec
 by Lokathor <zefria@gmail.com>
 `tinyvec` provides 100% safe vec-like data structures.

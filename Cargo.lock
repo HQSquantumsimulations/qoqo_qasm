@@ -583,7 +583,7 @@ dependencies = [
 
 [[package]]
 name = "qoqo_qasm"
-version = "0.11.2"
+version = "0.12.0"
 dependencies = [
  "ndarray",
  "pyo3",
@@ -724,7 +724,7 @@ dependencies = [
 
 [[package]]
 name = "roqoqo-qasm"
-version = "0.11.2"
+version = "0.12.0"
 dependencies = [
  "ndarray",
  "num-complex",
@@ -913,9 +913,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.69"
+version = "2.0.70"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "201fcda3845c23e8212cd466bfebf0bd20694490fc0356ae8e428e0824a915a6"
+checksum = "2f0209b68b3613b093e0ec905354eccaedcfe83b8cb37cbdeae64026c3064c16"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -983,9 +983,9 @@ dependencies = [
 
 [[package]]
 name = "tinyvec"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce6b6a2fb3a985e99cebfaefa9faa3024743da73304ca1c683a36429613d3d22"
+checksum = "445e881f4f6d382d5f27c034e25eb92edd7c784ceab92a0937db7f2e9471b938"
 dependencies = [
  "serde",
  "tinyvec_macros",
