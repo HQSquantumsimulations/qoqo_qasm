@@ -297,6 +297,30 @@ pub fn call_operation(
                 )),
             }
         }
+        Operation::ControlledRotateX(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "crx({}) {}[{}],{}[{}];",
+                op.theta(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
+        Operation::ControlledRotateXY(op) => {
+            variable_gathering(op.theta(), qasm_version, variable_gatherer);
+            variable_gathering(op.phi(), qasm_version, variable_gatherer);
+            Ok(format!(
+                "crxy({},{}) {}[{}],{}[{}];",
+                op.theta(),
+                op.phi(),
+                qubit_register_name,
+                op.control(),
+                qubit_register_name,
+                op.target()
+            ))
+        }
         Operation::SWAP(op) => Ok(format!(
             "swap {}[{}],{}[{}];",
             qubit_register_name,
@@ -1257,6 +1281,12 @@ pub fn gate_definition(
         )),
         Operation::ControlledPhaseShift(_) => Ok(String::from(
             "gate cp(lambda) a,b { U(0,0,lambda/2) a; cx a,b; U(0,0,-lambda/2) b; cx a,b; U(0,0,lambda/2) b; }"
+        )),
+        Operation::ControlledRotateX(_) => Ok(String::from(
+            "gate crx(theta) a,b { u2(0,pi) b; u1(theta/2) b; cx a,b; u1(-theta/2) b; cx a,b; u2(0,pi) b; }"
+        )),
+        Operation::ControlledRotateXY(_) => Ok(String::from(
+            "gate crxy(theta,phi) a,b { u1(-phi) b; u2(0,pi) b; u1(theta/2) b; cx a,b; u1(-theta/2) b; cx a,b; u2(0,pi) b; u1(phi) b; }"
         )),
         Operation::SWAP(_) => Ok(String::from(
             "gate swap a,b { cx a,b; cx b,a; cx a,b; }"
