@@ -1,6 +1,6 @@
 [package]
 name = "qoqo_qasm"
-version = "0.11.1"
+version = "0.11.2"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 license = "Apache-2.0"
 edition = "2021"
@@ -43,6 +43,7 @@ ndarray = "0.15"
 
 [build-dependencies]
 pyo3-build-config = "0.21"
+pyo3 = "0.21"
 
 [features]
 extension-module = ["pyo3/extension-module"]
