@@ -20,6 +20,8 @@ rxx(0.7) q[0],q[2];
 cy q[0],q[1];
 cz q[1],q[2];
 cp(0.5) q[0],q[2];
+crx(0.8) q[1],q[2];
+crxy(0.4,0.2) q[0],q[1];
 swap q[1],q[2];
 iswap q[0],q[1];
 siswap q[1],q[2];

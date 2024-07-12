@@ -72,6 +72,8 @@ fn test_qoqo_gates() {
     circuit_qoqo += ControlledPauliY::new(0, 1);
     circuit_qoqo += ControlledPauliZ::new(1, 2);
     circuit_qoqo += ControlledPhaseShift::new(0, 2, 0.5.into());
+    circuit_qoqo += ControlledRotateX::new(1, 2, 0.8.into());
+    circuit_qoqo += ControlledRotateXY::new(0, 1, 0.4.into(), 0.2.into());
     circuit_qoqo += SWAP::new(1, 2);
     circuit_qoqo += ISwap::new(0, 1);
     circuit_qoqo += SqrtISwap::new(1, 2);
