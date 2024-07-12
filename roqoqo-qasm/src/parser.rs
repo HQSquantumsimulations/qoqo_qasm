@@ -42,15 +42,15 @@ fn gate_dispatch(
     match name {
         "rz" => Some(Operation::from(RotateZ::new(
             qubits[0],
-            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(&params[0]),
         ))),
         "ry" => Some(Operation::from(RotateY::new(
             qubits[0],
-            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(&params[0]),
         ))),
         "rx" => Some(Operation::from(RotateX::new(
             qubits[0],
-            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(&params[0]),
         ))),
         "h" => Some(Operation::from(Hadamard::new(qubits[0]))),
         "x" => Some(Operation::from(PauliX::new(qubits[0]))),
@@ -60,13 +60,13 @@ fn gate_dispatch(
         "t" => Some(Operation::from(TGate::new(qubits[0]))),
         "p" => Some(Operation::from(PhaseShiftState1::new(
             qubits[0],
-            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(&params[0]),
         ))),
         "sx" => Some(Operation::from(SqrtPauliX::new(qubits[0]))),
         "sxdg" => Some(Operation::from(InvSqrtPauliX::new(qubits[0]))),
         "cx" => Some(Operation::from(CNOT::new(qubits[0], qubits[1]))),
         "rxx" => {
-            if let Ok(float) = CalculatorFloat::from(params[0].clone()).float() {
+            if let Ok(float) = CalculatorFloat::from(&params[0]).float() {
                 if is_close(float.into(), CalculatorFloat::PI.float().unwrap().into()) {
                     return Some(Operation::from(MolmerSorensenXX::new(qubits[0], qubits[1])));
                 }
@@ -74,7 +74,7 @@ fn gate_dispatch(
             Some(Operation::from(VariableMSXX::new(
                 qubits[0],
                 qubits[1],
-                CalculatorFloat::from(params[0].clone()),
+                CalculatorFloat::from(&params[0]),
             )))
         }
         "cy" => Some(Operation::from(ControlledPauliY::new(qubits[0], qubits[1]))),
@@ -82,7 +82,18 @@ fn gate_dispatch(
         "cp" => Some(Operation::from(ControlledPhaseShift::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(&params[0]),
+        ))),
+        "crx" => Some(Operation::from(ControlledRotateX::new(
+            qubits[0],
+            qubits[1],
+            CalculatorFloat::from(&params[0]),
+        ))),
+        "crxy" => Some(Operation::from(ControlledRotateXY::new(
+            qubits[0],
+            qubits[1],
+            CalculatorFloat::from(&params[0]),
+            CalculatorFloat::from(&params[1]),
         ))),
         "swap" => Some(Operation::from(SWAP::new(qubits[0], qubits[1]))),
         "iswap" => Some(Operation::from(ISwap::new(qubits[0], qubits[1]))),
@@ -92,66 +103,66 @@ fn gate_dispatch(
         "fsim" => Some(Operation::from(Fsim::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
-            CalculatorFloat::from(params[1].clone()),
-            CalculatorFloat::from(params[2].clone()),
+            CalculatorFloat::from(&params[0]),
+            CalculatorFloat::from(&params[1]),
+            CalculatorFloat::from(&params[2]),
         ))),
         "qsim" => Some(Operation::from(Qsim::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
-            CalculatorFloat::from(params[1].clone()),
-            CalculatorFloat::from(params[2].clone()),
+            CalculatorFloat::from(&params[0]),
+            CalculatorFloat::from(&params[1]),
+            CalculatorFloat::from(&params[2]),
         ))),
         "pmint" => Some(Operation::from(PMInteraction::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(&params[0]),
         ))),
         "gvnsrot" => Some(Operation::from(GivensRotation::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
-            CalculatorFloat::from(params[1].clone()),
+            CalculatorFloat::from(&params[0]),
+            CalculatorFloat::from(&params[1]),
         ))),
         "gvnsrotle" => Some(Operation::from(GivensRotationLittleEndian::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
-            CalculatorFloat::from(params[1].clone()),
+            CalculatorFloat::from(&params[0]),
+            CalculatorFloat::from(&params[1]),
         ))),
         "xy" => Some(Operation::from(XY::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(&params[0]),
         ))),
         "spintint" => Some(Operation::from(SpinInteraction::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
-            CalculatorFloat::from(params[1].clone()),
-            CalculatorFloat::from(params[2].clone()),
+            CalculatorFloat::from(&params[0]),
+            CalculatorFloat::from(&params[1]),
+            CalculatorFloat::from(&params[2]),
         ))),
         "rxy" => Some(Operation::from(RotateXY::new(
             qubits[0],
-            CalculatorFloat::from(params[0].clone()),
-            CalculatorFloat::from(params[1].clone()),
+            CalculatorFloat::from(&params[0]),
+            CalculatorFloat::from(&params[1]),
         ))),
         "pscz" => Some(Operation::from(PhaseShiftedControlledZ::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(&params[0]),
         ))),
         "pscp" => Some(Operation::from(PhaseShiftedControlledPhase::new(
             qubits[0],
             qubits[1],
-            CalculatorFloat::from(params[0].clone()),
-            CalculatorFloat::from(params[1].clone()),
+            CalculatorFloat::from(&params[0]),
+            CalculatorFloat::from(&params[1]),
         ))),
         "u3" => {
-            let theta = CalculatorFloat::from(params[0].clone());
-            let phi = CalculatorFloat::from(params[1].clone());
-            let lambda = CalculatorFloat::from(params[2].clone());
+            let theta = CalculatorFloat::from(&params[0]);
+            let phi = CalculatorFloat::from(&params[1]);
+            let lambda = CalculatorFloat::from(&params[2]);
             let alpha_r =
                 ((phi.clone() + lambda.clone()) / 2.0).cos() * (theta.clone() / 2.0).cos();
             let alpha_i =
@@ -169,8 +180,8 @@ fn gate_dispatch(
         }
         "u2" => {
             let theta = CalculatorFloat::FRAC_PI_2;
-            let phi = CalculatorFloat::from(params[0].clone());
-            let lambda = CalculatorFloat::from(params[1].clone());
+            let phi = CalculatorFloat::from(&params[0]);
+            let lambda = CalculatorFloat::from(&params[1]);
             let alpha_r =
                 ((phi.clone() + lambda.clone()) / 2.0).cos() * (theta.clone() / 2.0).cos();
             let alpha_i =
@@ -189,7 +200,7 @@ fn gate_dispatch(
         "u1" => {
             let theta = CalculatorFloat::ZERO;
             let phi = CalculatorFloat::ZERO;
-            let lambda = CalculatorFloat::from(params[0].clone());
+            let lambda = CalculatorFloat::from(&params[0]);
             let alpha_r =
                 ((phi.clone() + lambda.clone()) / 2.0).cos() * (theta.clone() / 2.0).cos();
             let alpha_i =
@@ -215,7 +226,7 @@ fn gate_dispatch(
             qubits[0],
             qubits[1],
             qubits[2],
-            CalculatorFloat::from(params[0].clone()),
+            CalculatorFloat::from(&params[0]),
         ))),
         _ => defined_custom_gates
             .contains(&(name.to_owned(), qubits.len(), params.len()))
