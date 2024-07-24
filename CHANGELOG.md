@@ -2,6 +2,11 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.12.1
+
+* Added support for `SqrtPauliY` and `InvSqrtPauliY`
+* Updated to qoqo 1.15
+
 ### 0.12.0
 
 * Added support for `ControlledRotateX` and `ControlledRotateXY`

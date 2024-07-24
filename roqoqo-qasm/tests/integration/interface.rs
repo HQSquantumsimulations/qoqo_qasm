@@ -68,6 +68,8 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
 #[test_case(Operation::from(GateDefinition::new(Circuit::new(), "test_gate".to_owned(), vec![0,1], vec!["theta".to_owned()])), ""; "GateDefinition")]
 #[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::FRAC_PI_2])), "gate_name(1.5707963267948966e0) q[0],q[1];"; "CallDefinedGate")]
+#[test_case(Operation::from(SqrtPauliY::new(0)), "sy q[0];"; "SqrtPauliY")]
+#[test_case(Operation::from(InvSqrtPauliY::new(0)), "sydg q[0];"; "InvSqrtPauliY")]
 fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
