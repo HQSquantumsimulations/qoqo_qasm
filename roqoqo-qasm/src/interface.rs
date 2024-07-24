@@ -1397,10 +1397,10 @@ pub fn gate_definition(
             Ok(definition_str)
         }
         Operation::SqrtPauliY(_) => Ok(String::from(
-            "gate sy a { u3(pi/2,-pi/2,pi/2) a; }"
+            "gate sy a { u3(pi/2,0,0) a; }"
         )),
         Operation::InvSqrtPauliY(_) => Ok(String::from(
-            "gate sydg a { u3(-pi/2,-pi/2,pi/2) a; }"
+            "gate sydg a { u3(-pi/2,0,0) a; }"
         )),
         _ => {
             if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
