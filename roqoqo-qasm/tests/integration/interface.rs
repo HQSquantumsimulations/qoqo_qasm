@@ -495,6 +495,8 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
 #[test_case(Operation::from(Toffoli::new(0, 1, 2)), "gate ccx a,b,c { u2(0,pi) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) b; u1(pi/4) c; u2(0,pi) c; cx a,b; u1(pi/4) a; u1(-pi/4) b; cx a,b; }"; "Toffoli")]
 #[test_case(Operation::from(GateDefinition::new(vec![Operation::from(RotateX::new(0,CalculatorFloat::from("theta"))), Operation::from(RotateX::new(1,CalculatorFloat::from("pi")))].into_iter().collect(), "test_gate".to_owned(), vec![0,1], vec!["theta".to_owned()])), "gate test_gate(theta) qb_0,qb_1\n{\n    rx(theta) qb_0;\n    rx(pi) qb_1;\n}"; "GateDefinition")]
 #[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::from(0.5)])), ""; "CallDefinedGate")]
+#[test_case(Operation::from(SqrtPauliY::new(0)), "gate sy a { u3(pi/2,0,0) a; }"; "SqrtPauliY")]
+#[test_case(Operation::from(InvSqrtPauliY::new(0)), "gate sydg a { u3(-pi/2,0,0) a; }"; "InvSqrtPauliY")]
 fn test_gate_definition(operation: Operation, converted: &str) {
     assert_eq!(
         gate_definition(&operation, QasmVersion::V2point0).unwrap(),
