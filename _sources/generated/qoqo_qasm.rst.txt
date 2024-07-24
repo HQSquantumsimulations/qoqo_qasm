@@ -4,11 +4,6 @@
 .. automodule:: qoqo_qasm
 
    
-   
-   
-
-   
-   
    .. rubric:: Functions
 
    .. autosummary::
@@ -18,21 +13,9 @@
       qasm_file_to_circuit
       qasm_str_to_circuit
    
-   
-
-   
-   
    .. rubric:: Classes
 
    .. autosummary::
    
       QasmBackend
    
-   
-
-   
-   
-   
-
-
-
