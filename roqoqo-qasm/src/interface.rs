@@ -1195,6 +1195,10 @@ pub fn call_operation(
                 .collect::<Vec<String>>()
                 .join(",")
         )),
+        Operation::SqrtPauliY(op) => Ok(format!("sy {}[{}];", qubit_register_name, op.qubit())),
+        Operation::InvSqrtPauliY(op) => {
+            Ok(format!("sydg {}[{}];", qubit_register_name, op.qubit()))
+        }
         _ => {
             if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())
@@ -1392,6 +1396,12 @@ pub fn gate_definition(
             }
             Ok(definition_str)
         }
+        Operation::SqrtPauliY(_) => Ok(String::from(
+            "gate sy a { u3(pi/2,0,0) a; }"
+        )),
+        Operation::InvSqrtPauliY(_) => Ok(String::from(
+            "gate sydg a { u3(-pi/2,0,0) a; }"
+        )),
         _ => {
             if NO_DEFINITION_REQUIRED_OPERATIONS.contains(&operation.hqslang()) || ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                 Ok("".to_string())
