@@ -38,7 +38,7 @@ pub(crate) const ALLOWED_OPERATIONS: &[&str; 12] = &[
 ];
 
 // Operations that are ignored when looking for a QASM definition
-pub(crate) const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 13] = &[
+pub(crate) const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 12] = &[
     "SingleQubitGate",
     "DefinitionFloat",
     "DefinitionUsize",
@@ -51,7 +51,6 @@ pub(crate) const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 13] = &[
     "MeasureQubit",
     "PragmaLoop",
     "CallDefinedGate",
-    "PragmaDamping",
 ];
 
 /// Calls the parsing function of the VariableGatherer, if present.
