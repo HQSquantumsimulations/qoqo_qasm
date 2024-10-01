@@ -1464,7 +1464,7 @@ LICENSE:
 
 
 ====================================================
-autocfg 1.3.0
+autocfg 1.4.0
 https://github.com/cuviper/autocfg
 by Josh Stone <cuviper@gmail.com>
 Automatic cfg for Rust compiler features
@@ -10104,7 +10104,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ====================================================
-once_cell 1.19.0
+once_cell 1.20.1
 https://github.com/matklad/once_cell
 by Aleksey Kladov <aleksey.kladov@gmail.com>
 Single assignment cells and lazy values.
@@ -12236,7 +12236,7 @@ limitations under the License.
 
 
 ====================================================
-portable-atomic 1.8.0
+portable-atomic 1.9.0
 https://github.com/taiki-e/portable-atomic
 by 
 Portable atomic types including support for 128-bit atomics, atomic float, etc.
@@ -16488,7 +16488,7 @@ limitations under the License.
 
 
 ====================================================
-redox_syscall 0.5.6
+redox_syscall 0.5.7
 https://gitlab.redox-os.org/redox-os/syscall
 by Jeremy Soller <jackpot51@gmail.com>
 A Rust library to access raw Redox system calls
@@ -16521,7 +16521,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ====================================================
-regex 1.10.6
+regex 1.11.0
 https://github.com/rust-lang/regex
 by The Rust Project Developers, Andrew Gallant <jamslam@gmail.com>
 An implementation of regular expressions for Rust. This implementation uses
@@ -16764,7 +16764,7 @@ limitations under the License.
 
 
 ====================================================
-regex-automata 0.4.7
+regex-automata 0.4.8
 https://github.com/rust-lang/regex/tree/master/regex-automata
 by The Rust Project Developers, Andrew Gallant <jamslam@gmail.com>
 Automata construction and matching using regular expressions.
@@ -17005,7 +17005,7 @@ limitations under the License.
 
 
 ====================================================
-regex-syntax 0.8.4
+regex-syntax 0.8.5
 https://github.com/rust-lang/regex/tree/master/regex-syntax
 by The Rust Project Developers, Andrew Gallant <jamslam@gmail.com>
 A regular expression parser.
@@ -20973,7 +20973,7 @@ LICENSE:
 
 
 ====================================================
-syn 2.0.77
+syn 2.0.79
 https://github.com/dtolnay/syn
 by David Tolnay <dtolnay@gmail.com>
 Parser for Rust source code
@@ -22684,7 +22684,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ====================================================
-ucd-trie 0.1.6
+ucd-trie 0.1.7
 https://github.com/BurntSushi/ucd-generate
 by Andrew Gallant <jamslam@gmail.com>
 A trie for storing Unicode codepoint sets and maps.

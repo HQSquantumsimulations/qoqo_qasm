@@ -266,3 +266,16 @@ fn test_gate_definition_circuit(qasm_version: &str, qubits: &str, bits: &str) {
     fs::remove_file(&read_in_path).unwrap();
     assert_eq!(lines, extracted.unwrap());
 }
+
+/// Test that the Qulacs version works properly
+#[test]
+fn test_qulacs_version() {
+    let backend = Backend::new(None, Some("2.0Qulacs".to_string())).unwrap();
+    let mut circuit = Circuit::new();
+    circuit += RotateZ::new(0, "1/cos(alpha)".into());
+
+    let qasm_str = backend.circuit_to_qasm_str(&circuit).unwrap();
+
+    assert!(qasm_str.contains("include \"qelib1.inc\";"));
+    assert!(!qasm_str.contains("gate"));
+}

@@ -377,7 +377,7 @@ pub enum QasmVersion {
 /// Enum for setting the version of OpenQASM used
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Qasm2Dialect {
-    /// No Pragma operations
+    /// Vanilla OpenQasm 2.0
     Vanilla,
     /// Without gate definitions
     Qulacs,
