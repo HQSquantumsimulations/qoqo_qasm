@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.12.2
+
+* Added support for Qulacs specific qasm.
+
 ### 0.12.1
 
 * Added support for `SqrtPauliY` and `InvSqrtPauliY`

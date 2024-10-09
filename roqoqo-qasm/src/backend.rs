@@ -83,7 +83,7 @@ impl Backend {
             Some(s) => s,
         };
         let qasm_v = match qasm_version {
-            None => QasmVersion::V2point0,
+            None => QasmVersion::V2point0(Qasm2Dialect::Vanilla),
             Some(v) => QasmVersion::from_str(v.as_str())?,
         };
 
@@ -123,7 +123,7 @@ impl Backend {
         // Appending QASM version
         let mut qasm_string = String::from("OPENQASM ");
         match self.qasm_version {
-            QasmVersion::V2point0 => qasm_string.push_str("2.0;\n\n"),
+            QasmVersion::V2point0(_) => qasm_string.push_str("2.0;\n\n"),
             QasmVersion::V3point0(_) => qasm_string.push_str("3.0;\n\n"),
         }
 
@@ -224,6 +224,9 @@ impl Backend {
         // Building the final string: QASM version + definitions + parameters + registers + circuit data
         match self.qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {}
+            QasmVersion::V2point0(Qasm2Dialect::Qulacs) => {
+                qasm_string.push_str("include \"qelib1.inc\";\n\n")
+            }
             _ => qasm_string.push_str(definitions.as_str()),
         };
 
@@ -237,7 +240,7 @@ impl Backend {
             }
         }
         match self.qasm_version {
-            QasmVersion::V2point0 => qasm_string.push_str(
+            QasmVersion::V2point0(_) => qasm_string.push_str(
                 format!(
                     "\nqreg {}[{}];\n\n",
                     self.qubit_register_name,
@@ -366,9 +369,18 @@ impl Backend {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum QasmVersion {
     /// OpenQASM 2.0
-    V2point0,
+    V2point0(Qasm2Dialect),
     /// OpenQASM 3.0
     V3point0(Qasm3Dialect),
+}
+
+/// Enum for setting the version of OpenQASM used
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Qasm2Dialect {
+    /// Vanilla OpenQasm 2.0
+    Vanilla,
+    /// Without gate definitions
+    Qulacs,
 }
 
 /// Enum for setting the version of OpenQASM used
@@ -387,7 +399,8 @@ impl FromStr for QasmVersion {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "2.0" => Ok(QasmVersion::V2point0),
+            "2.0" | "2.0Vanilla" => Ok(QasmVersion::V2point0(Qasm2Dialect::Vanilla)),
+            "2.0Qulacs" => Ok(QasmVersion::V2point0(Qasm2Dialect::Qulacs)),
             "3.0Roqoqo" => Ok(QasmVersion::V3point0(Qasm3Dialect::Roqoqo)),
             "3.0Braket" => Ok(QasmVersion::V3point0(Qasm3Dialect::Braket)),
             "3.0Vanilla" => Ok(QasmVersion::V3point0(Qasm3Dialect::Vanilla)),

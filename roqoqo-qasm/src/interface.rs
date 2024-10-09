@@ -72,7 +72,7 @@ fn variable_gathering(
             QasmVersion::V3point0(_) => {
                 let _ = cp.parse(calculator_float.to_string().as_str());
             }
-            QasmVersion::V2point0 => (),
+            QasmVersion::V2point0(_) => (),
         }
     }
 }
@@ -594,7 +594,7 @@ pub fn call_operation(
             }
         },
         Operation::PragmaConditional(op) => match qasm_version {
-            QasmVersion::V2point0 => {
+            QasmVersion::V2point0(_) => {
                 let mut ite = op.circuit().iter().peekable();
                 let mut data = "".to_string();
                 while let Some(int_op) = ite.next() {
@@ -1003,7 +1003,7 @@ pub fn call_operation(
                 op.qubits(),
                 op.sleep_time()
             )),
-            QasmVersion::V2point0 => {
+            QasmVersion::V2point0(_) => {
                 let mut output_string = "".to_string();
                 for (ind, qbt) in op.qubits().iter().enumerate() {
                     output_string.push_str(
@@ -1091,7 +1091,7 @@ pub fn call_operation(
             op.readout_index()
         )),
         Operation::DefinitionFloat(op) => match qasm_version {
-            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V2point0(_) => Ok(format!("creg {}[{}];", op.name(), op.length())),
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {
                 Ok(format!("float[{}] {};", op.length(), op.name(),))
             }
@@ -1104,7 +1104,7 @@ pub fn call_operation(
             }
         },
         Operation::DefinitionUsize(op) => match qasm_version {
-            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V2point0(_) => Ok(format!("creg {}[{}];", op.name(), op.length())),
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {
                 Ok(format!("uint[{}] {};", op.length(), op.name(),))
             }
@@ -1117,7 +1117,7 @@ pub fn call_operation(
             }
         },
         Operation::DefinitionBit(op) => match qasm_version {
-            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V2point0(_) => Ok(format!("creg {}[{}];", op.name(), op.length())),
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {
                 Ok(format!("bit[{}] {};", op.length(), op.name(),))
             }
@@ -1130,7 +1130,7 @@ pub fn call_operation(
             }
         },
         Operation::DefinitionComplex(op) => match qasm_version {
-            QasmVersion::V2point0 => Ok(format!("creg {}[{}];", op.name(), op.length())),
+            QasmVersion::V2point0(_) => Ok(format!("creg {}[{}];", op.name(), op.length())),
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {
                 let mut data = "".to_string();
                 data.push_str(&format!("float[{}] {}_re;\n", op.length(), op.name(),));
@@ -1255,7 +1255,7 @@ pub fn gate_definition(
             "gate h a { u2(0,pi) a; }"
         )),
         Operation::CNOT(_) => match qasm_version {
-            QasmVersion::V2point0 => Ok(String::from(
+            QasmVersion::V2point0(_) => Ok(String::from(
                 "gate cx c,t { CX c,t; }"
             )),
             QasmVersion::V3point0(_) => Ok(String::from(
