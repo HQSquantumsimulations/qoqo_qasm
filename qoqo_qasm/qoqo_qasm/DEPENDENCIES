@@ -5513,7 +5513,7 @@ limitations under the License.
 
 
 ====================================================
-hashbrown 0.14.5
+hashbrown 0.15.0
 https://github.com/rust-lang/hashbrown
 by Amanieu d'Antras <amanieu@gmail.com>
 A Rust port of Google's SwissTable hash map
@@ -5995,7 +5995,7 @@ limitations under the License.
 
 
 ====================================================
-indexmap 2.5.0
+indexmap 2.6.0
 https://github.com/indexmap-rs/indexmap
 by 
 A hash table with consistent order and fast iteration.
@@ -10104,7 +10104,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ====================================================
-once_cell 1.20.1
+once_cell 1.20.2
 https://github.com/matklad/once_cell
 by Aleksey Kladov <aleksey.kladov@gmail.com>
 Single assignment cells and lazy values.
@@ -12693,7 +12693,7 @@ limitations under the License.
 
 
 ====================================================
-proc-macro2 1.0.86
+proc-macro2 1.0.87
 https://github.com/dtolnay/proc-macro2
 by David Tolnay <dtolnay@gmail.com>, Alex Crichton <alex@alexcrichton.com>
 A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.
@@ -14899,7 +14899,7 @@ LICENSE:
 
 
 ====================================================
-qoqo_qasm 0.12.2
+qoqo_qasm 0.12.3
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 Python interface of roqoqo_qasm by HQS Quantum Simulations
@@ -17669,7 +17669,7 @@ LICENSE:
 
 
 ====================================================
-roqoqo-qasm 0.12.2
+roqoqo-qasm 0.12.3
 https://github.com/HQSquantumsimulations/qoqo_qasm
 by HQS Quantum Simulations <info@quantumsimulations.de>
 QASM interface for roqoqo Rust quantum computing toolkit by HQS Quantum Simulations

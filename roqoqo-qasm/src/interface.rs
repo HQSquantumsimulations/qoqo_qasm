@@ -17,6 +17,7 @@ use roqoqo::operations::*;
 use roqoqo::Circuit;
 use roqoqo::RoqoqoBackendError;
 
+use crate::Qasm2Dialect;
 use crate::Qasm3Dialect;
 use crate::QasmVersion;
 use crate::VariableGatherer;
@@ -51,6 +52,31 @@ pub(crate) const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 12] = &[
     "MeasureQubit",
     "PragmaLoop",
     "CallDefinedGate",
+];
+
+// Operations that are supported for Qulacs QASM version
+pub(crate) const QULCAS_SUPPORTED_OPERATIONS: &[&str; 21] = &[
+    "SingleQubitGate",
+    "PragmaLoop",
+    "PauliX",
+    "PauliY",
+    "PauliZ",
+    "PhaseShiftState1",
+    "Hadamard",
+    "SGate",
+    "TGate",
+    "RotatePauliX",
+    "RotatePauliY",
+    "RotatePauliZ",
+    "SqrtPauliX",
+    "InvSqrtPauliX",
+    "ControlledPauliZ",
+    "SWAP",
+    "Toffoli",
+    "ControlledRotateX",
+    "VariableMSXX",
+    "MolmerSorensenXX",
+    "RotateXY",
 ];
 
 /// Calls the parsing function of the VariableGatherer, if present.
@@ -148,6 +174,14 @@ pub fn call_operation(
     qasm_version: QasmVersion,
     variable_gatherer: &mut Option<&mut VariableGatherer>,
 ) -> Result<String, RoqoqoBackendError> {
+    if matches!(qasm_version, QasmVersion::V2point0(Qasm2Dialect::Qulacs))
+        && !QULCAS_SUPPORTED_OPERATIONS.contains(&operation.hqslang())
+    {
+        return Err(RoqoqoBackendError::OperationNotInBackend {
+            backend: "QasmBackend version 2.0 Qulacs",
+            hqslang: operation.hqslang(),
+        });
+    }
     match operation {
         Operation::RotateZ(op) => {
             variable_gathering(op.theta(), qasm_version, variable_gatherer);
@@ -452,13 +486,24 @@ pub fn call_operation(
         Operation::RotateXY(op) => {
             variable_gathering(op.theta(), qasm_version, variable_gatherer);
             variable_gathering(op.phi(), qasm_version, variable_gatherer);
-            Ok(format!(
-                "rxy({},{}) {}[{}];",
-                op.theta(),
-                op.phi(),
-                qubit_register_name,
-                op.qubit(),
-            ))
+            if matches!(qasm_version, QasmVersion::V2point0(Qasm2Dialect::Qulacs)) {
+                Ok(format!(
+                    "u3({},{},{}) {}[{}];",
+                    op.theta().float()?,
+                    -CalculatorFloat::FRAC_PI_2 + op.phi().float()?,
+                    CalculatorFloat::FRAC_PI_2 - op.phi().float()?,
+                    qubit_register_name,
+                    op.qubit()
+                ))
+            } else {
+                Ok(format!(
+                    "rxy({},{}) {}[{}];",
+                    op.theta(),
+                    op.phi(),
+                    qubit_register_name,
+                    op.qubit(),
+                ))
+            }
         }
         Operation::PhaseShiftedControlledZ(op) => {
             variable_gathering(op.phi(), qasm_version, variable_gatherer);
