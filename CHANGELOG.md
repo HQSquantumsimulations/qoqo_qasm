@@ -4,7 +4,7 @@ This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
 ### 0.12.3
 
-* Handle errors better for Qulacs version.
+* Handle errors better for Qulacs dialect.
 
 ### 0.12.2
 
