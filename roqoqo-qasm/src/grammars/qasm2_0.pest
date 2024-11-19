@@ -17,8 +17,8 @@ qubit_list_def     =  { id ~ ("," ~ id)* }
 gate_defi          =  { name ~ argument_list_def? ~ qubit_list_def ~ ";" }
 gates_definition   =  { NEWLINE? ~ "{" ~ NEWLINE? ~ (gate_defi ~ NEWLINE?)+ ~ "}" }
 argument           =  { id ~ "[" ~ integer ~ "]" }
-expr               = @{ atom ~ (bin_op ~ atom)* }
-expr_def           = @{ (atom | id) ~ (bin_op ~ (id | atom))* }
+expr               =  { atom ~ (bin_op ~ atom)* }
+expr_def           =  { (atom | id) ~ (bin_op ~ (id | atom))* }
 atom               = _{ unary_minus? ~ primary }
 primary            = _{ real | integer | "pi" | "(" ~ expr ~ ")" | unary_op ~ "(" ~ expr ~ ")" }
 

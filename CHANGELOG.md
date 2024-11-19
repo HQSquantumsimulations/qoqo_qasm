@@ -2,6 +2,11 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+### 0.12.4
+
+* Fixed atomicity rule for expressions
+* Added `r` symbol to the parser for the `RotateXY` operation
+
 ### 0.12.3
 
 * Handle errors better for Qulacs dialect.

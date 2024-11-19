@@ -143,7 +143,7 @@ fn gate_dispatch(
             CalculatorFloat::from(&params[1]),
             CalculatorFloat::from(&params[2]),
         ))),
-        "rxy" => Some(Operation::from(RotateXY::new(
+        "rxy" | "r" => Some(Operation::from(RotateXY::new(
             qubits[0],
             CalculatorFloat::from(&params[0]),
             CalculatorFloat::from(&params[1]),

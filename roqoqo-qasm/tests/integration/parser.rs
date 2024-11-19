@@ -230,3 +230,12 @@ fn test_symbols() {
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
+
+#[test]
+fn test_acceptance_test() {
+    let path = std::env::current_dir()
+        .unwrap()
+        .join("tests/expressions_whitespaces.qasm");
+    let file = File::open(path).unwrap();
+    assert!(file_to_circuit(file).is_ok());
+}
