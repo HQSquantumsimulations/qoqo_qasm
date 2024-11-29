@@ -275,9 +275,7 @@ pub struct TokenIterator<'a> {
 }
 
 // Implement the Iterator Trait for TokenIterator so it can be used as standard rust iterator.
-impl<'a, 'b> Iterator for TokenIterator<'a>
-where
-    'a: 'b,
+impl Iterator for TokenIterator<'_>
 {
     type Item = Token;
 
@@ -422,7 +420,7 @@ where
             // Create symbol tokens
             let symbol = self.current_expression.chars().next().unwrap();
             self.current_expression = &self.current_expression[1..];
-            return Some(match symbol {
+            Some(match symbol {
                 '+' => Token::Plus,
                 '-' => Token::Minus,
                 '*' => match self.current_expression.chars().next().unwrap_or(' ') {
@@ -447,7 +445,7 @@ where
                     _ => Token::Factorial,
                 },
                 _ => Token::Unrecognized,
-            });
+            })
         }
     }
 }
