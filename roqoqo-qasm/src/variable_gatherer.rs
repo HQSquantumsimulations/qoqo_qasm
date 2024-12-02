@@ -275,8 +275,7 @@ pub struct TokenIterator<'a> {
 }
 
 // Implement the Iterator Trait for TokenIterator so it can be used as standard rust iterator.
-impl Iterator for TokenIterator<'_>
-{
+impl Iterator for TokenIterator<'_> {
     type Item = Token;
 
     // Define next method for Token iterator
