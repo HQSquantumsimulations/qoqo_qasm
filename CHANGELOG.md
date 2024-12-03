@@ -2,9 +2,9 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
-### 0.12.5
+### 0.13.0
 
-* Added support for `EchoCrossResonance`
+* Added support for `EchoCrossResonance` gate.
 
 ### 0.12.4
 
