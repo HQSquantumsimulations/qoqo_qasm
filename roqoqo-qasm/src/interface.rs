@@ -390,6 +390,13 @@ pub fn call_operation(
             qubit_register_name,
             op.target()
         )),
+        Operation::EchoCrossResonance(op) => Ok(format!(
+            "ecr {}[{}],{}[{}];",
+            qubit_register_name,
+            op.control(),
+            qubit_register_name,
+            op.target()
+        )),
         Operation::Fsim(op) => {
             variable_gathering(op.t(), qasm_version, variable_gatherer);
             variable_gathering(op.u(), qasm_version, variable_gatherer);
@@ -1327,6 +1334,9 @@ pub fn gate_definition(
         )),
         Operation::ControlledPauliZ(_) => Ok(String::from(
             "gate cz a,b { u2(0,pi) b; cx a,b; u2(0,pi) b; }"
+        )),
+        Operation::EchoCrossResonance(_) => Ok(String::from(
+            "gate ecr a,b { u1(pi/2) a; u1(pi/2) a; u3(pi/2,0,0) a; u3(pi,-pi/2,pi/2) b; u3(-pi/2,0,0) a; cx a,b; u3(-pi/2,-pi/2,pi/2) b; u1(-pi/2) a; u3(pi/2,0,0) a; u3(-pi/2,0,0) a; u3(pi,0,pi) a; }"
         )),
         Operation::ControlledPhaseShift(_) => Ok(String::from(
             "gate cp(lambda) a,b { U(0,0,lambda/2) a; cx a,b; U(0,0,-lambda/2) b; cx a,b; U(0,0,lambda/2) b; }"

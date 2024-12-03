@@ -71,6 +71,7 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::FRAC_PI_2])), "gate_name(1.5707963267948966e0) q[0],q[1];"; "CallDefinedGate")]
 #[test_case(Operation::from(SqrtPauliY::new(0)), "sy q[0];"; "SqrtPauliY")]
 #[test_case(Operation::from(InvSqrtPauliY::new(0)), "sydg q[0];"; "InvSqrtPauliY")]
+#[test_case(Operation::from(EchoCrossResonance::new(0, 1)), "ecr q[0],q[1];"; "EchoCrossResonance")]
 fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(
@@ -543,6 +544,7 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
 #[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::from(0.5)])), ""; "CallDefinedGate")]
 #[test_case(Operation::from(SqrtPauliY::new(0)), "gate sy a { u3(pi/2,0,0) a; }"; "SqrtPauliY")]
 #[test_case(Operation::from(InvSqrtPauliY::new(0)), "gate sydg a { u3(-pi/2,0,0) a; }"; "InvSqrtPauliY")]
+#[test_case(Operation::from(EchoCrossResonance::new(0, 1)), "gate ecr a,b { u1(pi/2) a; u1(pi/2) a; u3(pi/2,0,0) a; u3(pi,-pi/2,pi/2) b; u3(-pi/2,0,0) a; cx a,b; u3(-pi/2,-pi/2,pi/2) b; u1(-pi/2) a; u3(pi/2,0,0) a; u3(-pi/2,0,0) a; u3(pi,0,pi) a; }"; "EchoCrossResonance")]
 fn test_gate_definition(operation: Operation, converted: &str) {
     assert_eq!(
         gate_definition(&operation, QasmVersion::V2point0(Qasm2Dialect::Vanilla)).unwrap(),
