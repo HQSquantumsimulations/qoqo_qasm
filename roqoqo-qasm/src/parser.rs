@@ -148,6 +148,9 @@ fn gate_dispatch(
             CalculatorFloat::from(&params[0]),
             CalculatorFloat::from(&params[1]),
         ))),
+        "ecr" => Some(Operation::from(EchoCrossResonance::new(
+            qubits[0], qubits[1],
+        ))),
         "pscz" => Some(Operation::from(PhaseShiftedControlledZ::new(
             qubits[0],
             qubits[1],
