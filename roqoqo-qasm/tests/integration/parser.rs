@@ -87,6 +87,7 @@ fn test_qoqo_gates() {
     circuit_qoqo += XY::new(1, 2, 0.5.into());
     circuit_qoqo += SpinInteraction::new(0, 2, 0.5.into(), 0.6.into(), 0.7.into());
     circuit_qoqo += RotateXY::new(0, 0.3.into(), 0.9.into());
+    circuit_qoqo += EchoCrossResonance::new(0, 2);
     circuit_qoqo += PhaseShiftedControlledZ::new(0, 2, 0.3.into());
     circuit_qoqo += PhaseShiftedControlledPhase::new(0, 1, 1.0.into(), 1.9.into());
     circuit_qoqo += Toffoli::new(0, 2, 1);
