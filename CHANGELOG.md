@@ -2,6 +2,12 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+## Unreleased
+
+### Added in Unreleased
+
+* Updated to qoqo 1.16
+
 ## 0.13.3
 
 ### Fixed in 0.13.3
