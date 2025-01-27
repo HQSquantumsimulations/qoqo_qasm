@@ -4,7 +4,7 @@ version = "0.13.3"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 license = "Apache-2.0"
 edition = "2021"
-rust-version = "1.56"
+rust-version = "1.76"
 categories = ["science", "simulation"]
 readme = "README.md"
 repository = "https://github.com/HQSquantumsimulations/qoqo_qasm"
@@ -19,7 +19,7 @@ doctest = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-roqoqo = { version = "~1.15", features = [
+roqoqo = { version = "~1.16", features = [
     "serialize",
     "unstable_operation_definition",
 ] }

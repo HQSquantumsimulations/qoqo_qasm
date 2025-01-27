@@ -683,11 +683,7 @@ pub fn call_operation(
             }
             QasmVersion::V3point0(_) => {
                 let mut data = "".to_string();
-                let circuit_vec =
-                    match call_circuit(op.circuit(), qubit_register_name, qasm_version) {
-                        Ok(vec_str) => vec_str,
-                        Err(x) => return Err(x),
-                    };
+                let circuit_vec = call_circuit(op.circuit(), qubit_register_name, qasm_version)?;
                 data.push_str(&format!(
                     "if({}[{}]==1) {{\n",
                     op.condition_register(),
@@ -875,10 +871,7 @@ pub fn call_operation(
                 match op.repetitions() {
                     CalculatorFloat::Float(x) => {
                         data.push_str(format!("for uint i in [0:{x}] {{\n").as_str());
-                        let circuit_vec = match call_circuit(op.circuit(), qubit_register_name, qasm_version) {
-                            Ok(vec_str) => vec_str,
-                            Err(x) => return Err(x)
-                        };
+                        let circuit_vec = call_circuit(op.circuit(), qubit_register_name, qasm_version)?;
                         for string in circuit_vec {
                             data.push_str(format!("    {string}").as_str());
                         }
@@ -893,10 +886,7 @@ pub fn call_operation(
                 match op.repetitions() {
                     CalculatorFloat::Float(x) => {
                         for _ in 0_usize..(*x as usize) {
-                            let circuit_vec = match call_circuit(op.circuit(), qubit_register_name, qasm_version) {
-                                Ok(vec_str) => vec_str,
-                                Err(x) => return Err(x)
-                            };
+                            let circuit_vec = call_circuit(op.circuit(), qubit_register_name, qasm_version)?;
                             for string in circuit_vec {
                                 data.push_str(string.as_str());
                                 data.push('\n');
