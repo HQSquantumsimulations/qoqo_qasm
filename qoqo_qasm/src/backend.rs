@@ -46,6 +46,7 @@ impl QasmBackendWrapper {
     /// Returns:
     ///     Self: The new QasmBackend intance.
     #[new]
+    #[pyo3(signature = (qubit_register_name=None, qasm_version=None))]
     pub fn new(
         qubit_register_name: Option<String>,
         qasm_version: Option<String>,
