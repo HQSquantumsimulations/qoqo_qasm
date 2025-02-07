@@ -28,22 +28,22 @@ crate-type = ["cdylib", "rlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-qoqo = { version = "~1.16", default-features = false }
-roqoqo = { version = "~1.16", features = ["serialize"] }
+qoqo = { version = "~1.18", default-features = false }
+roqoqo = { version = "~1.18", features = ["serialize"] }
 roqoqo-qasm = { version = "~0.13", path = "../roqoqo-qasm" }
 
 [dependencies.pyo3]
-version = "0.21"
+version = "0.22"
 features = ["num-complex"]
 
 [dev-dependencies]
 test-case = "3.0"
-qoqo_calculator = "~1.2"
-ndarray = "0.15"
+qoqo_calculator = "~1.4"
+ndarray = "0.16"
 
 [build-dependencies]
-pyo3-build-config = "0.21"
-pyo3 = "0.21"
+pyo3-build-config = "0.22"
+pyo3 = "0.22"
 
 [features]
 extension-module = ["pyo3/extension-module"]
