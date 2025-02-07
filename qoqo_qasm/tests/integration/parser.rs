@@ -26,7 +26,9 @@ fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrappe
     let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op).unwrap();
-        circuitpy.call_method1("add", (new_op.clone_ref(py),)).unwrap();
+        circuitpy
+            .call_method1("add", (new_op.clone_ref(py),))
+            .unwrap();
     }
     circuitpy.to_owned()
 }
