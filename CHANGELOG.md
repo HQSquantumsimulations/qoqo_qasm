@@ -2,9 +2,9 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
-## Unreleased
+## 0.14.0
 
-### Added in Unreleased
+### Added in 0.14.0
 
 * Updated to qoqo 1.18
 * Updated to Pyo3 0.22
