@@ -17,5 +17,4 @@ mod backend;
 mod interface;
 
 #[cfg(test)]
-#[cfg(feature = "unstable_qasm_import")]
 mod parser;

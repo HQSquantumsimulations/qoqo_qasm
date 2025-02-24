@@ -17,7 +17,6 @@ use pyo3::{
 use std::path::Path;
 
 use qoqo::convert_into_circuit;
-#[cfg(feature = "unstable_qasm_import")]
 use qoqo::CircuitWrapper;
 
 use roqoqo_qasm::Backend;
@@ -47,6 +46,7 @@ impl QasmBackendWrapper {
     /// Returns:
     ///     Self: The new QasmBackend intance.
     #[new]
+    #[pyo3(signature = (qubit_register_name=None, qasm_version=None))]
     pub fn new(
         qubit_register_name: Option<String>,
         qasm_version: Option<String>,
@@ -69,7 +69,7 @@ impl QasmBackendWrapper {
     ///     TypeError: Circuit conversion error
     ///     ValueError: Operation not in QASM backend
     #[pyo3(text_signature = "($self, circuit)")]
-    pub fn circuit_to_qasm_str(&self, circuit: &PyAny) -> PyResult<String> {
+    pub fn circuit_to_qasm_str(&self, circuit: &Bound<PyAny>) -> PyResult<String> {
         let circuit = convert_into_circuit(circuit).map_err(|x| {
             PyTypeError::new_err(format!("Cannot convert python object to Circuit: {x:?}"))
         })?;
@@ -94,7 +94,7 @@ impl QasmBackendWrapper {
     #[pyo3(text_signature = "($self, circuit, folder_name, filename, overwrite)")]
     pub fn circuit_to_qasm_file(
         &self,
-        circuit: &PyAny,
+        circuit: &Bound<PyAny>,
         folder_name: String,
         filename: String,
         overwrite: bool,
@@ -119,7 +119,6 @@ impl QasmBackendWrapper {
     /// Raises:
     ///     PyFileNotFoundError: The file could not be opened.
     ///     PyValueError: An error occurred while converting the file into a Circuit.
-    #[cfg(feature = "unstable_qasm_import")]
     #[pyo3(text_signature = "($self, file)")]
     pub fn qasm_file_to_circuit(&self, file: &str) -> PyResult<CircuitWrapper> {
         crate::qasm_file_to_circuit(file)
@@ -135,7 +134,6 @@ impl QasmBackendWrapper {
     ///
     /// Raises:
     ///     PyValueError: An error occurred while converting the file into a Circuit.
-    #[cfg(feature = "unstable_qasm_import")]
     #[pyo3(text_signature = "(input)")]
     pub fn qasm_str_to_circuit(&self, input: &str) -> PyResult<CircuitWrapper> {
         crate::qasm_str_to_circuit(input)

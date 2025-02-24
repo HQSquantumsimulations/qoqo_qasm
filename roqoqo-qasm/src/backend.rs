@@ -10,7 +10,10 @@
 // express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{call_operation, gate_definition, VariableGatherer};
+use crate::{
+    call_operation, gate_definition, VariableGatherer, ALLOWED_OPERATIONS,
+    NO_DEFINITION_REQUIRED_OPERATIONS,
+};
 use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::{Circuit, RoqoqoBackendError};
@@ -19,7 +22,25 @@ use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
-use std::usize;
+
+/// Checks for new declarations in the circuit.
+fn process_operation_circuit<'a>(
+    circuit: impl Iterator<Item = &'a Operation>,
+    qasm_version: QasmVersion,
+    already_seen_declarations: &mut Vec<String>,
+    declarations: &mut String,
+) -> Result<(), RoqoqoBackendError> {
+    for operation in circuit {
+        if !already_seen_declarations.contains(&operation.hqslang().to_string()) {
+            already_seen_declarations.push(operation.hqslang().to_string());
+            declarations.push_str(&gate_definition(operation, qasm_version)?);
+            if !declarations.is_empty() {
+                declarations.push('\n');
+            }
+        }
+    }
+    Ok(())
+}
 
 /// QASM backend to qoqo
 ///
@@ -62,7 +83,7 @@ impl Backend {
             Some(s) => s,
         };
         let qasm_v = match qasm_version {
-            None => QasmVersion::V2point0,
+            None => QasmVersion::V2point0(Qasm2Dialect::Vanilla),
             Some(v) => QasmVersion::from_str(v.as_str())?,
         };
 
@@ -102,7 +123,7 @@ impl Backend {
         // Appending QASM version
         let mut qasm_string = String::from("OPENQASM ");
         match self.qasm_version {
-            QasmVersion::V2point0 => qasm_string.push_str("2.0;\n\n"),
+            QasmVersion::V2point0(_) => qasm_string.push_str("2.0;\n\n"),
             QasmVersion::V3point0(_) => qasm_string.push_str("3.0;\n\n"),
         }
 
@@ -129,7 +150,7 @@ impl Backend {
             &Operation::from(CNOT::new(0, 1)),
             self.qasm_version,
         )?);
-        definitions.push('\n');
+        definitions.push_str("\n\n");
 
         // Main loop over the circuit
         for op in circuit {
@@ -144,13 +165,49 @@ impl Backend {
 
             // Appending gate definition if not already seen before
             if !already_seen_definitions.contains(&op.hqslang().to_string()) {
-                already_seen_definitions.push(op.hqslang().to_string());
-                definitions.push_str(&gate_definition(op, self.qasm_version)?);
-                if !definitions.is_empty() {
-                    definitions.push('\n');
+                let mut continue_process = false;
+                if let Operation::GateDefinition(gate_definition) = op {
+                    if !already_seen_definitions.contains(gate_definition.name()) {
+                        already_seen_definitions.push(gate_definition.name().to_owned());
+                        continue_process = true;
+                    }
+                } else {
+                    already_seen_definitions.push(op.hqslang().to_string());
+                    continue_process = true;
+                }
+
+                if continue_process {
+                    match op {
+                        Operation::GateDefinition(gate_definition) => process_operation_circuit(
+                            gate_definition.circuit().iter(),
+                            self.qasm_version,
+                            &mut already_seen_definitions,
+                            &mut definitions,
+                        )?,
+                        Operation::PragmaConditional(pragma_conditional) => {
+                            process_operation_circuit(
+                                pragma_conditional.circuit().iter(),
+                                self.qasm_version,
+                                &mut already_seen_definitions,
+                                &mut definitions,
+                            )?
+                        }
+                        Operation::PragmaLoop(pragma_loop) => process_operation_circuit(
+                            pragma_loop.circuit().iter(),
+                            self.qasm_version,
+                            &mut already_seen_definitions,
+                            &mut definitions,
+                        )?,
+                        _ => {}
+                    }
+                    definitions.push_str(&gate_definition(op, self.qasm_version)?);
+                    if !definitions.is_empty()
+                        && !NO_DEFINITION_REQUIRED_OPERATIONS.contains(&op.hqslang())
+                    {
+                        definitions.push('\n');
+                    }
                 }
             }
-
             // Appending operation QASM instruction
             data.push_str(&call_operation(
                 op,
@@ -159,7 +216,7 @@ impl Backend {
                 &mut Some(&mut variable_gatherer),
             )?);
 
-            if !data.is_empty() {
+            if !data.is_empty() && !ALLOWED_OPERATIONS.contains(&op.hqslang()) {
                 data.push('\n');
             }
         }
@@ -167,6 +224,9 @@ impl Backend {
         // Building the final string: QASM version + definitions + parameters + registers + circuit data
         match self.qasm_version {
             QasmVersion::V3point0(Qasm3Dialect::Braket) => {}
+            QasmVersion::V2point0(Qasm2Dialect::Qulacs) => {
+                qasm_string.push_str("include \"qelib1.inc\";\n\n")
+            }
             _ => qasm_string.push_str(definitions.as_str()),
         };
 
@@ -180,9 +240,9 @@ impl Backend {
             }
         }
         match self.qasm_version {
-            QasmVersion::V2point0 => qasm_string.push_str(
+            QasmVersion::V2point0(_) => qasm_string.push_str(
                 format!(
-                    "qreg {}[{}];\n\n",
+                    "\nqreg {}[{}];\n\n",
                     self.qubit_register_name,
                     number_qubits_required + 1,
                 )
@@ -190,7 +250,7 @@ impl Backend {
             ),
             QasmVersion::V3point0(_) => qasm_string.push_str(
                 format!(
-                    "qubit[{}] {};\n\n",
+                    "\nqubit[{}] {};\n\n",
                     number_qubits_required + 1,
                     self.qubit_register_name,
                 )
@@ -286,7 +346,6 @@ impl Backend {
     ///
     /// * `Ok(Circuit)` - The translated qoqo Circuit.
     /// * `RoqoqoBackendError::GenericError` - Error encountered while parsing.
-    #[cfg(feature = "unstable_qasm_import")]
     pub fn file_to_circuit(&self, file: File) -> Result<Circuit, RoqoqoBackendError> {
         crate::file_to_circuit(file)
     }
@@ -301,7 +360,6 @@ impl Backend {
     ///
     /// * `Ok(Circuit)` - The translated qoqo Circuit.
     /// * `RoqoqoBackendError::GenericError` - Error encountered while parsing.
-    #[cfg(feature = "unstable_qasm_import")]
     pub fn string_to_circuit(&self, input: &str) -> Result<Circuit, RoqoqoBackendError> {
         crate::string_to_circuit(input)
     }
@@ -311,9 +369,18 @@ impl Backend {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum QasmVersion {
     /// OpenQASM 2.0
-    V2point0,
+    V2point0(Qasm2Dialect),
     /// OpenQASM 3.0
     V3point0(Qasm3Dialect),
+}
+
+/// Enum for setting the version of OpenQASM used
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Qasm2Dialect {
+    /// Vanilla OpenQasm 2.0
+    Vanilla,
+    /// Without gate definitions
+    Qulacs,
 }
 
 /// Enum for setting the version of OpenQASM used
@@ -332,7 +399,8 @@ impl FromStr for QasmVersion {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "2.0" => Ok(QasmVersion::V2point0),
+            "2.0" | "2.0Vanilla" => Ok(QasmVersion::V2point0(Qasm2Dialect::Vanilla)),
+            "2.0Qulacs" => Ok(QasmVersion::V2point0(Qasm2Dialect::Qulacs)),
             "3.0Roqoqo" => Ok(QasmVersion::V3point0(Qasm3Dialect::Roqoqo)),
             "3.0Braket" => Ok(QasmVersion::V3point0(Qasm3Dialect::Braket)),
             "3.0Vanilla" => Ok(QasmVersion::V3point0(Qasm3Dialect::Vanilla)),

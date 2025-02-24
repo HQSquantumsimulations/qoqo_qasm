@@ -6,7 +6,6 @@ on:
     types: [created]
 
 jobs:
-
   deploy_cratesio:
     runs-on: ubuntu-latest
     steps:

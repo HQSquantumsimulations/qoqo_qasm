@@ -37,18 +37,17 @@ use roqoqo::Circuit;
 use test_case::test_case;
 
 // helper functions
-fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrapper> {
-    let circuit_type = py.get_type::<CircuitWrapper>();
-    let circuitpy = circuit_type
-        .call0()
-        .unwrap()
-        .downcast::<PyCell<CircuitWrapper>>()
-        .unwrap();
+fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrapper> {
+    let circuit_type = py.get_type_bound::<CircuitWrapper>();
+    let binding = circuit_type.call0().unwrap();
+    let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op).unwrap();
-        circuitpy.call_method1("add", (new_op.clone(),)).unwrap();
+        circuitpy
+            .call_method1("add", (new_op.clone_ref(py),))
+            .unwrap();
     }
-    circuitpy
+    circuitpy.to_owned()
 }
 
 /// Test qasm_call_circuit with correct Circuit
@@ -71,7 +70,7 @@ fn test_qasm_call_circuit(qasm_version: &str, _qubits: &str, bits: &str) {
         ];
 
         assert_eq!(
-            qasm_call_circuit(circuitpy, "qr", qasm_version).unwrap(),
+            qasm_call_circuit(&circuitpy, "qr", qasm_version).unwrap(),
             qasm_circ
         )
     })
@@ -121,11 +120,11 @@ fn test_qasm_call_operation_identical_2_3(operation: Operation, converted: &str)
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "2.0").unwrap(),
             converted.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0").unwrap(),
             converted.to_string()
         );
     })
@@ -149,11 +148,11 @@ fn test_qasm_call_operation_different_2_3(
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "2.0").unwrap(),
             converted_2.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0").unwrap(),
             converted_3.to_string()
         );
     })
@@ -169,19 +168,19 @@ fn test_qasm_call_operation_different_braket(
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "2.0").unwrap(),
             converted_2.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0Braket").unwrap(),
             converted_2.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0Vanilla").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0Vanilla").unwrap(),
             converted_3.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0Roqoqo").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0Roqoqo").unwrap(),
             converted_3.to_string()
         );
     })
@@ -192,9 +191,9 @@ fn test_qasm_call_operation_error_2_3(operation: Operation, converted_3: &str) {
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
-        assert!(qasm_call_operation(new_op.as_ref(py), "q", "2.0").is_err());
+        assert!(qasm_call_operation(new_op.bind(py), "q", "2.0").is_err());
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0").unwrap(),
             converted_3.to_string()
         );
     })
@@ -218,19 +217,19 @@ fn test_call_operation_different_2_roqoqo_3(
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "2.0").unwrap(),
             converted_2.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0").unwrap(),
             converted_2.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0Braket").unwrap(),
             converted_2.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0Roqoqo").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0Roqoqo").unwrap(),
             converted_3.to_string()
         );
     })
@@ -250,20 +249,20 @@ fn test_call_operation_error_different_all(
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation.clone()).unwrap();
 
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0Braket").unwrap(),
             converted_3_braket.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "2.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "2.0").unwrap(),
             converted_2.to_string()
         );
 
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0Roqoqo").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0Roqoqo").unwrap(),
             converted_3_roqoqo.to_string()
         );
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0").unwrap(),
             converted_3_vanilla.to_string()
         );
     })
@@ -283,11 +282,11 @@ fn test_call_operation_error_2_roqoqo_3(operation: Operation, converted_3: &str)
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
-        assert!(qasm_call_operation(new_op.as_ref(py), "q", "2.0").is_err());
-        assert!(qasm_call_operation(new_op.as_ref(py), "q", "3.0").is_err());
-        assert!(qasm_call_operation(new_op.as_ref(py), "q", "3.0Braket").is_err());
+        assert!(qasm_call_operation(new_op.bind(py), "q", "2.0").is_err());
+        assert!(qasm_call_operation(new_op.bind(py), "q", "3.0").is_err());
+        assert!(qasm_call_operation(new_op.bind(py), "q", "3.0Braket").is_err());
         assert_eq!(
-            qasm_call_operation(new_op.as_ref(py), "q", "3.0Roqoqo").unwrap(),
+            qasm_call_operation(new_op.bind(py), "q", "3.0Roqoqo").unwrap(),
             converted_3.to_string()
         );
     })
@@ -340,11 +339,11 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
 
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
-        let dict = PyDict::new(py);
+        let dict = &PyDict::new_bound(py);
         let wrongcircuitpy = circuitpy_from_circuitru(py, wrong_circuit.clone());
         let wrongoperationpy = convert_operation_to_pyobject(operation.clone()).unwrap();
 
-        let result = qasm_call_circuit(dict.as_ref(), "qr", qasm_version);
+        let result = qasm_call_circuit(dict.as_any(), "qr", qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -355,7 +354,7 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
             .to_string()
         );
 
-        let result = qasm_call_circuit(wrongcircuitpy, "qr", qasm_version);
+        let result = qasm_call_circuit(&wrongcircuitpy, "qr", qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -369,7 +368,7 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
             .to_string()
         );
 
-        let result = qasm_call_operation(dict.as_ref(), "qr", qasm_version);
+        let result = qasm_call_operation(dict.as_any(), "qr", qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -380,7 +379,7 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
             .to_string()
         );
 
-        let result = qasm_call_operation(wrongoperationpy.as_ref(py), "qr", qasm_version);
+        let result = qasm_call_operation(wrongoperationpy.bind(py), "qr", qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -394,7 +393,7 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
             .to_string()
         );
 
-        let result = qasm_gate_definition(dict.as_ref(), qasm_version);
+        let result = qasm_gate_definition(dict.as_any(), qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -405,7 +404,7 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
             .to_string()
         );
 
-        let result = qasm_gate_definition(wrongoperationpy.as_ref(py), qasm_version);
+        let result = qasm_gate_definition(wrongoperationpy.bind(py), qasm_version);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -430,7 +429,7 @@ fn test_qasm_gate_definition(operation: Operation, converted: &str) {
     Python::with_gil(|py| {
         let new_op: Py<PyAny> = convert_operation_to_pyobject(operation).unwrap();
         assert_eq!(
-            qasm_gate_definition(new_op.as_ref(py), "2.0").unwrap(),
+            qasm_gate_definition(new_op.bind(py), "2.0").unwrap(),
             converted.to_string()
         )
     })

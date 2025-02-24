@@ -17,10 +17,10 @@ use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::prelude::*;
 use roqoqo::Circuit;
+use roqoqo_qasm::Qasm2Dialect;
 use roqoqo_qasm::{call_circuit, call_operation, gate_definition, Qasm3Dialect, QasmVersion};
 use std::collections::HashMap;
 use std::f64::consts::PI;
-use std::usize;
 use test_case::test_case;
 
 fn tmp_create_map() -> HashMap<usize, usize> {
@@ -57,6 +57,8 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(SpinInteraction::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "spinint(1e-1,1e-1,1e-1) q[0],q[1];"; "SpinInteraction")]
 #[test_case(Operation::from(XY::new(0, 1, CalculatorFloat::from(0.2))), "xy(2e-1) q[0],q[1];"; "XY")]
 #[test_case(Operation::from(RotateXY::new(0, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "rxy(2e-1,2e-1) q[0];"; "RotateXY")]
+#[test_case(Operation::from(ControlledRotateX::new(0, 1, CalculatorFloat::from(0.3))), "crx(3e-1) q[0],q[1];"; "ControlledRotateX")]
+#[test_case(Operation::from(ControlledRotateXY::new(0, 1, CalculatorFloat::from(0.3), CalculatorFloat::from(0.5))), "crxy(3e-1,5e-1) q[0],q[1];"; "ControlledRotateXY")]
 #[test_case(Operation::from(PhaseShiftedControlledZ::new(0, 1, CalculatorFloat::from(0.1))), "pscz(1e-1) q[0],q[1];"; "PhaseShiftedControlledZ")]
 #[test_case(Operation::from(PhaseShiftedControlledPhase::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.2))), "pscp(1e-1,2e-1) q[0],q[1];"; "PhaseShiftedControlledPhase")]
 #[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,-0.000000000000000) q[0];"; "SingleQubitGate")]
@@ -65,9 +67,20 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "ccz q[0],q[1],q[2];"; "ControlledControlledPauliZ")]
 #[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(3e-1) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
 #[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
+#[test_case(Operation::from(GateDefinition::new(Circuit::new(), "test_gate".to_owned(), vec![0,1], vec!["theta".to_owned()])), ""; "GateDefinition")]
+#[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::FRAC_PI_2])), "gate_name(1.5707963267948966e0) q[0],q[1];"; "CallDefinedGate")]
+#[test_case(Operation::from(SqrtPauliY::new(0)), "sy q[0];"; "SqrtPauliY")]
+#[test_case(Operation::from(InvSqrtPauliY::new(0)), "sydg q[0];"; "InvSqrtPauliY")]
+#[test_case(Operation::from(EchoCrossResonance::new(0, 1)), "ecr q[0],q[1];"; "EchoCrossResonance")]
 fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) {
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap(),
         converted.to_string()
     );
     assert_eq!(
@@ -106,7 +119,13 @@ fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) 
 #[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "", "input float other;"; "InputSymbolic")]
 fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap(),
         converted_2.to_string()
     );
     assert_eq!(
@@ -157,7 +176,13 @@ fn test_call_operation_different_2_3_roqoqo_dialect(
     converted_3: &str,
 ) {
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap(),
         converted_2.to_string()
     );
     assert_eq!(
@@ -205,7 +230,13 @@ fn test_call_operation_different_2_3_braket_dialect(
     converted_3: &str,
 ) {
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap(),
         converted_2.to_string()
     );
     assert_eq!(
@@ -256,7 +287,13 @@ fn test_call_operation_different_braket_dialect(
     converted_3_braket: &str,
 ) {
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap(),
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap(),
         converted_2.to_string()
     );
     assert_eq!(
@@ -331,9 +368,14 @@ fn test_call_operation_error_2_3_roqoqo_dialect(operation: Operation, converted_
         error.to_string()
     );
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0, &mut None)
-            .unwrap_err()
-            .to_string(),
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap_err()
+        .to_string(),
         error.to_string()
     );
     assert_eq!(
@@ -380,9 +422,14 @@ fn test_call_operation_error_2_3_braket_dialect(operation: Operation, converted_
         error.to_string()
     );
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0, &mut None)
-            .unwrap_err()
-            .to_string(),
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap_err()
+        .to_string(),
         error.to_string()
     );
     assert_eq!(
@@ -406,7 +453,12 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
     };
 
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0, &mut None),
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        ),
         Err(error)
     );
     assert_eq!(
@@ -461,6 +513,8 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
 #[test_case(Operation::from(ControlledPauliY::new(0, 1)), "gate cy a,b { u1(-pi/2) b; cx a,b; u1(pi/2) b; }"; "ControlledPauliY")]
 #[test_case(Operation::from(ControlledPauliZ::new(0, 1)), "gate cz a,b { u2(0,pi) b; cx a,b; u2(0,pi) b; }"; "ControlledPauliZ")]
 #[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(PI/4.0))), "gate cp(lambda) a,b { U(0,0,lambda/2) a; cx a,b; U(0,0,-lambda/2) b; cx a,b; U(0,0,lambda/2) b; }"; "ControlledPhaseShift")]
+#[test_case(Operation::from(ControlledRotateX::new(0, 1, CalculatorFloat::from(PI/4.0))), "gate crx(theta) a,b { u2(0,pi) b; u1(theta/2) b; cx a,b; u1(-theta/2) b; cx a,b; u2(0,pi) b; }"; "ControlledRotateX")]
+#[test_case(Operation::from(ControlledRotateXY::new(0, 1, CalculatorFloat::from(PI/4.0), CalculatorFloat::from(PI/4.0))), "gate crxy(theta,phi) a,b { u1(-phi) b; u2(0,pi) b; u1(theta/2) b; cx a,b; u1(-theta/2) b; cx a,b; u2(0,pi) b; u1(phi) b; }"; "ControlledRotateXY")]
 #[test_case(Operation::from(SWAP::new(0, 1)), "gate swap a,b { cx a,b; cx b,a; cx a,b; }"; "SWAP")]
 #[test_case(Operation::from(ISwap::new(0, 1)), "gate iswap a,b { rx(pi/2) a; cx a,b; rx(-pi/2) a; ry(-pi/2) b; cx a,b; rx(-pi/2) a; }"; "ISwap")]
 #[test_case(Operation::from(SqrtISwap::new(0, 1)), "gate siswap a,b { rx(pi/2) a; cx a,b; rx(-pi/4) a; ry(-pi/4) b; cx a,b; rx(-pi/2) a; }"; "SqrtISwap")]
@@ -486,9 +540,14 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
 #[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "gate ccz a,b,c { U(0,0,pi/4) b; cx b,c; U(0,0,-pi/4) c; cx b,c; U(0,0,pi/4) c; cx a,b; U(0,0,-pi/4) b; cx b,c; U(0,0,pi/4) c; cx b,c; U(0,0,-pi/4) c; cx a,b; U(0,0,pi/4) a; cx a,c; U(0,0,-pi/4) c; cx a,c; U(0,0,pi/4) c; }"; "ControlledControlledPauliZ")]
 #[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "gate ccp(theta) a,b,c { U(0,0,theta/4) b; cx b,c; U(0,0,-theta/4) c; cx b,c; U(0,0,theta/4) c; cx a,b; U(0,0,-theta/4) b; cx b,c; U(0,0,theta/4) c; cx b,c; U(0,0,-theta/4) c; cx a,b; U(0,0,theta/4) a; cx a,c; U(0,0,-theta/4) c; cx a,c; U(0,0,theta/4) c; }"; "ControlledControlledPhaseShift")]
 #[test_case(Operation::from(Toffoli::new(0, 1, 2)), "gate ccx a,b,c { u2(0,pi) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) c; cx b,c; u1(-pi/4) c; cx a,c; u1(pi/4) b; u1(pi/4) c; u2(0,pi) c; cx a,b; u1(pi/4) a; u1(-pi/4) b; cx a,b; }"; "Toffoli")]
+#[test_case(Operation::from(GateDefinition::new(vec![Operation::from(RotateX::new(0,CalculatorFloat::from("theta"))), Operation::from(RotateX::new(1,CalculatorFloat::from("pi")))].into_iter().collect(), "test_gate".to_owned(), vec![0,1], vec!["theta".to_owned()])), "gate test_gate(theta) qb_0,qb_1\n{\n    rx(theta) qb_0;\n    rx(pi) qb_1;\n}"; "GateDefinition")]
+#[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::from(0.5)])), ""; "CallDefinedGate")]
+#[test_case(Operation::from(SqrtPauliY::new(0)), "gate sy a { u3(pi/2,0,0) a; }"; "SqrtPauliY")]
+#[test_case(Operation::from(InvSqrtPauliY::new(0)), "gate sydg a { u3(-pi/2,0,0) a; }"; "InvSqrtPauliY")]
+#[test_case(Operation::from(EchoCrossResonance::new(0, 1)), "gate ecr a,b { u1(pi/2) a; u1(pi/2) a; u3(pi/2,0,0) a; u3(pi,-pi/2,pi/2) b; u3(-pi/2,0,0) a; cx a,b; u3(-pi/2,-pi/2,pi/2) b; u1(-pi/2) a; u3(pi/2,0,0) a; u3(-pi/2,0,0) a; u3(pi,0,pi) a; }"; "EchoCrossResonance")]
 fn test_gate_definition(operation: Operation, converted: &str) {
     assert_eq!(
-        gate_definition(&operation, QasmVersion::V2point0).unwrap(),
+        gate_definition(&operation, QasmVersion::V2point0(Qasm2Dialect::Vanilla)).unwrap(),
         converted.to_string()
     )
 }
@@ -512,7 +571,7 @@ fn test_gate_definition_error(operation: Operation) {
         hqslang: operation.hqslang(),
     };
     assert_eq!(
-        gate_definition(&operation, QasmVersion::V2point0),
+        gate_definition(&operation, QasmVersion::V2point0(Qasm2Dialect::Vanilla)),
         Err(error)
     )
 }
@@ -531,7 +590,7 @@ fn test_pragma_conditional() {
         call_operation(
             &Operation::from(pcond),
             "q",
-            QasmVersion::V2point0,
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
             &mut None
         ),
         Err(RoqoqoBackendError::GenericError {
@@ -545,7 +604,7 @@ fn test_pragma_conditional() {
         call_operation(
             &Operation::from(pcond.clone()),
             "q",
-            QasmVersion::V2point0,
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
             &mut None
         )
         .unwrap(),
@@ -613,7 +672,7 @@ fn test_pragma_loop() {
         call_operation(
             &Operation::from(pcond.clone()),
             "q",
-            QasmVersion::V2point0,
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
             &mut None
         )
         .unwrap(),
@@ -652,8 +711,8 @@ fn test_pragma_loop() {
         Err(RoqoqoBackendError::GenericError { msg: "Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: V3point0(Braket)".into() })
     );
     assert_eq!(
-        call_operation(&Operation::from(pcond_error), "q", QasmVersion::V2point0, &mut None),
-        Err(RoqoqoBackendError::GenericError { msg: "Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: V2point0".into() })
+        call_operation(&Operation::from(pcond_error), "q", QasmVersion::V2point0(Qasm2Dialect::Vanilla), &mut None),
+        Err(RoqoqoBackendError::GenericError { msg: "Used PragmaLoop with a string test for repetitions and a qasm-version that is incompatible: V2point0(Vanilla)".into() })
     );
 
     let pcond = PragmaLoop::new(2.0.into(), circuit);
@@ -696,7 +755,7 @@ fn test_pragma_sleep() {
         call_operation(
             &Operation::from(p_sleep_single.clone()),
             "q",
-            QasmVersion::V2point0,
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
             &mut None
         )
         .unwrap(),
@@ -707,7 +766,7 @@ fn test_pragma_sleep() {
         call_operation(
             &Operation::from(p_sleep_double.clone()),
             "q",
-            QasmVersion::V2point0,
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
             &mut None
         )
         .unwrap(),
@@ -756,7 +815,13 @@ fn test_pragma_repeated_operation_mapping() {
         1,
         Some(tmp_create_map()),
     ));
-    let qasm_string = call_operation(&operation, "q", QasmVersion::V2point0, &mut None).unwrap();
+    let qasm_string = call_operation(
+        &operation,
+        "q",
+        QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+        &mut None,
+    )
+    .unwrap();
     assert!(qasm_string.contains("measure q[0] -> ro[1];\n"));
     assert!(qasm_string.contains("measure q[1] -> ro[0];\n"));
     let qasm_string = call_operation(
@@ -797,7 +862,12 @@ fn test_pragma_repeated_operation_mapping() {
 )); "Bogoliubov")]
 fn test_call_operation_error(operation: Operation) {
     assert_eq!(
-        call_operation(&operation, "q", QasmVersion::V2point0, &mut None),
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        ),
         Err(RoqoqoBackendError::OperationNotInBackend {
             backend: "QASM",
             hqslang: operation.hqslang()
@@ -855,7 +925,7 @@ fn test_call_circuit() {
         "measure qr[0] -> ro[0];".to_string(),
     ];
     assert_eq!(
-        call_circuit(&circuit, "qr", QasmVersion::V2point0).unwrap(),
+        call_circuit(&circuit, "qr", QasmVersion::V2point0(Qasm2Dialect::Vanilla)).unwrap(),
         qasm_circ_2_0
     );
 
@@ -880,16 +950,18 @@ fn test_call_circuit() {
 
 /// Test that parametric gates are correctly translated
 #[test_case(Operation::from(RotateZ::new(0, "2.44+phi/4*theta".into())), QasmVersion::V3point0(Qasm3Dialect::Vanilla), "rz(2.44+phi/4*theta) q[0];"; "RotateZ3_0")]
-#[test_case(Operation::from(RotateZ::new(1, "3.5".into())), QasmVersion::V2point0, "rz(3.5e0) q[1];"; "RotateZ2_0")]
+#[test_case(Operation::from(RotateZ::new(1, "3.5".into())), QasmVersion::V2point0(Qasm2Dialect::Vanilla), "rz(3.5e0) q[1];"; "RotateZ2_0")]
 #[test_case(Operation::from(RotateX::new(0, "theta/phi".into())), QasmVersion::V3point0(Qasm3Dialect::Vanilla), "rx(theta/phi) q[0];"; "RotateX")]
 #[test_case(Operation::from(RotateY::new(0, "2.4/alpha*beta".into())), QasmVersion::V3point0(Qasm3Dialect::Vanilla), "ry(2.4/alpha*beta) q[0];"; "RotateY3_0")]
-#[test_case(Operation::from(RotateY::new(1, CalculatorFloat::from(0.45))), QasmVersion::V2point0, "ry(4.5e-1) q[1];"; "RotateY2_0")]
+#[test_case(Operation::from(RotateY::new(1, CalculatorFloat::from(0.45))), QasmVersion::V2point0(Qasm2Dialect::Vanilla), "ry(4.5e-1) q[1];"; "RotateY2_0")]
 #[test_case(Operation::from(PhaseShiftState1::new(0, "beta/gamma-3.45".into())), QasmVersion::V3point0(Qasm3Dialect::Braket), "phaseshift(beta/gamma-3.45) q[0];"; "PhaseShiftState13_0")]
-#[test_case(Operation::from(PhaseShiftState1::new(1, CalculatorFloat::from(3.45))), QasmVersion::V2point0, "p(3.45e0) q[1];"; "PhaseShiftState12_0")]
+#[test_case(Operation::from(PhaseShiftState1::new(1, CalculatorFloat::from(3.45))), QasmVersion::V2point0(Qasm2Dialect::Vanilla), "p(3.45e0) q[1];"; "PhaseShiftState12_0")]
 #[test_case(Operation::from(VariableMSXX::new(0, 1, "alpha+beta+gamma".into())), QasmVersion::V3point0(Qasm3Dialect::Braket), "xx(alpha+beta+gamma) q[0],q[1];"; "VariableMSXX3_0")]
-#[test_case(Operation::from(VariableMSXX::new(0, 1, "3.7".into())), QasmVersion::V2point0, "rxx(3.7e0) q[0],q[1];"; "VariableMSXX2_0")]
+#[test_case(Operation::from(VariableMSXX::new(0, 1, "3.7".into())), QasmVersion::V2point0(Qasm2Dialect::Vanilla), "rxx(3.7e0) q[0],q[1];"; "VariableMSXX2_0")]
 #[test_case(Operation::from(ControlledPhaseShift::new(0, 1, "phi-theta".into())), QasmVersion::V3point0(Qasm3Dialect::Braket), "cphaseshift(phi-theta) q[0],q[1];"; "ControlledPhaseShift3_0")]
-#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, "0.34".into())), QasmVersion::V2point0, "cp(3.4e-1) q[0],q[1];"; "ControlledPhaseShift2_0")]
+#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, "0.34".into())), QasmVersion::V2point0(Qasm2Dialect::Vanilla), "cp(3.4e-1) q[0],q[1];"; "ControlledPhaseShift2_0")]
+#[test_case(Operation::from(ControlledRotateX::new(0, 1, "a+b".into())), QasmVersion::V2point0(Qasm2Dialect::Vanilla), "crx(a+b) q[0],q[1];"; "ControlledRotateX2_0")]
+#[test_case(Operation::from(ControlledRotateXY::new(0, 1, "a+b".into(), "p+3".into())), QasmVersion::V2point0(Qasm2Dialect::Vanilla), "crxy(a+b,p+3) q[0],q[1];"; "ControlledRotateXY2_0")]
 #[test_case(Operation::from(Fsim::new(0, 1, "alpha-theta".into(), "0.45".into(), CalculatorFloat::from(2.7))), QasmVersion::V3point0(Qasm3Dialect::Roqoqo), "fsim(alpha-theta,4.5e-1,2.7e0) q[0],q[1];"; "Fsim3_0")]
 #[test_case(Operation::from(Qsim::new(0, 1, "gamma*2".into(), CalculatorFloat::from(0.45), 0.04.into())), QasmVersion::V3point0(Qasm3Dialect::Roqoqo), "qsim(gamma*2,4.5e-1,4e-2) q[0],q[1];"; "Qsim3_0")]
 #[test_case(Operation::from(PMInteraction::new(0, 1, "alpha/3*beta".into())), QasmVersion::V3point0(Qasm3Dialect::Braket), "pmint(alpha/3*beta) q[0],q[1];"; "PMInteraction3_0")]

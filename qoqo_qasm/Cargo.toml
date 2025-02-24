@@ -1,10 +1,10 @@
 [package]
 name = "qoqo_qasm"
-version = "0.9.7"
+version = "0.14.0"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 license = "Apache-2.0"
 edition = "2021"
-rust-version = "1.56"
+rust-version = "1.76"
 categories = ["science", "simulation"]
 readme = "README.md"
 homepage = "https://github.com/HQSquantumsimulations/qoqo_qasm"
@@ -28,23 +28,23 @@ crate-type = ["cdylib", "rlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-qoqo = { version = "1.9", default-features = false }
-roqoqo = { version = "1.9", features = ["serialize"] }
-roqoqo-qasm = { version = "0.9", path = "../roqoqo-qasm" }
+qoqo = { version = "~1.18", default-features = false }
+roqoqo = { version = "~1.18", features = ["serialize"] }
+roqoqo-qasm = { version = "~0.14", path = "../roqoqo-qasm" }
 
 [dependencies.pyo3]
-version = "0.20"
+version = "0.22"
 features = ["num-complex"]
 
 [dev-dependencies]
 test-case = "3.0"
-qoqo_calculator = "1.1"
-ndarray = "0.15"
+qoqo_calculator = "~1.4"
+ndarray = "0.16"
 
 [build-dependencies]
-pyo3-build-config = "0.20"
+pyo3-build-config = "0.22"
+pyo3 = "0.22"
 
 [features]
 extension-module = ["pyo3/extension-module"]
 default = ["extension-module"]
-unstable_qasm_import = ["roqoqo-qasm/unstable_qasm_import"]

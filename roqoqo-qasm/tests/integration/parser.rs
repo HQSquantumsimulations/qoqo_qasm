@@ -16,6 +16,7 @@ use std::convert::TryInto;
 use std::fs::File;
 
 use num_complex::Complex64;
+use qoqo_calculator::CalculatorFloat;
 use roqoqo::operations::*;
 use roqoqo::Circuit;
 
@@ -71,6 +72,8 @@ fn test_qoqo_gates() {
     circuit_qoqo += ControlledPauliY::new(0, 1);
     circuit_qoqo += ControlledPauliZ::new(1, 2);
     circuit_qoqo += ControlledPhaseShift::new(0, 2, 0.5.into());
+    circuit_qoqo += ControlledRotateX::new(1, 2, 0.8.into());
+    circuit_qoqo += ControlledRotateXY::new(0, 1, 0.4.into(), 0.2.into());
     circuit_qoqo += SWAP::new(1, 2);
     circuit_qoqo += ISwap::new(0, 1);
     circuit_qoqo += SqrtISwap::new(1, 2);
@@ -84,6 +87,7 @@ fn test_qoqo_gates() {
     circuit_qoqo += XY::new(1, 2, 0.5.into());
     circuit_qoqo += SpinInteraction::new(0, 2, 0.5.into(), 0.6.into(), 0.7.into());
     circuit_qoqo += RotateXY::new(0, 0.3.into(), 0.9.into());
+    circuit_qoqo += EchoCrossResonance::new(0, 2);
     circuit_qoqo += PhaseShiftedControlledZ::new(0, 2, 0.3.into());
     circuit_qoqo += PhaseShiftedControlledPhase::new(0, 1, 1.0.into(), 1.9.into());
     circuit_qoqo += Toffoli::new(0, 2, 1);
@@ -162,8 +166,23 @@ fn test_gate_definitions() {
 
     let circuit_from_file = file_to_circuit(file).unwrap();
 
+    let mut circuit_gate = Circuit::new();
+    circuit_gate.add_operation(Hadamard::new(0));
+    circuit_gate.add_operation(RotateX::new(1, CalculatorFloat::from("theta")));
+    circuit_gate.add_operation(RotateX::new(0, CalculatorFloat::from("phi*pi/2")));
     let mut circuit_qoqo = Circuit::new();
+    circuit_qoqo.add_operation(GateDefinition::new(
+        circuit_gate,
+        "custom_gate".to_owned(),
+        vec![0, 1],
+        vec!["theta".to_owned(), "phi".to_owned()],
+    ));
     circuit_qoqo += Hadamard::new(0);
+    circuit_qoqo.add_operation(CallDefinedGate::new(
+        "custom_gate".to_owned(),
+        vec![0, 1],
+        vec![CalculatorFloat::from(0.5), CalculatorFloat::PI],
+    ));
 
     assert_eq!(circuit_from_file, circuit_qoqo);
 }
@@ -183,4 +202,41 @@ fn test_include_line_skip() {
     circuit_qoqo += MeasureQubit::new(0, "c".into(), 0);
 
     assert_eq!(circuit_from_file, circuit_qoqo);
+}
+
+#[allow(clippy::approx_constant)]
+#[test]
+fn test_symbols() {
+    let file = File::open(
+        std::env::current_dir()
+            .unwrap()
+            .join("tests/symbols_math_expr.qasm"),
+    )
+    .unwrap();
+
+    let circuit_from_file = file_to_circuit(file).unwrap();
+
+    let mut circuit_qoqo = Circuit::new();
+    circuit_qoqo += DefinitionBit::new("c".into(), 3, true);
+    circuit_qoqo += RotateZ::new(0, 3.141592653589793.into());
+    circuit_qoqo += RotateX::new(1, 1.5707963267948966.into());
+    circuit_qoqo += RotateY::new(2, 0.7853981633974483.into());
+    circuit_qoqo += PhaseShiftState1::new(2, 3.5.into());
+    circuit_qoqo += PhaseShiftState1::new(1, (-1.0).into());
+    circuit_qoqo += ControlledPhaseShift::new(0, 1, 2.5.into());
+    circuit_qoqo += RotateZ::new(2, 1.7320508075688767.into());
+    circuit_qoqo += RotateZ::new(1, 2.718281828459045.into());
+    circuit_qoqo += RotateZ::new(0, 1.0.into());
+    circuit_qoqo += RotateXY::new(1, 4.0.into(), 1.0.into());
+
+    assert_eq!(circuit_from_file, circuit_qoqo);
+}
+
+#[test]
+fn test_acceptance_test() {
+    let path = std::env::current_dir()
+        .unwrap()
+        .join("tests/expressions_whitespaces.qasm");
+    let file = File::open(path).unwrap();
+    assert!(file_to_circuit(file).is_ok());
 }

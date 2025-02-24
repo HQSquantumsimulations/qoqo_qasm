@@ -20,18 +20,17 @@ use roqoqo::{operations::*, Circuit};
 use qoqo_qasm::qasm_file_to_circuit;
 
 // helper functions
-fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> &PyCell<CircuitWrapper> {
-    let circuit_type = py.get_type::<CircuitWrapper>();
-    let circuitpy = circuit_type
-        .call0()
-        .unwrap()
-        .downcast::<PyCell<CircuitWrapper>>()
-        .unwrap();
+fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrapper> {
+    let circuit_type = py.get_type_bound::<CircuitWrapper>();
+    let binding = circuit_type.call0().unwrap();
+    let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op).unwrap();
-        circuitpy.call_method1("add", (new_op.clone(),)).unwrap();
+        circuitpy
+            .call_method1("add", (new_op.clone_ref(py),))
+            .unwrap();
     }
-    circuitpy
+    circuitpy.to_owned()
 }
 
 /// Test correct functionality with basic circuit
@@ -63,13 +62,17 @@ fn test_qasm_file_to_circuit_correct() {
 /// Test file error
 #[test]
 fn test_qasm_file_to_circuit_file_error() {
-    let result = qasm_file_to_circuit("test");
-    assert!(result.is_err());
-    assert_eq!(
-        result.unwrap_err().to_string(),
-        PyFileNotFoundError::new_err(
-            "Error during File opening: No such file or directory (os error 2)"
-        )
-        .to_string()
-    );
+    pyo3::prepare_freethreaded_python();
+    Python::with_gil(|py| {
+        let result = qasm_file_to_circuit("test");
+        assert!(result.is_err());
+        assert!(result
+            .as_ref()
+            .unwrap_err()
+            .to_string()
+            .contains("Error during File opening:"));
+        assert!(result
+            .unwrap_err()
+            .is_instance_of::<PyFileNotFoundError>(py));
+    })
 }

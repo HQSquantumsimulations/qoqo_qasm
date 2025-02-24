@@ -23,19 +23,15 @@
 //!
 //! Translates qoqo operations and circuits to QASM operations via the interface, and Create a Qasm file with QasmBackend.
 
-#[cfg(feature = "unstable_qasm_import")]
 extern crate pest;
 #[macro_use]
-#[cfg(feature = "unstable_qasm_import")]
 extern crate pest_derive;
 
 mod backend;
 pub use backend::*;
 mod interface;
 pub use interface::*;
-#[cfg(feature = "unstable_qasm_import")]
 mod parser;
-#[cfg(feature = "unstable_qasm_import")]
 pub use parser::*;
 mod variable_gatherer;
 pub use variable_gatherer::*;
