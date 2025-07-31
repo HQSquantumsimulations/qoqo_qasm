@@ -1233,7 +1233,7 @@ pub fn call_operation(
                 .join(","),
             op.qubits()
                 .iter()
-                .map(|qubit| format!("{}[{}]", qubit_register_name, qubit))
+                .map(|qubit| format!("{qubit_register_name}[{qubit}]"))
                 .collect::<Vec<String>>()
                 .join(",")
         )),
@@ -1420,7 +1420,7 @@ pub fn gate_definition(
                 gate_definition
                     .qubits()
                     .iter()
-                    .map(|&qubit| format!("qb_{}", qubit).to_owned())
+                    .map(|&qubit| format!("qb_{qubit}").to_owned())
                     .collect::<Vec<String>>()
                     .join(",")
             );
@@ -1437,7 +1437,7 @@ pub fn gate_definition(
             definition_str.push('}');
             for qubit in gate_definition.qubits().iter() {
                 definition_str = definition_str
-                    .replace(&format!("replace_me[{}]", qubit), &format!("qb_{}", qubit));
+                    .replace(&format!("replace_me[{qubit}]"), &format!("qb_{qubit}"));
             }
             Ok(definition_str)
         }
