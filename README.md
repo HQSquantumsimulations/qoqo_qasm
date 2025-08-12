@@ -12,7 +12,7 @@ This repository contains two components:
 ## qoqo-qasm
 
 [![Documentation Status](https://img.shields.io/badge/docs-read-blue)](https://hqsquantumsimulations.github.io/qoqo_qasm/)
-[![GitHub Workflow Status](https://github.com/HQSquantumsimulations/qoqo_qasm/workflows/ci_tests/badge.svg)](https://github.com/HQSquantumsimulations/qoqo_qasm/actions)
+[![GitHub Workflow Status](https://github.com/HQSquantumsimulations/qoqo_qasm/actions/workflows/hqs-build-deploy-rust-pyo3.yml/badge.svg)](https://github.com/HQSquantumsimulations/qoqo_qasm/actions/workflows/hqs-build-deploy-rust-pyo3.yml)
 [![PyPI](https://img.shields.io/pypi/v/qoqo_qasm)](https://pypi.org/project/qoqo_qasm/)
 [![PyPI - Format](https://img.shields.io/pypi/format/qoqo_qasm)](https://pypi.org/project/qoqo_qasm/)
 ![Crates.io](https://img.shields.io/crates/l/qoqo-qasm)
@@ -23,12 +23,14 @@ qoqo-qasm provides the QasmBackend class that allows users translate a qoqo circ
 Not all qoqo operations have a corresponding qasm expression.  
 Circuits containing operations without a corresponding expression can not be translated.
 
+The API Documentation (Python) can be found [here](https://hqsquantumsimulations.github.io/qoqo_qasm/generated/qoqo_qasm.html#module-qoqo_qasm).
+
 A source distribution now exists but requires a Rust install with a rust version > 1.47 and a maturin version { >= 0.14, <0.15 } in order to be built.
 
 ## roqoqo-qasm
 
 [![Crates.io](https://img.shields.io/crates/v/roqoqo-qasm)](https://crates.io/crates/roqoqo-qasm)
-[![GitHub Workflow Status](https://github.com/HQSquantumsimulations/qoqo_qasm/workflows/ci_tests/badge.svg)](https://github.com/HQSquantumsimulations/qoqo_qasm/actions)
+[![GitHub Workflow Status](https://github.com/HQSquantumsimulations/qoqo_qasm/actions/workflows/hqs-build-deploy-rust-pyo3.yml/badge.svg)](https://github.com/HQSquantumsimulations/qoqo_qasm/actions/workflows/hqs-build-deploy-rust-pyo3.yml)
 [![docs.rs](https://img.shields.io/docsrs/roqoqo-qasm)](https://docs.rs/roqoqo-qasm/)
 ![Crates.io](https://img.shields.io/crates/l/roqoqo-qasm)
 
@@ -37,6 +39,8 @@ Qasm interface for the roqoqo quantum toolkit by [HQS Quantum Simulations](https
 roqoqo-qasm provides the QasmBackend class that allows users translate a roqoqo circuit into a qasm file.
 Not all roqoqo operations have a corresponding qasm expression.  
 Circuits containing operations without a corresponding expression can not be translated.
+
+The API Documentation (Rust) can be found [here](https://docs.rs/roqoqo-qasm/).
 
 ## General Notes
 

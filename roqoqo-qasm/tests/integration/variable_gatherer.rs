@@ -70,8 +70,7 @@ fn test_math_functions_errors(cf: CalculatorFloat, name: &str) {
 
     assert!(incorrect_parse.is_err());
     assert!(incorrect_parse.unwrap_err().to_string().contains(&format!(
-        "Function {} is not supported in OpenQASM 3.0.",
-        name
+        "Function {name} is not supported in OpenQASM 3.0."
     )));
 }
 

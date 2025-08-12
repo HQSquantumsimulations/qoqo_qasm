@@ -2,6 +2,14 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+## 0.15.0
+
+### Added in 0.15.0
+
+* Updated to qoqo 1.19
+* Updated to Pyo3 0.23
+* Updated to qoqo_calculator 1.5
+
 ## 0.14.0
 
 ### Added in 0.14.0
