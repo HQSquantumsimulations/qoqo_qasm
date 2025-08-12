@@ -23,7 +23,7 @@ qoqo-qasm provides the QasmBackend class that allows users translate a qoqo circ
 Not all qoqo operations have a corresponding qasm expression.  
 Circuits containing operations without a corresponding expression can not be translated.
 
-The API Documentation (Python) can be found [here](https://hqsquantumsimulations.github.io/qoqo_qasm/).
+The API Documentation (Python) can be found [here](https://hqsquantumsimulations.github.io/qoqo_qasm/generated/qoqo_qasm.html#module-qoqo_qasm).
 
 A source distribution now exists but requires a Rust install with a rust version > 1.47 and a maturin version { >= 0.14, <0.15 } in order to be built.
 
