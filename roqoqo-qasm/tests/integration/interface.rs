@@ -420,9 +420,9 @@ fn test_call_operation_roqoqo_error(operation: Operation) {
 #[test_case(Operation::from(GPi::new(0, CalculatorFloat::PI)), "gpi(3.141592653589793e0) q[0];"; "GPi")]
 #[test_case(Operation::from(GPi2::new(0, CalculatorFloat::PI)), "gpi2(3.141592653589793e0) q[0];"; "GPi2")]
 #[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "other[0] = false;"; "InputBit")]
-#[test_case(Operation::from(PragmaDamping::new(0, 0.5.into(), 0.7.into())), "pragma braket noise amplitude_damping(7e-1) 0;"; "PragmaDamping")]
-#[test_case(Operation::from(PragmaDephasing::new(0, 0.5.into(), 0.7.into())), "pragma braket noise pauli_channel(0e0, 0e0, 3.5e-1) 0;"; "PragmaDephasing")]
-#[test_case(Operation::from(PragmaDepolarising::new(0, 0.5.into(), 0.7.into())), "pragma braket noise depolarizing(7e-1) 0;"; "PragmaDepolarising")]
+#[test_case(Operation::from(PragmaDamping::new(0, 0.5.into(), 0.7.into())), "pragma braket noise amplitude_damping(7e-1) q[0];"; "PragmaDamping")]
+#[test_case(Operation::from(PragmaDephasing::new(0, 0.5.into(), 0.7.into())), "pragma braket noise pauli_channel(0e0, 0e0, 3.5e-1) q[0];"; "PragmaDephasing")]
+#[test_case(Operation::from(PragmaDepolarising::new(0, 0.5.into(), 0.7.into())), "pragma braket noise depolarizing(7e-1) q[0];"; "PragmaDepolarising")]
 fn test_call_operation_braket(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(

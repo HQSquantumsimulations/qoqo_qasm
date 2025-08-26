@@ -287,9 +287,9 @@ fn test_call_operation_error_2_roqoqo_3(operation: Operation, converted_3: &str)
     })
 }
 
-#[test_case(Operation::from(PragmaDamping::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDamping 0 1e0 1.5e0;", "pragma braket noise amplitude_damping(1.5e0) 0;"; "PragmaDamping")]
-#[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;", "pragma braket noise pauli_channel(0e0, 0e0, 7.5e-1) 0;"; "PragmaDephasing")]
-#[test_case(Operation::from(PragmaDepolarising::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDepolarising 0 1e0 1.5e0;", "pragma braket noise depolarizing(1.5e0) 0;"; "PragmaDepolarising")]
+#[test_case(Operation::from(PragmaDamping::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDamping 0 1e0 1.5e0;", "pragma braket noise amplitude_damping(1.5e0) q[0];"; "PragmaDamping")]
+#[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;", "pragma braket noise pauli_channel(0e0, 0e0, 7.5e-1) q[0];"; "PragmaDephasing")]
+#[test_case(Operation::from(PragmaDepolarising::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDepolarising 0 1e0 1.5e0;", "pragma braket noise depolarizing(1.5e0) q[0];"; "PragmaDepolarising")]
 fn test_call_operation_braket_3(operation: Operation, converted_3: &str, converted_3_braket: &str) {
     pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {

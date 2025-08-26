@@ -705,8 +705,9 @@ pub fn call_operation(
                 op.rate()
             )),
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
-                "pragma braket noise amplitude_damping({}) {};",
+                "pragma braket noise amplitude_damping({}) {}[{}];",
                 op.rate(),
+                qubit_register_name,
                 op.qubit(),
             )),
             _ => {
@@ -729,8 +730,9 @@ pub fn call_operation(
                 op.rate()
             )),
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
-                "pragma braket noise pauli_channel(0e0, 0e0, {}) {};",
+                "pragma braket noise pauli_channel(0e0, 0e0, {}) {}[{}];",
                 op.rate() * 0.5,
+                qubit_register_name,
                 op.qubit(),
             )),
             _ => {
@@ -753,8 +755,9 @@ pub fn call_operation(
                 op.rate()
             )),
             QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
-                "pragma braket noise depolarizing({}) {};",
+                "pragma braket noise depolarizing({}) {}[{}];",
                 op.rate(),
+                qubit_register_name,
                 op.qubit(),
             )),
             _ => {
