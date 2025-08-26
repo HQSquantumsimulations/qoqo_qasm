@@ -234,7 +234,7 @@ impl Backend {
             if !variable_gatherer.variables.is_empty() {
                 qasm_string.push('\n');
                 for var in &variable_gatherer.variables {
-                    qasm_string.push_str(format!("input angle[32] {};\n", var).as_str());
+                    qasm_string.push_str(format!("input angle[32] {var};\n").as_str());
                 }
                 qasm_string.push('\n');
             }
@@ -406,7 +406,7 @@ impl FromStr for QasmVersion {
             "3.0Vanilla" => Ok(QasmVersion::V3point0(Qasm3Dialect::Vanilla)),
             "3.0" => Ok(QasmVersion::V3point0(Qasm3Dialect::Vanilla)),
             _ => Err(RoqoqoBackendError::GenericError {
-                msg: format!("Version for OpenQASM used is neither 2.0 nor 3.0: {}", s),
+                msg: format!("Version for OpenQASM used is neither 2.0 nor 3.0: {s}"),
             }),
         }
     }

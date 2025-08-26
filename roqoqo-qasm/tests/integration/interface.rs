@@ -30,7 +30,6 @@ fn tmp_create_map() -> HashMap<usize, usize> {
     hm
 }
 
-/// Test that all operations return the correct String: no dialect differences
 #[test_case(Operation::from(PauliX::new(0)), "x q[0];"; "PauliX")]
 #[test_case(Operation::from(PauliY::new(0)), "y q[0];"; "PauliY")]
 #[test_case(Operation::from(PauliZ::new(0)), "z q[0];"; "PauliZ")]
@@ -72,7 +71,32 @@ fn tmp_create_map() -> HashMap<usize, usize> {
 #[test_case(Operation::from(SqrtPauliY::new(0)), "sy q[0];"; "SqrtPauliY")]
 #[test_case(Operation::from(InvSqrtPauliY::new(0)), "sydg q[0];"; "InvSqrtPauliY")]
 #[test_case(Operation::from(EchoCrossResonance::new(0, 1)), "ecr q[0],q[1];"; "EchoCrossResonance")]
-fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) {
+#[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), ""; "InputSymbolic")]
+#[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), ""; "PragmaStopDecompositionBlock")]
+#[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), ""; "PragmaStopParallelBlock")]
+#[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
+#[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), ""; "PragmaStartDecompositionBlock")]
+#[test_case(Operation::from(PragmaGetDensityMatrix::new("test".into(), None)), ""; "PragmaGetDensityMatrix")]
+#[test_case(Operation::from(PragmaGetOccupationProbability::new("test".into(), None)), ""; "PragmaGetOccupationProbability")]
+#[test_case(Operation::from(PragmaGetPauliProduct::new(HashMap::new(), "test".into(), Circuit::new())), ""; "PragmaGetPauliProduct")]
+#[test_case(Operation::from(PragmaGetStateVector::new("test".into(), None)), ""; "PragmaGetStateVector")]
+#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
+#[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];"; "CNOT")]
+#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(PI/4.0))), "cp(7.853981633974483e-1) q[0],q[1];"; "ControlledPhaseShift")]
+#[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "rxx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
+#[test_case(Operation::from(VariableMSXX::new(0, 1, CalculatorFloat::from(PI/2.0))), "rxx(1.5707963267948966e0) q[0],q[1];"; "VariableMSXX")]
+#[test_case(Operation::from(SqrtPauliX::new(0)), "sx q[0];"; "SqrtPauliX")]
+#[test_case(Operation::from(PhaseShiftState1::new(0, CalculatorFloat::from(PI))), "p(3.141592653589793e0) q[0];"; "PhaseShiftState1")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];"; "DefinitionFloat output")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)), "creg ro[1];"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];"; "DefinitionUsize output")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, false)), "creg ro[1];"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg ro[1];"; "DefinitionBit output")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, false)), "creg ro[1];"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];"; "DefinitionComplex output")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "creg ro[1];"; "DefinitionComplex")]
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), ""; "PragmaGlobalPhase")]
+fn test_call_operation_vanilla_2(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(
             &operation,
@@ -83,16 +107,130 @@ fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) 
         .unwrap(),
         converted.to_string()
     );
+}
+
+#[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())); "PragmaBoostNoise")]
+#[test_case(Operation::from(PragmaGeneralNoise::new(0, 1.0.into(), array![[1.5]])); "PragmaGeneralNoise")]
+#[test_case(Operation::from(PragmaOverrotation::new("Hadamard".into(), [0, 1].into(), 0.4, 0.5)); "PragmaOverrotation")]
+#[test_case(Operation::from(PragmaRandomNoise::new(0, 0.4.into(), 0.5.into(), 0.3.into())); "PragmaRandomNoise")]
+#[test_case(Operation::from(PragmaRepeatGate::new(3)); "PragmaRepeatGate")]
+#[test_case(Operation::from(PragmaSetDensityMatrix::new(array![[1.5.into()]])); "PragmaSetDensityMatrix")]
+#[test_case(Operation::from(PragmaSetStateVector::new(array![1.5.into()])); "PragmaSetStateVector")]
+#[test_case(Operation::from(GPi::new(0, CalculatorFloat::PI)); "GPi")]
+#[test_case(Operation::from(GPi2::new(0, CalculatorFloat::PI)); "GPi2")]
+#[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)); "InputBit")]
+fn test_call_operation_vanilla_2_error(operation: Operation) {
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: operation.hqslang(),
+    };
     assert_eq!(
         call_operation(
             &operation,
             "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket),
+            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
+            &mut None
+        )
+        .unwrap_err()
+        .to_string(),
+        error.to_string()
+    );
+}
+
+#[test_case(Operation::from(PauliX::new(0)), "x q[0];"; "PauliX")]
+#[test_case(Operation::from(PauliY::new(0)), "y q[0];"; "PauliY")]
+#[test_case(Operation::from(PauliZ::new(0)), "z q[0];"; "PauliZ")]
+#[test_case(Operation::from(Hadamard::new(0)), "h q[0];"; "Hadamard")]
+#[test_case(Operation::from(SGate::new(0)), "s q[0];"; "SGate")]
+#[test_case(Operation::from(TGate::new(0)), "t q[0];"; "TGate")]
+#[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "rx(-3.141592653589793e0) q[0];"; "RotateX")]
+#[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "ry(-3.141592653589793e0) q[0];"; "RotateY")]
+#[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "rz(-3.141592653589793e0) q[0];"; "RotateZ")]
+#[test_case(Operation::from(InvSqrtPauliX::new(0)), "sxdg q[0];"; "InvSqrtPauliX")]
+#[test_case(Operation::from(Identity::new(0)), "id q[0];"; "Identity")]
+#[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1];"; "ControlledPauliY")]
+#[test_case(Operation::from(ControlledPauliZ::new(0, 1)), "cz q[0],q[1];"; "ControlledPauliZ")]
+#[test_case(Operation::from(SWAP::new(0, 1)), "swap q[0],q[1];"; "SWAP")]
+#[test_case(Operation::from(ISwap::new(0, 1)), "iswap q[0],q[1];"; "ISwap")]
+#[test_case(Operation::from(SqrtISwap::new(0, 1)), "siswap q[0],q[1];"; "SqrtISwap")]
+#[test_case(Operation::from(InvSqrtISwap::new(0, 1)), "siswapdg q[0],q[1];"; "InvSqrtISwap")]
+#[test_case(Operation::from(FSwap::new(0, 1)), "fswap q[0],q[1];"; "FSwap")]
+#[test_case(Operation::from(Fsim::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "fsim(2e-1,2e-1,2e-1) q[0],q[1];"; "Fsim")]
+#[test_case(Operation::from(Qsim::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "qsim(1e-1,1e-1,1e-1) q[0],q[1];"; "Qsim")]
+#[test_case(Operation::from(PMInteraction::new(0, 1, CalculatorFloat::from(0.2))), "pmint(2e-1) q[0],q[1];"; "PMInteraction")]
+#[test_case(Operation::from(GivensRotation::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrot(1e-1,1e-1) q[0],q[1];"; "GivensRotation")]
+#[test_case(Operation::from(GivensRotationLittleEndian::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrotle(1e-1,1e-1) q[0],q[1];"; "GivensRotationLittleEndian")]
+#[test_case(Operation::from(SpinInteraction::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "spinint(1e-1,1e-1,1e-1) q[0],q[1];"; "SpinInteraction")]
+#[test_case(Operation::from(XY::new(0, 1, CalculatorFloat::from(0.2))), "xy(2e-1) q[0],q[1];"; "XY")]
+#[test_case(Operation::from(RotateXY::new(0, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "rxy(2e-1,2e-1) q[0];"; "RotateXY")]
+#[test_case(Operation::from(ControlledRotateX::new(0, 1, CalculatorFloat::from(0.3))), "crx(3e-1) q[0],q[1];"; "ControlledRotateX")]
+#[test_case(Operation::from(ControlledRotateXY::new(0, 1, CalculatorFloat::from(0.3), CalculatorFloat::from(0.5))), "crxy(3e-1,5e-1) q[0],q[1];"; "ControlledRotateXY")]
+#[test_case(Operation::from(PhaseShiftedControlledZ::new(0, 1, CalculatorFloat::from(0.1))), "pscz(1e-1) q[0],q[1];"; "PhaseShiftedControlledZ")]
+#[test_case(Operation::from(PhaseShiftedControlledPhase::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.2))), "pscp(1e-1,2e-1) q[0],q[1];"; "PhaseShiftedControlledPhase")]
+#[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,-0.000000000000000) q[0];"; "SingleQubitGate")]
+#[test_case(Operation::from(PragmaActiveReset::new(0)), "reset q[0];"; "PragmaActiveReset")]
+#[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
+#[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "ccz q[0],q[1],q[2];"; "ControlledControlledPauliZ")]
+#[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(3e-1) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
+#[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
+#[test_case(Operation::from(GateDefinition::new(Circuit::new(), "test_gate".to_owned(), vec![0,1], vec!["theta".to_owned()])), ""; "GateDefinition")]
+#[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::FRAC_PI_2])), "gate_name(1.5707963267948966e0) q[0],q[1];"; "CallDefinedGate")]
+#[test_case(Operation::from(SqrtPauliY::new(0)), "sy q[0];"; "SqrtPauliY")]
+#[test_case(Operation::from(InvSqrtPauliY::new(0)), "sydg q[0];"; "InvSqrtPauliY")]
+#[test_case(Operation::from(EchoCrossResonance::new(0, 1)), "ecr q[0],q[1];"; "EchoCrossResonance")]
+#[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "input float other;"; "InputSymbolic")]
+#[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), ""; "PragmaStopDecompositionBlock")]
+#[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), ""; "PragmaStopParallelBlock")]
+#[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
+#[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), ""; "PragmaStartDecompositionBlock")]
+#[test_case(Operation::from(PragmaGetDensityMatrix::new("test".into(), None)), ""; "PragmaGetDensityMatrix")]
+#[test_case(Operation::from(PragmaGetOccupationProbability::new("test".into(), None)), ""; "PragmaGetOccupationProbability")]
+#[test_case(Operation::from(PragmaGetPauliProduct::new(HashMap::new(), "test".into(), Circuit::new())), ""; "PragmaGetPauliProduct")]
+#[test_case(Operation::from(PragmaGetStateVector::new("test".into(), None)), ""; "PragmaGetStateVector")]
+#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
+#[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];"; "CNOT")]
+#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(PI/4.0))), "cp(7.853981633974483e-1) q[0],q[1];"; "ControlledPhaseShift")]
+#[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "rxx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
+#[test_case(Operation::from(VariableMSXX::new(0, 1, CalculatorFloat::from(PI/2.0))), "rxx(1.5707963267948966e0) q[0],q[1];"; "VariableMSXX")]
+#[test_case(Operation::from(SqrtPauliX::new(0)), "sx q[0];"; "SqrtPauliX")]
+#[test_case(Operation::from(PhaseShiftState1::new(0, CalculatorFloat::from(PI))), "p(3.141592653589793e0) q[0];"; "PhaseShiftState1")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "output float[1] ro;"; "DefinitionFloat output")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)), "float[1] ro;"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "output uint[1] ro;"; "DefinitionUsize output")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, false)), "uint[1] ro;"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "output bit[1] ro;"; "DefinitionBit output")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, false)), "bit[1] ro;"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "output float[1] ro_re;\noutput float[1] ro_im;"; "DefinitionComplex output")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "gphase 1e0;"; "PragmaGlobalPhase")]
+#[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "other[0] = false;"; "InputBit")]
+fn test_call_operation_vanilla_3(operation: Operation, converted: &str) {
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
             &mut None
         )
         .unwrap(),
         converted.to_string()
     );
+}
+
+#[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())); "PragmaBoostNoise")]
+#[test_case(Operation::from(PragmaGeneralNoise::new(0, 1.0.into(), array![[1.5]])); "PragmaGeneralNoise")]
+#[test_case(Operation::from(PragmaOverrotation::new("Hadamard".into(), [0, 1].into(), 0.4, 0.5)); "PragmaOverrotation")]
+#[test_case(Operation::from(PragmaRandomNoise::new(0, 0.4.into(), 0.5.into(), 0.3.into())); "PragmaRandomNoise")]
+#[test_case(Operation::from(PragmaRepeatGate::new(3)); "PragmaRepeatGate")]
+#[test_case(Operation::from(PragmaSetDensityMatrix::new(array![[1.5.into()]])); "PragmaSetDensityMatrix")]
+#[test_case(Operation::from(PragmaSetStateVector::new(array![1.5.into()])); "PragmaSetStateVector")]
+#[test_case(Operation::from(GPi::new(0, CalculatorFloat::PI)); "GPi")]
+#[test_case(Operation::from(GPi2::new(0, CalculatorFloat::PI)); "GPi2")]
+fn test_call_operation_vanilla_3_error(operation: Operation) {
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: operation.hqslang(),
+    };
     assert_eq!(
         call_operation(
             &operation,
@@ -100,284 +238,87 @@ fn test_call_operation_identical_2_3_all(operation: Operation, converted: &str) 
             QasmVersion::V3point0(Qasm3Dialect::Vanilla),
             &mut None
         )
-        .unwrap(),
-        converted.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
-            &mut None
-        )
-        .unwrap(),
-        converted.to_string()
+        .unwrap_err()
+        .to_string(),
+        error.to_string()
     );
 }
 
-/// Test that all operations return the correct String: 2.0 vs. 3.0 differences
-#[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "", "input float other;"; "InputSymbolic")]
-fn test_call_operation_different_2_3(operation: Operation, converted_2: &str, converted_3: &str) {
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        converted_2.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket),
-            &mut None
-        )
-        .unwrap(),
-        converted_3.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        converted_3.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
-            &mut None
-        )
-        .unwrap(),
-        converted_3.to_string()
-    );
-}
-
-/// Test that all operations return the correct String: 2.0 vs. 3.0 differences (Roqoqo dialect)
-#[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), "", "pragma roqoqo PragmaStopDecompositionBlock [0, 1];"; "PragmaStopDecompositionBlock")]
-#[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), "", "pragma roqoqo PragmaStopParallelBlock [] 0e0;"; "PragmaStopParallelBlock")]
-#[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), "", "pragma roqoqo PragmaSetNumberOfMeasurements 20 ro;"; "PragmaSetNumberOfMeasurements")]
-#[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), "", "pragma roqoqo PragmaStartDecompositionBlock [0, 1] {};"; "PragmaStartDecompositionBlock")]
-#[test_case(Operation::from(PragmaGetDensityMatrix::new("test".into(), None)), "", "pragma roqoqo PragmaGetDensityMatrix test ;"; "PragmaGetDensityMatrix")]
-#[test_case(Operation::from(PragmaGetOccupationProbability::new("test".into(), None)), "", "pragma roqoqo PragmaGetOccupationProbability test ;"; "PragmaGetOccupationProbability")]
-#[test_case(Operation::from(PragmaGetPauliProduct::new(HashMap::new(), "test".into(), Circuit::new())), "", "pragma roqoqo PragmaGetPauliProduct {} test ;"; "PragmaGetPauliProduct")]
-#[test_case(Operation::from(PragmaGetStateVector::new("test".into(), None)), "", "pragma roqoqo PragmaGetStateVector test ;"; "PragmaGetStateVector")]
-#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;", "measure q -> ro;\npragma roqoqo PragmaSetNumberOfMeasurements 1 ro;"; "PragmaRepeatedMeasurement")]
-fn test_call_operation_different_2_3_roqoqo_dialect(
-    operation: Operation,
-    converted_2: &str,
-    converted_3: &str,
-) {
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        converted_2.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket),
-            &mut None
-        )
-        .unwrap(),
-        converted_2.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        converted_2.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
-            &mut None
-        )
-        .unwrap(),
-        converted_3.to_string()
-    );
-}
-
-/// Test that all operations return the correct String: 2.0 vs. 3.0 differences (Braket dialect)
-#[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];", "cnot q[0],q[1];"; "CNOT")]
-#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(PI/4.0))), "cp(7.853981633974483e-1) q[0],q[1];", "cphaseshift(7.853981633974483e-1) q[0],q[1];"; "ControlledPhaseShift")]
-#[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "rxx(pi/2) q[0],q[1];", "xx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
-#[test_case(Operation::from(VariableMSXX::new(0, 1, CalculatorFloat::from(PI/2.0))), "rxx(1.5707963267948966e0) q[0],q[1];", "xx(1.5707963267948966e0) q[0],q[1];"; "VariableMSXX")]
-#[test_case(Operation::from(SqrtPauliX::new(0)), "sx q[0];", "v q[0];"; "SqrtPauliX")]
-#[test_case(Operation::from(PhaseShiftState1::new(0, CalculatorFloat::from(PI))), "p(3.141592653589793e0) q[0];", "phaseshift(3.141592653589793e0) q[0];"; "PhaseShiftState1")]
-fn test_call_operation_different_2_3_braket_dialect(
-    operation: Operation,
-    converted_2: &str,
-    converted_3: &str,
-) {
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        converted_2.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
-            &mut None
-        )
-        .unwrap(),
-        converted_2.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        converted_2.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket),
-            &mut None
-        )
-        .unwrap(),
-        converted_3.to_string()
-    );
-}
-
-#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro;", "float[1] ro;"; "DefinitionFloat output")]
-#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro;", "float[1] ro;"; "DefinitionFloat")]
-#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "creg ro[1];", "output uint[1] ro;", "uint[1] ro;"; "DefinitionUsize output")]
-#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, false)), "creg ro[1];", "uint[1] ro;", "uint[1] ro;"; "DefinitionUsize")]
-#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)), "creg ro[1];", "output bit[1] ro;", "bit[1] ro;"; "DefinitionBit output")]
-#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, false)), "creg ro[1];", "bit[1] ro;", "bit[1] ro;"; "DefinitionBit")]
-#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "creg ro[1];", "output float[1] ro_re;\noutput float[1] ro_im;", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex output")]
-#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)), "creg ro[1];", "float[1] ro_re;\nfloat[1] ro_im;", "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
-#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "", "gphase 1e0;", ""; "PragmaGlobalPhase")]
-fn test_call_operation_different_braket_dialect(
-    operation: Operation,
-    converted_2: &str,
-    converted_3: &str,
-    converted_3_braket: &str,
-) {
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        converted_2.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
-            &mut None
-        )
-        .unwrap(),
-        converted_3.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        converted_3.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket),
-            &mut None
-        )
-        .unwrap(),
-        converted_3_braket.to_string()
-    );
-}
-
-/// Test that all operations return the correct error: 2.0 vs. 3.0 differences (Roqoqo dialect)
+#[test_case(Operation::from(PauliX::new(0)), "x q[0];"; "PauliX")]
+#[test_case(Operation::from(PauliY::new(0)), "y q[0];"; "PauliY")]
+#[test_case(Operation::from(PauliZ::new(0)), "z q[0];"; "PauliZ")]
+#[test_case(Operation::from(Hadamard::new(0)), "h q[0];"; "Hadamard")]
+#[test_case(Operation::from(SGate::new(0)), "s q[0];"; "SGate")]
+#[test_case(Operation::from(TGate::new(0)), "t q[0];"; "TGate")]
+#[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "rx(-3.141592653589793e0) q[0];"; "RotateX")]
+#[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "ry(-3.141592653589793e0) q[0];"; "RotateY")]
+#[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "rz(-3.141592653589793e0) q[0];"; "RotateZ")]
+#[test_case(Operation::from(InvSqrtPauliX::new(0)), "sxdg q[0];"; "InvSqrtPauliX")]
+#[test_case(Operation::from(Identity::new(0)), "id q[0];"; "Identity")]
+#[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1];"; "ControlledPauliY")]
+#[test_case(Operation::from(ControlledPauliZ::new(0, 1)), "cz q[0],q[1];"; "ControlledPauliZ")]
+#[test_case(Operation::from(SWAP::new(0, 1)), "swap q[0],q[1];"; "SWAP")]
+#[test_case(Operation::from(ISwap::new(0, 1)), "iswap q[0],q[1];"; "ISwap")]
+#[test_case(Operation::from(SqrtISwap::new(0, 1)), "siswap q[0],q[1];"; "SqrtISwap")]
+#[test_case(Operation::from(InvSqrtISwap::new(0, 1)), "siswapdg q[0],q[1];"; "InvSqrtISwap")]
+#[test_case(Operation::from(FSwap::new(0, 1)), "fswap q[0],q[1];"; "FSwap")]
+#[test_case(Operation::from(Fsim::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "fsim(2e-1,2e-1,2e-1) q[0],q[1];"; "Fsim")]
+#[test_case(Operation::from(Qsim::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "qsim(1e-1,1e-1,1e-1) q[0],q[1];"; "Qsim")]
+#[test_case(Operation::from(PMInteraction::new(0, 1, CalculatorFloat::from(0.2))), "pmint(2e-1) q[0],q[1];"; "PMInteraction")]
+#[test_case(Operation::from(GivensRotation::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrot(1e-1,1e-1) q[0],q[1];"; "GivensRotation")]
+#[test_case(Operation::from(GivensRotationLittleEndian::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrotle(1e-1,1e-1) q[0],q[1];"; "GivensRotationLittleEndian")]
+#[test_case(Operation::from(SpinInteraction::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "spinint(1e-1,1e-1,1e-1) q[0],q[1];"; "SpinInteraction")]
+#[test_case(Operation::from(XY::new(0, 1, CalculatorFloat::from(0.2))), "xy(2e-1) q[0],q[1];"; "XY")]
+#[test_case(Operation::from(RotateXY::new(0, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "rxy(2e-1,2e-1) q[0];"; "RotateXY")]
+#[test_case(Operation::from(ControlledRotateX::new(0, 1, CalculatorFloat::from(0.3))), "crx(3e-1) q[0],q[1];"; "ControlledRotateX")]
+#[test_case(Operation::from(ControlledRotateXY::new(0, 1, CalculatorFloat::from(0.3), CalculatorFloat::from(0.5))), "crxy(3e-1,5e-1) q[0],q[1];"; "ControlledRotateXY")]
+#[test_case(Operation::from(PhaseShiftedControlledZ::new(0, 1, CalculatorFloat::from(0.1))), "pscz(1e-1) q[0],q[1];"; "PhaseShiftedControlledZ")]
+#[test_case(Operation::from(PhaseShiftedControlledPhase::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.2))), "pscp(1e-1,2e-1) q[0],q[1];"; "PhaseShiftedControlledPhase")]
+#[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,-0.000000000000000) q[0];"; "SingleQubitGate")]
+#[test_case(Operation::from(PragmaActiveReset::new(0)), "reset q[0];"; "PragmaActiveReset")]
+#[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
+#[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "ccz q[0],q[1],q[2];"; "ControlledControlledPauliZ")]
+#[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(3e-1) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
+#[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
+#[test_case(Operation::from(GateDefinition::new(Circuit::new(), "test_gate".to_owned(), vec![0,1], vec!["theta".to_owned()])), ""; "GateDefinition")]
+#[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::FRAC_PI_2])), "gate_name(1.5707963267948966e0) q[0],q[1];"; "CallDefinedGate")]
+#[test_case(Operation::from(SqrtPauliY::new(0)), "sy q[0];"; "SqrtPauliY")]
+#[test_case(Operation::from(InvSqrtPauliY::new(0)), "sydg q[0];"; "InvSqrtPauliY")]
+#[test_case(Operation::from(EchoCrossResonance::new(0, 1)), "ecr q[0],q[1];"; "EchoCrossResonance")]
+#[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "input float other;"; "InputSymbolic")]
+#[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), "pragma roqoqo PragmaStopDecompositionBlock [0, 1];"; "PragmaStopDecompositionBlock")]
+#[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), "pragma roqoqo PragmaStopParallelBlock [] 0e0;"; "PragmaStopParallelBlock")]
+#[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), "pragma roqoqo PragmaSetNumberOfMeasurements 20 ro;"; "PragmaSetNumberOfMeasurements")]
+#[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), "pragma roqoqo PragmaStartDecompositionBlock [0, 1] {};"; "PragmaStartDecompositionBlock")]
+#[test_case(Operation::from(PragmaGetDensityMatrix::new("test".into(), None)), "pragma roqoqo PragmaGetDensityMatrix test ;"; "PragmaGetDensityMatrix")]
+#[test_case(Operation::from(PragmaGetOccupationProbability::new("test".into(), None)), "pragma roqoqo PragmaGetOccupationProbability test ;"; "PragmaGetOccupationProbability")]
+#[test_case(Operation::from(PragmaGetPauliProduct::new(HashMap::new(), "test".into(), Circuit::new())), "pragma roqoqo PragmaGetPauliProduct {} test ;"; "PragmaGetPauliProduct")]
+#[test_case(Operation::from(PragmaGetStateVector::new("test".into(), None)), "pragma roqoqo PragmaGetStateVector test ;"; "PragmaGetStateVector")]
+#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;\npragma roqoqo PragmaSetNumberOfMeasurements 1 ro;"; "PragmaRepeatedMeasurement")]
+#[test_case(Operation::from(CNOT::new(0, 1)), "cx q[0],q[1];"; "CNOT")]
+#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(PI/4.0))), "cp(7.853981633974483e-1) q[0],q[1];"; "ControlledPhaseShift")]
+#[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "rxx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
+#[test_case(Operation::from(VariableMSXX::new(0, 1, CalculatorFloat::from(PI/2.0))), "rxx(1.5707963267948966e0) q[0],q[1];"; "VariableMSXX")]
+#[test_case(Operation::from(SqrtPauliX::new(0)), "sx q[0];"; "SqrtPauliX")]
+#[test_case(Operation::from(PhaseShiftState1::new(0, CalculatorFloat::from(PI))), "p(3.141592653589793e0) q[0];"; "PhaseShiftState1")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "output float[1] ro;"; "DefinitionFloat output")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)),"float[1] ro;"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "output uint[1] ro;"; "DefinitionUsize output")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, false)),"uint[1] ro;"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)),"output bit[1] ro;"; "DefinitionBit output")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, false)), "bit[1] ro;"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)), "output float[1] ro_re;\noutput float[1] ro_im;"; "DefinitionComplex output")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)),  "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))), "gphase 1e0;"; "PragmaGlobalPhase")]
 #[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())), "pragma roqoqo PragmaBoostNoise 1.5e0;"; "PragmaBoostNoise")]
-#[test_case(Operation::from(PragmaDamping::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDamping 0 1e0 1.5e0;"; "PragmaDamping")]
-#[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;"; "PragmaDephasing")]
-#[test_case(Operation::from(PragmaDepolarising::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDepolarising 0 1e0 1.5e0;"; "PragmaDepolarising")]
 #[test_case(Operation::from(PragmaGeneralNoise::new(0, 1.0.into(), array![[1.5]])), "pragma roqoqo PragmaGeneralNoise 0 1e0 [[1.5]];"; "PragmaGeneralNoise")]
 #[test_case(Operation::from(PragmaOverrotation::new("Hadamard".into(), [0, 1].into(), 0.4, 0.5)), "pragma roqoqo PragmaOverrotation Hadamard [0, 1] 0.4 0.5;"; "PragmaOverrotation")]
 #[test_case(Operation::from(PragmaRandomNoise::new(0, 0.4.into(), 0.5.into(), 0.3.into())), "pragma roqoqo PragmaRandomNoise 0 4e-1 5e-1 3e-1;"; "PragmaRandomNoise")]
 #[test_case(Operation::from(PragmaRepeatGate::new(3)), "pragma roqoqo PragmaRepeatGate 3;"; "PragmaRepeatGate")]
 #[test_case(Operation::from(PragmaSetDensityMatrix::new(array![[1.5.into()]])), "pragma roqoqo PragmaSetDensityMatrix [[1.5+0i]];"; "PragmaSetDensityMatrix")]
 #[test_case(Operation::from(PragmaSetStateVector::new(array![1.5.into()])), "pragma roqoqo PragmaSetStateVector [1.5+0i];"; "PragmaSetStateVector")]
-fn test_call_operation_error_2_3_roqoqo_dialect(operation: Operation, converted_3: &str) {
-    let error = RoqoqoBackendError::OperationNotInBackend {
-        backend: "QASM",
-        hqslang: operation.hqslang(),
-    };
-
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap_err()
-        .to_string(),
-        error.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Braket),
-            &mut None
-        )
-        .unwrap_err()
-        .to_string(),
-        error.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap_err()
-        .to_string(),
-        error.to_string()
-    );
+#[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "other[0] = false;"; "InputBit")]
+fn test_call_operation_roqoqo(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(
             &operation,
@@ -386,52 +327,103 @@ fn test_call_operation_error_2_3_roqoqo_dialect(operation: Operation, converted_
             &mut None
         )
         .unwrap(),
-        converted_3.to_string()
+        converted.to_string()
     );
 }
 
-/// Test that all operations return the correct error: 2.0 vs. 3.0 differences (braket dialect)
+#[test_case(Operation::from(GPi::new(0, CalculatorFloat::PI)); "GPi")]
+#[test_case(Operation::from(GPi2::new(0, CalculatorFloat::PI)); "GPi2")]
+fn test_call_operation_roqoqo_error(operation: Operation) {
+    let error = RoqoqoBackendError::OperationNotInBackend {
+        backend: "QASM",
+        hqslang: operation.hqslang(),
+    };
+    assert_eq!(
+        call_operation(
+            &operation,
+            "q",
+            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
+            &mut None
+        )
+        .unwrap_err()
+        .to_string(),
+        error.to_string()
+    );
+}
+
+#[test_case(Operation::from(PauliX::new(0)), "x q[0];"; "PauliX")]
+#[test_case(Operation::from(PauliY::new(0)), "y q[0];"; "PauliY")]
+#[test_case(Operation::from(PauliZ::new(0)), "z q[0];"; "PauliZ")]
+#[test_case(Operation::from(Hadamard::new(0)), "h q[0];"; "Hadamard")]
+#[test_case(Operation::from(SGate::new(0)), "s q[0];"; "SGate")]
+#[test_case(Operation::from(TGate::new(0)), "t q[0];"; "TGate")]
+#[test_case(Operation::from(RotateX::new(0, CalculatorFloat::from(-PI))), "rx(-3.141592653589793e0) q[0];"; "RotateX")]
+#[test_case(Operation::from(RotateY::new(0, CalculatorFloat::from(-PI))), "ry(-3.141592653589793e0) q[0];"; "RotateY")]
+#[test_case(Operation::from(RotateZ::new(0, CalculatorFloat::from(-PI))), "rz(-3.141592653589793e0) q[0];"; "RotateZ")]
+#[test_case(Operation::from(InvSqrtPauliX::new(0)), "sxdg q[0];"; "InvSqrtPauliX")]
+#[test_case(Operation::from(Identity::new(0)), "id q[0];"; "Identity")]
+#[test_case(Operation::from(ControlledPauliY::new(0, 1)), "cy q[0],q[1];"; "ControlledPauliY")]
+#[test_case(Operation::from(ControlledPauliZ::new(0, 1)), "cz q[0],q[1];"; "ControlledPauliZ")]
+#[test_case(Operation::from(SWAP::new(0, 1)), "swap q[0],q[1];"; "SWAP")]
+#[test_case(Operation::from(ISwap::new(0, 1)), "iswap q[0],q[1];"; "ISwap")]
+#[test_case(Operation::from(SqrtISwap::new(0, 1)), "siswap q[0],q[1];"; "SqrtISwap")]
+#[test_case(Operation::from(InvSqrtISwap::new(0, 1)), "siswapdg q[0],q[1];"; "InvSqrtISwap")]
+#[test_case(Operation::from(FSwap::new(0, 1)), "fswap q[0],q[1];"; "FSwap")]
+#[test_case(Operation::from(Fsim::new(0, 1, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "fsim(2e-1,2e-1,2e-1) q[0],q[1];"; "Fsim")]
+#[test_case(Operation::from(Qsim::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "qsim(1e-1,1e-1,1e-1) q[0],q[1];"; "Qsim")]
+#[test_case(Operation::from(PMInteraction::new(0, 1, CalculatorFloat::from(0.2))), "pmint(2e-1) q[0],q[1];"; "PMInteraction")]
+#[test_case(Operation::from(GivensRotation::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrot(1e-1,1e-1) q[0],q[1];"; "GivensRotation")]
+#[test_case(Operation::from(GivensRotationLittleEndian::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "gvnsrotle(1e-1,1e-1) q[0],q[1];"; "GivensRotationLittleEndian")]
+#[test_case(Operation::from(SpinInteraction::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.1), CalculatorFloat::from(0.1))), "spinint(1e-1,1e-1,1e-1) q[0],q[1];"; "SpinInteraction")]
+#[test_case(Operation::from(XY::new(0, 1, CalculatorFloat::from(0.2))), "xy(2e-1) q[0],q[1];"; "XY")]
+#[test_case(Operation::from(RotateXY::new(0, CalculatorFloat::from(0.2), CalculatorFloat::from(0.2))), "rxy(2e-1,2e-1) q[0];"; "RotateXY")]
+#[test_case(Operation::from(ControlledRotateX::new(0, 1, CalculatorFloat::from(0.3))), "crx(3e-1) q[0],q[1];"; "ControlledRotateX")]
+#[test_case(Operation::from(ControlledRotateXY::new(0, 1, CalculatorFloat::from(0.3), CalculatorFloat::from(0.5))), "crxy(3e-1,5e-1) q[0],q[1];"; "ControlledRotateXY")]
+#[test_case(Operation::from(PhaseShiftedControlledZ::new(0, 1, CalculatorFloat::from(0.1))), "pscz(1e-1) q[0],q[1];"; "PhaseShiftedControlledZ")]
+#[test_case(Operation::from(PhaseShiftedControlledPhase::new(0, 1, CalculatorFloat::from(0.1), CalculatorFloat::from(0.2))), "pscp(1e-1,2e-1) q[0],q[1];"; "PhaseShiftedControlledPhase")]
+#[test_case(Operation::from(SingleQubitGate::new(0, CalculatorFloat::from(1.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0), CalculatorFloat::from(0.0))), "u3(0.000000000000000,0.000000000000000,-0.000000000000000) q[0];"; "SingleQubitGate")]
+#[test_case(Operation::from(PragmaActiveReset::new(0)), "reset q[0];"; "PragmaActiveReset")]
+#[test_case(Operation::from(MeasureQubit::new(0, "ro".to_string(), 0)), "measure q[0] -> ro[0];"; "MeasureQubit")]
+#[test_case(Operation::from(ControlledControlledPauliZ::new(0, 1, 2)), "ccz q[0],q[1],q[2];"; "ControlledControlledPauliZ")]
+#[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(3e-1) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
+#[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
+#[test_case(Operation::from(GateDefinition::new(Circuit::new(), "test_gate".to_owned(), vec![0,1], vec!["theta".to_owned()])), ""; "GateDefinition")]
+#[test_case(Operation::from(CallDefinedGate::new("gate_name".to_owned(), vec![0, 1], vec![CalculatorFloat::FRAC_PI_2])), "gate_name(1.5707963267948966e0) q[0],q[1];"; "CallDefinedGate")]
+#[test_case(Operation::from(SqrtPauliY::new(0)), "sy q[0];"; "SqrtPauliY")]
+#[test_case(Operation::from(InvSqrtPauliY::new(0)), "sydg q[0];"; "InvSqrtPauliY")]
+#[test_case(Operation::from(EchoCrossResonance::new(0, 1)), "ecr q[0],q[1];"; "EchoCrossResonance")]
+#[test_case(Operation::from(InputSymbolic::new("other".to_string(), 0.0)), "input float other;"; "InputSymbolic")]
+#[test_case(Operation::from(PragmaStopDecompositionBlock::new(vec![0,1])), ""; "PragmaStopDecompositionBlock")]
+#[test_case(Operation::from(PragmaStopParallelBlock::new(vec![], CalculatorFloat::from(0.0))), ""; "PragmaStopParallelBlock")]
+#[test_case(Operation::from(PragmaSetNumberOfMeasurements::new(20, "ro".to_string())), ""; "PragmaSetNumberOfMeasurements")]
+#[test_case(Operation::from(PragmaStartDecompositionBlock::new(vec![0,1], HashMap::new())), ""; "PragmaStartDecompositionBlock")]
+#[test_case(Operation::from(PragmaGetDensityMatrix::new("test".into(), None)), ""; "PragmaGetDensityMatrix")]
+#[test_case(Operation::from(PragmaGetOccupationProbability::new("test".into(), None)), ""; "PragmaGetOccupationProbability")]
+#[test_case(Operation::from(PragmaGetPauliProduct::new(HashMap::new(), "test".into(), Circuit::new())), ""; "PragmaGetPauliProduct")]
+#[test_case(Operation::from(PragmaGetStateVector::new("test".into(), None)), ""; "PragmaGetStateVector")]
+#[test_case(Operation::from(PragmaRepeatedMeasurement::new("ro".to_string(), 1, None)), "measure q -> ro;"; "PragmaRepeatedMeasurement")]
+#[test_case(Operation::from(CNOT::new(0, 1)), "cnot q[0],q[1];"; "CNOT")]
+#[test_case(Operation::from(ControlledPhaseShift::new(0, 1, CalculatorFloat::from(PI/4.0))), "cphaseshift(7.853981633974483e-1) q[0],q[1];"; "ControlledPhaseShift")]
+#[test_case(Operation::from(MolmerSorensenXX::new(0, 1)), "xx(pi/2) q[0],q[1];"; "MolmerSorensenXX")]
+#[test_case(Operation::from(VariableMSXX::new(0, 1, CalculatorFloat::from(PI/2.0))), "xx(1.5707963267948966e0) q[0],q[1];"; "VariableMSXX")]
+#[test_case(Operation::from(SqrtPauliX::new(0)), "v q[0];"; "SqrtPauliX")]
+#[test_case(Operation::from(PhaseShiftState1::new(0, CalculatorFloat::from(PI))), "phaseshift(3.141592653589793e0) q[0];"; "PhaseShiftState1")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, true)), "float[1] ro;"; "DefinitionFloat output")]
+#[test_case(Operation::from(DefinitionFloat::new("ro".to_string(), 1, false)), "float[1] ro;"; "DefinitionFloat")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, true)), "uint[1] ro;"; "DefinitionUsize output")]
+#[test_case(Operation::from(DefinitionUsize::new("ro".to_string(), 1, false)), "uint[1] ro;"; "DefinitionUsize")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, true)),  "bit[1] ro;"; "DefinitionBit output")]
+#[test_case(Operation::from(DefinitionBit::new("ro".to_string(), 1, false)),  "bit[1] ro;"; "DefinitionBit")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, true)),"float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex output")]
+#[test_case(Operation::from(DefinitionComplex::new("ro".to_string(), 1, false)),  "float[1] ro_re;\nfloat[1] ro_im;"; "DefinitionComplex")]
+#[test_case(Operation::from(PragmaGlobalPhase::new(CalculatorFloat::from(1.0))),  ""; "PragmaGlobalPhase")]
 #[test_case(Operation::from(GPi::new(0, CalculatorFloat::PI)), "gpi(3.141592653589793e0) q[0];"; "GPi")]
 #[test_case(Operation::from(GPi2::new(0, CalculatorFloat::PI)), "gpi2(3.141592653589793e0) q[0];"; "GPi2")]
-fn test_call_operation_error_2_3_braket_dialect(operation: Operation, converted_3: &str) {
-    let error = RoqoqoBackendError::OperationNotInBackend {
-        backend: "QASM",
-        hqslang: operation.hqslang(),
-    };
-
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap_err()
-        .to_string(),
-        error.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
-            &mut None
-        )
-        .unwrap_err()
-        .to_string(),
-        error.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap_err()
-        .to_string(),
-        error.to_string()
-    );
+#[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "other[0] = false;"; "InputBit")]
+#[test_case(Operation::from(PragmaDamping::new(0, 0.5.into(), 0.7.into())), "pragma braket noise amplitude_damping(7e-1) q[0];"; "PragmaDamping")]
+#[test_case(Operation::from(PragmaDephasing::new(0, 0.5.into(), 0.7.into())), "pragma braket noise pauli_channel(0e0, 0e0, 3.5e-1) q[0];"; "PragmaDephasing")]
+#[test_case(Operation::from(PragmaDepolarising::new(0, 0.5.into(), 0.7.into())), "pragma braket noise depolarizing(7e-1) q[0];"; "PragmaDepolarising")]
+fn test_call_operation_braket(operation: Operation, converted: &str) {
     assert_eq!(
         call_operation(
             &operation,
@@ -440,37 +432,22 @@ fn test_call_operation_error_2_3_braket_dialect(operation: Operation, converted_
             &mut None
         )
         .unwrap(),
-        converted_3.to_string()
+        converted.to_string()
     );
 }
 
-/// Test that all operations return the correct error: 2.0 vs. 3.0 differences
-#[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "other[0] = false;"; "InputBit")]
-fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
+#[test_case(Operation::from(PragmaBoostNoise::new(1.5.into())); "PragmaBoostNoise")]
+#[test_case(Operation::from(PragmaGeneralNoise::new(0, 1.0.into(), array![[1.5]])); "PragmaGeneralNoise")]
+#[test_case(Operation::from(PragmaOverrotation::new("Hadamard".into(), [0, 1].into(), 0.4, 0.5)); "PragmaOverrotation")]
+#[test_case(Operation::from(PragmaRandomNoise::new(0, 0.4.into(), 0.5.into(), 0.3.into())); "PragmaRandomNoise")]
+#[test_case(Operation::from(PragmaRepeatGate::new(3)); "PragmaRepeatGate")]
+#[test_case(Operation::from(PragmaSetDensityMatrix::new(array![[1.5.into()]])); "PragmaSetDensityMatrix")]
+#[test_case(Operation::from(PragmaSetStateVector::new(array![1.5.into()])); "PragmaSetStateVector")]
+fn test_call_operation_braket_error(operation: Operation) {
     let error = RoqoqoBackendError::OperationNotInBackend {
         backend: "QASM",
         hqslang: operation.hqslang(),
     };
-
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V2point0(Qasm2Dialect::Vanilla),
-            &mut None
-        ),
-        Err(error)
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Vanilla),
-            &mut None
-        )
-        .unwrap(),
-        converted_3.to_string()
-    );
     assert_eq!(
         call_operation(
             &operation,
@@ -478,18 +455,9 @@ fn test_call_operation_error_2_3(operation: Operation, converted_3: &str) {
             QasmVersion::V3point0(Qasm3Dialect::Braket),
             &mut None
         )
-        .unwrap(),
-        converted_3.to_string()
-    );
-    assert_eq!(
-        call_operation(
-            &operation,
-            "q",
-            QasmVersion::V3point0(Qasm3Dialect::Roqoqo),
-            &mut None
-        )
-        .unwrap(),
-        converted_3.to_string()
+        .unwrap_err()
+        .to_string(),
+        error.to_string()
     );
 }
 

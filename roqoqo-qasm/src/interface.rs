@@ -704,6 +704,12 @@ pub fn call_operation(
                 op.gate_time(),
                 op.rate()
             )),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                "pragma braket noise amplitude_damping({}) {}[{}];",
+                op.rate(),
+                qubit_register_name,
+                op.qubit(),
+            )),
             _ => {
                 if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                     Ok("".to_string())
@@ -723,6 +729,12 @@ pub fn call_operation(
                 op.gate_time(),
                 op.rate()
             )),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                "pragma braket noise pauli_channel(0e0, 0e0, {}) {}[{}];",
+                op.rate() * 0.5,
+                qubit_register_name,
+                op.qubit(),
+            )),
             _ => {
                 if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                     Ok("".to_string())
@@ -741,6 +753,12 @@ pub fn call_operation(
                 op.qubit(),
                 op.gate_time(),
                 op.rate()
+            )),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                "pragma braket noise depolarizing({}) {}[{}];",
+                op.rate(),
+                qubit_register_name,
+                op.qubit(),
             )),
             _ => {
                 if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
@@ -1233,7 +1251,7 @@ pub fn call_operation(
                 .join(","),
             op.qubits()
                 .iter()
-                .map(|qubit| format!("{}[{}]", qubit_register_name, qubit))
+                .map(|qubit| format!("{qubit_register_name}[{qubit}]"))
                 .collect::<Vec<String>>()
                 .join(",")
         )),
@@ -1420,7 +1438,7 @@ pub fn gate_definition(
                 gate_definition
                     .qubits()
                     .iter()
-                    .map(|&qubit| format!("qb_{}", qubit).to_owned())
+                    .map(|&qubit| format!("qb_{qubit}").to_owned())
                     .collect::<Vec<String>>()
                     .join(",")
             );
@@ -1437,7 +1455,7 @@ pub fn gate_definition(
             definition_str.push('}');
             for qubit in gate_definition.qubits().iter() {
                 definition_str = definition_str
-                    .replace(&format!("replace_me[{}]", qubit), &format!("qb_{}", qubit));
+                    .replace(&format!("replace_me[{qubit}]"), &format!("qb_{qubit}"));
             }
             Ok(definition_str)
         }

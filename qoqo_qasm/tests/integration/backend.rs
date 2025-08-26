@@ -36,14 +36,12 @@ use test_case::test_case;
 
 // helper functions
 fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrapper> {
-    let circuit_type = py.get_type_bound::<CircuitWrapper>();
+    let circuit_type = py.get_type::<CircuitWrapper>();
     let binding = circuit_type.call0().unwrap();
     let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
     for op in circuit {
-        let new_op = convert_operation_to_pyobject(op).unwrap();
-        circuitpy
-            .call_method1("add", (new_op.clone_ref(py),))
-            .unwrap();
+        let new_op = convert_operation_to_pyobject(op, py).unwrap();
+        circuitpy.call_method1("add", (new_op.clone(),)).unwrap();
     }
     circuitpy.to_owned()
 }
@@ -53,7 +51,7 @@ fn new_qasmbackend(
     qubit_register_name: Option<String>,
     qasm_version: Option<String>,
 ) -> Bound<QasmBackendWrapper> {
-    let backend_type = py.get_type_bound::<QasmBackendWrapper>();
+    let backend_type = py.get_type::<QasmBackendWrapper>();
     backend_type
         .call1((qubit_register_name, qasm_version))
         .unwrap()
