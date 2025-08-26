@@ -704,6 +704,11 @@ pub fn call_operation(
                 op.gate_time(),
                 op.rate()
             )),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                "pragma braket noise amplitude_damping({}) {};",
+                op.rate(),
+                op.qubit(),
+            )),
             _ => {
                 if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                     Ok("".to_string())
@@ -723,6 +728,11 @@ pub fn call_operation(
                 op.gate_time(),
                 op.rate()
             )),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                "pragma braket noise pauli_channel(0e0, 0e0, {}) {};",
+                op.rate() * 0.5,
+                op.qubit(),
+            )),
             _ => {
                 if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {
                     Ok("".to_string())
@@ -741,6 +751,11 @@ pub fn call_operation(
                 op.qubit(),
                 op.gate_time(),
                 op.rate()
+            )),
+            QasmVersion::V3point0(Qasm3Dialect::Braket) => Ok(format!(
+                "pragma braket noise depolarizing({}) {};",
+                op.rate(),
+                op.qubit(),
             )),
             _ => {
                 if ALLOWED_OPERATIONS.contains(&operation.hqslang()) {

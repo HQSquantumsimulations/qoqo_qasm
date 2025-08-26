@@ -6,9 +6,13 @@ This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
 ### Added in 0.15.0
 
-* Updated to qoqo 1.19
-* Updated to Pyo3 0.23
-* Updated to qoqo_calculator 1.5
+* Added support for PragmaDephasing, PragmaDamping and PragmaDepolarising for the 3.0Braket dialect.
+
+### Updated in 0.15.0
+
+* Updated to qoqo 1.21
+* Updated to Pyo3 0.25
+* Updated to qoqo_calculator 1.7
 
 ## 0.14.0
 
