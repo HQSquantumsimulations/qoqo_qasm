@@ -460,7 +460,7 @@ pub fn file_to_circuit(file: File) -> Result<Circuit, RoqoqoBackendError> {
         .collect::<String>();
 
     parse_qasm_file(&unparsed_file).map_err(|x| RoqoqoBackendError::GenericError {
-        msg: format!("Error during conversion: {}", x),
+        msg: format!("Error during conversion: {x}"),
     })
 }
 
@@ -477,7 +477,7 @@ pub fn file_to_circuit(file: File) -> Result<Circuit, RoqoqoBackendError> {
 pub fn string_to_circuit(input: &str) -> Result<Circuit, RoqoqoBackendError> {
     let with_newline = input.to_owned() + "\n";
     parse_qasm_file(&with_newline).map_err(|x| RoqoqoBackendError::GenericError {
-        msg: format!("Error during conversion: {}", x),
+        msg: format!("Error during conversion: {x}"),
     })
 }
 
