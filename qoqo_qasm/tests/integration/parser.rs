@@ -21,14 +21,12 @@ use qoqo_qasm::qasm_file_to_circuit;
 
 // helper functions
 fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrapper> {
-    let circuit_type = py.get_type_bound::<CircuitWrapper>();
+    let circuit_type = py.get_type::<CircuitWrapper>();
     let binding = circuit_type.call0().unwrap();
     let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
     for op in circuit {
-        let new_op = convert_operation_to_pyobject(op).unwrap();
-        circuitpy
-            .call_method1("add", (new_op.clone_ref(py),))
-            .unwrap();
+        let new_op = convert_operation_to_pyobject(op, py).unwrap();
+        circuitpy.call_method1("add", (new_op.clone(),)).unwrap();
     }
     circuitpy.to_owned()
 }
