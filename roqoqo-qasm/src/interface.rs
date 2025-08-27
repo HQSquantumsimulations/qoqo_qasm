@@ -39,7 +39,7 @@ pub(crate) const ALLOWED_OPERATIONS: &[&str; 12] = &[
 ];
 
 // Operations that are ignored when looking for a QASM definition
-pub(crate) const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 12] = &[
+pub(crate) const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 15] = &[
     "SingleQubitGate",
     "DefinitionFloat",
     "DefinitionUsize",
@@ -49,6 +49,9 @@ pub(crate) const NO_DEFINITION_REQUIRED_OPERATIONS: &[&str; 12] = &[
     "PragmaConditional",
     "PragmaGlobalPhase",
     "PragmaRepeatedMeasurement",
+    "PragmaDamping",
+    "PragmaDephasing",
+    "PragmaDepolarising",
     "MeasureQubit",
     "PragmaLoop",
     "CallDefinedGate",
