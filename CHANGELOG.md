@@ -6,6 +6,12 @@ This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
 ### Fixed in 0.15.1
 
+* Fixed the handling of pi in the parsing of custom gates.
+
+## 0.15.1
+
+### Fixed in 0.15.1
+
 * Added missing NO_DEFINITION_REQUIRED_OPERATIONS for PragmaDephasing, PragmaDamping and PragmaDepolarising.
 
 ## 0.15.0

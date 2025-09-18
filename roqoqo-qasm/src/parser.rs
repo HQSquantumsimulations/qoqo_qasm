@@ -391,7 +391,13 @@ fn parse_qasm_file(file: &str) -> Result<Circuit, Box<Error<Rule>>> {
                                                 .next()
                                                 .unwrap()
                                                 .into_inner()
-                                                .map(|param| param.as_str().to_owned())
+                                                .map(|param| {
+                                                    let param_str = param
+                                                        .as_str()
+                                                        .replace("pi/2", "1.5707963267948966")
+                                                        .replace("pi", "3.141592653589793");
+                                                    param_str.to_string()
+                                                })
                                                 .collect();
                                         }
                                         Rule::qubit_list_def => {

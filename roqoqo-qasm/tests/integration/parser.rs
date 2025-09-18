@@ -169,7 +169,10 @@ fn test_gate_definitions() {
     let mut circuit_gate = Circuit::new();
     circuit_gate.add_operation(Hadamard::new(0));
     circuit_gate.add_operation(RotateX::new(1, CalculatorFloat::from("theta")));
-    circuit_gate.add_operation(RotateX::new(0, CalculatorFloat::from("phi*pi/2")));
+    circuit_gate.add_operation(RotateX::new(
+        0,
+        CalculatorFloat::from("phi*1.5707963267948966"),
+    ));
     let mut circuit_qoqo = Circuit::new();
     circuit_qoqo.add_operation(GateDefinition::new(
         circuit_gate,
