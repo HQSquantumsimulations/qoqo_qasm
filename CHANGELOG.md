@@ -2,9 +2,9 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
-## 0.15.1
+## 0.15.2
 
-### Fixed in 0.15.1
+### Fixed in 0.15.2
 
 * Fixed the handling of pi in the parsing of custom gates.
 
