@@ -2,6 +2,10 @@
 
 This changelog track changes to the qoqo qasm project starting at version 0.5.0
 
+## Unreleased
+
+* Updated minimum supported Python version from 3.9 to 3.10.
+
 ## 0.15.2
 
 ### Fixed in 0.15.2
