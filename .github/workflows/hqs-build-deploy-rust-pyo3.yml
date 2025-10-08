@@ -51,6 +51,7 @@ jobs:
       # Try to build python wheels with universal2 for arm and x86
       universal2: true
       deploy: true
+      python_3_14: false
     secrets: inherit
 
 # Build windows wheels and upload them to PyPi
