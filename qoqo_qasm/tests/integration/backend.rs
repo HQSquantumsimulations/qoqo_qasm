@@ -38,7 +38,7 @@ use test_case::test_case;
 fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrapper> {
     let circuit_type = py.get_type::<CircuitWrapper>();
     let binding = circuit_type.call0().unwrap();
-    let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
+    let circuitpy = binding.cast::<CircuitWrapper>().unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op, py).unwrap();
         circuitpy.call_method1("add", (new_op.clone(),)).unwrap();
@@ -55,7 +55,7 @@ fn new_qasmbackend(
     backend_type
         .call1((qubit_register_name, qasm_version))
         .unwrap()
-        .downcast::<QasmBackendWrapper>()
+        .cast::<QasmBackendWrapper>()
         .unwrap()
         .to_owned()
 }
@@ -70,8 +70,8 @@ fn test_circuit_to_qasm_str(qasm_version: &str, qubits: &str, bits: &str) {
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
 
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let backendpy = new_qasmbackend(py, None, Some(qasm_version.to_string()));
         let circuitpy = circuitpy_from_circuitru(py, circuit);
 
@@ -100,8 +100,8 @@ fn test_circuit_to_qasm_file(qasm_version: &str, qubits: &str, bits: &str) {
     circuit += PauliX::new(1);
     circuit += PragmaRepeatedMeasurement::new("ro".to_string(), 20, None);
 
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let backendpy = new_qasmbackend(py, Some("qr".to_string()), Some(qasm_version.to_string()));
         let circuitpy = circuitpy_from_circuitru(py, circuit);
 
@@ -170,8 +170,8 @@ fn test_circuit_to_qasm_error(operation: Operation, qasm_version: &str) {
     let mut wrong_circuit = Circuit::new();
     wrong_circuit += operation.clone();
 
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let wrongcircuitpy = circuitpy_from_circuitru(py, wrong_circuit.clone());
 
         let backendpy = new_qasmbackend(py, None, Some(qasm_version.to_string()));
@@ -251,8 +251,8 @@ fn test_parsing_methods() {
         .map(|line| line.unwrap() + "\n")
         .collect::<String>();
 
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let backend = new_qasmbackend(py, None, None);
         let result = backend.call_method1("qasm_file_to_circuit", (path.to_str().unwrap(),));
         assert!(result.is_ok());

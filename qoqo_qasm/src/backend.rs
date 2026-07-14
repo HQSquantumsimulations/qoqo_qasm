@@ -29,7 +29,7 @@ use roqoqo_qasm::Backend;
 /// function calls the QASM interface and writes the QASM file, which is saved to be used by the
 /// user on whatever platform they see fit. QASM input is widely supported on various quantum
 /// computing platforms.
-#[pyclass(name = "QasmBackend", module = "qoqo_qasm")]
+#[pyclass(from_py_object, name = "QasmBackend", module = "qoqo_qasm")]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct QasmBackendWrapper {
     /// Internal storage of [roqoqo_qasm::Backend]

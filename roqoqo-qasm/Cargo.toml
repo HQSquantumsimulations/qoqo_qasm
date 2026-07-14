@@ -1,6 +1,6 @@
 [package]
 name = "roqoqo-qasm"
-version = "0.15.3"
+version = "0.16.0"
 authors = ["HQS Quantum Simulations <info@quantumsimulations.de>"]
 license = "Apache-2.0"
 edition = "2021"
@@ -19,12 +19,12 @@ doctest = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-roqoqo = { version = "~1.21", features = [
+roqoqo = { version = "~1.22", features = [
     "serialize",
     "unstable_operation_definition",
 ] }
-qoqo_calculator = { version = "~1.7" }
-ndarray = "0.16"
+qoqo_calculator = { version = "~1.9" }
+ndarray = "0.17"
 pest = "2.5"
 pest_derive = "2.5"
 num-complex = "0.4"

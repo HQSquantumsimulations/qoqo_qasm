@@ -23,7 +23,7 @@ use qoqo_qasm::qasm_file_to_circuit;
 fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrapper> {
     let circuit_type = py.get_type::<CircuitWrapper>();
     let binding = circuit_type.call0().unwrap();
-    let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
+    let circuitpy = binding.cast::<CircuitWrapper>().unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op, py).unwrap();
         circuitpy.call_method1("add", (new_op.clone(),)).unwrap();
@@ -48,8 +48,8 @@ fn test_qasm_file_to_circuit_correct() {
     circuit_qoqo += CNOT::new(0, 1);
     circuit_qoqo += MeasureQubit::new(0, "c".into(), 0);
 
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let circuitpy = circuitpy_from_circuitru(py, circuit_qoqo);
         let circuit_wrapper = circuitpy.extract::<CircuitWrapper>().unwrap();
 
@@ -60,8 +60,8 @@ fn test_qasm_file_to_circuit_correct() {
 /// Test file error
 #[test]
 fn test_qasm_file_to_circuit_file_error() {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let result = qasm_file_to_circuit("test");
         assert!(result.is_err());
         assert!(result

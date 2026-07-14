@@ -40,7 +40,7 @@ use test_case::test_case;
 fn circuitpy_from_circuitru(py: Python, circuit: Circuit) -> Bound<CircuitWrapper> {
     let circuit_type = py.get_type::<CircuitWrapper>();
     let binding = circuit_type.call0().unwrap();
-    let circuitpy = binding.downcast::<CircuitWrapper>().unwrap();
+    let circuitpy = binding.cast::<CircuitWrapper>().unwrap();
     for op in circuit {
         let new_op = convert_operation_to_pyobject(op, py).unwrap();
         circuitpy.call_method1("add", (new_op.clone(),)).unwrap();
@@ -57,8 +57,8 @@ fn test_qasm_call_circuit(qasm_version: &str, _qubits: &str, bits: &str) {
     circuit += PauliX::new(0);
     circuit += MeasureQubit::new(0, "ro".to_string(), 0);
 
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let circuitpy = circuitpy_from_circuitru(py, circuit);
 
         let qasm_circ: Vec<String> = vec![
@@ -114,8 +114,8 @@ fn test_qasm_call_circuit(qasm_version: &str, _qubits: &str, bits: &str) {
 #[test_case(Operation::from(ControlledControlledPhaseShift::new(0, 1, 2, 0.3.into())), "ccp(3e-1) q[0],q[1],q[2];"; "ControlledControlledPhaseShift")]
 #[test_case(Operation::from(Toffoli::new(0, 1, 2)), "ccx q[0],q[1],q[2];"; "Toffoli")]
 fn test_qasm_call_operation_identical_2_3(operation: Operation, converted: &str) {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let new_op = convert_operation_to_pyobject(operation, py).unwrap();
         assert_eq!(
             qasm_call_operation(&new_op, "q", "2.0").unwrap(),
@@ -142,8 +142,8 @@ fn test_qasm_call_operation_different_2_3(
     converted_2: &str,
     converted_3: &str,
 ) {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let new_op = convert_operation_to_pyobject(operation, py).unwrap();
         assert_eq!(
             qasm_call_operation(&new_op, "q", "2.0").unwrap(),
@@ -162,8 +162,8 @@ fn test_qasm_call_operation_different_braket(
     converted_2: &str,
     converted_3: &str,
 ) {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let new_op = convert_operation_to_pyobject(operation, py).unwrap();
         assert_eq!(
             qasm_call_operation(&new_op, "q", "2.0").unwrap(),
@@ -186,8 +186,8 @@ fn test_qasm_call_operation_different_braket(
 
 #[test_case(Operation::from(InputBit::new("other".to_string(), 0, false)), "other[0] = false;"; "InputBit")]
 fn test_qasm_call_operation_error_2_3(operation: Operation, converted_3: &str) {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let new_op = convert_operation_to_pyobject(operation, py).unwrap();
         assert!(qasm_call_operation(&new_op, "q", "2.0").is_err());
         assert_eq!(
@@ -211,8 +211,8 @@ fn test_call_operation_different_2_roqoqo_3(
     converted_2: &str,
     converted_3: &str,
 ) {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let new_op = convert_operation_to_pyobject(operation, py).unwrap();
         assert_eq!(
             qasm_call_operation(&new_op, "q", "2.0").unwrap(),
@@ -242,8 +242,8 @@ fn test_call_operation_error_different_all(
     converted_3_braket: &str,
     converted_2: &str,
 ) {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let new_op = convert_operation_to_pyobject(operation.clone(), py).unwrap();
 
         assert_eq!(
@@ -274,8 +274,8 @@ fn test_call_operation_error_different_all(
 #[test_case(Operation::from(PragmaSetDensityMatrix::new(array![[1.5.into()]])), "pragma roqoqo PragmaSetDensityMatrix [[1.5+0i]];"; "PragmaSetDensityMatrix")]
 #[test_case(Operation::from(PragmaSetStateVector::new(array![1.5.into()])), "pragma roqoqo PragmaSetStateVector [1.5+0i];"; "PragmaSetStateVector")]
 fn test_call_operation_error_2_roqoqo_3(operation: Operation, converted_3: &str) {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let new_op = convert_operation_to_pyobject(operation, py).unwrap();
         assert!(qasm_call_operation(&new_op, "q", "2.0").is_err());
         assert!(qasm_call_operation(&new_op, "q", "3.0").is_err());
@@ -291,8 +291,8 @@ fn test_call_operation_error_2_roqoqo_3(operation: Operation, converted_3: &str)
 #[test_case(Operation::from(PragmaDephasing::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDephasing 0 1e0 1.5e0;", "pragma braket noise pauli_channel(0e0, 0e0, 7.5e-1) q[0];"; "PragmaDephasing")]
 #[test_case(Operation::from(PragmaDepolarising::new(0, 1.0.into(), 1.5.into())), "pragma roqoqo PragmaDepolarising 0 1e0 1.5e0;", "pragma braket noise depolarizing(1.5e0) q[0];"; "PragmaDepolarising")]
 fn test_call_operation_braket_3(operation: Operation, converted_3: &str, converted_3_braket: &str) {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let new_op = convert_operation_to_pyobject(operation, py).unwrap();
         assert!(qasm_call_operation(&new_op, "q", "2.0").is_err());
         assert!(qasm_call_operation(&new_op, "q", "3.0").is_err());
@@ -352,8 +352,8 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
     let mut wrong_circuit = Circuit::new();
     wrong_circuit += operation.clone();
 
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let dict = &PyDict::new(py);
         let wrongcircuitpy = circuitpy_from_circuitru(py, wrong_circuit.clone());
         let wrongoperationpy = convert_operation_to_pyobject(operation.clone(), py).unwrap();
@@ -440,8 +440,8 @@ fn test_qasm_call_error(operation: Operation, qasm_version: &str) {
 #[test_case(Operation::from(PauliY::new(0)), "gate y a { u3(pi,pi/2,pi/2) a; }"; "PauliY")]
 #[test_case(Operation::from(PauliZ::new(0)), "gate z a { u1(pi) a; }"; "PauliZ")]
 fn test_qasm_gate_definition(operation: Operation, converted: &str) {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::initialize();
+    Python::attach(|py| {
         let new_op = convert_operation_to_pyobject(operation, py).unwrap();
         assert_eq!(
             qasm_gate_definition(&new_op, "2.0").unwrap(),
